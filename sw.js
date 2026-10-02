@@ -15,6 +15,9 @@ self.addEventListener('fetch', e => {
   if (pack || /fonts\.(googleapis|gstatic)\.com$/.test(u.hostname) || (same && /\.(png|webmanifest)$/.test(u.pathname))) {
     e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => { put(req, res.clone()); return res; })));
   } else if (same) {
-    e.respondWith(fetch(req).then(res => { put(req, res.clone()); return res; }).catch(() => caches.match(req).then(hit => hit || caches.match('./'))));
+    e.respondWith(fetch(req).then(async res => {
+      if (res.redirected) res = new Response(await res.blob(), { status: res.status, statusText: res.statusText, headers: res.headers });
+      put(req, res.clone()); return res;
+    }).catch(() => caches.match(req).then(hit => hit || caches.match('./')).then(hit => hit || new Response('离线，且还没有缓存。请联网后再打开一次。', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } }))));
   }
 });
