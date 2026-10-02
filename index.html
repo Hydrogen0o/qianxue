@@ -1384,6 +1384,30 @@ html:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidde
 .slf.flee{transition:transform .35s}
 .slb{border:none;border-radius:16px;background:#f5c542;color:#2a2000;font-size:21px;font-weight:800;padding:16px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .slb:active{transform:scale(.97)}
+.scbox{position:relative;border-radius:16px;overflow:hidden;background:linear-gradient(#1b8196,#0b4254 62%,#082c38);touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.spr{position:absolute;left:0;top:0;will-change:transform;transform-origin:50% 50%}
+.spr svg{width:100%;height:100%;display:block;overflow:visible;pointer-events:none}
+.spr.dec{pointer-events:none}
+.spr.sgrab{cursor:grab}
+.spr .mh,.spr .ms,.spr .mo,.spr .ma,.spr .spk{display:none}
+.spr.m-happy .mh,.spr.m-sad .ms,.spr.m-open .mo,.spr.m-angry .ma,.spr.m-angry .ms,.spr.puff .spk{display:inline}
+.spr.m-open .mc,.spr.m-open .mh{display:none}
+.spr.m-sad svg{filter:saturate(.55) brightness(.85)}
+.spr.homey svg{animation:spwig 1.1s ease-in-out infinite}
+@keyframes spwig{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg) translateY(-3px)}}
+.spr .lure{animation:splure 1.2s ease-in-out infinite;transform-origin:62px 18px;transform-box:view-box}
+@keyframes splure{50%{transform:rotate(16deg)}}
+.par{transition:opacity .25s}.par.off{opacity:0}
+.scsand{position:absolute;left:-10%;right:-10%;bottom:0;height:44px;background:#cdb98a;border-radius:50% 50% 0 0/16px}
+.schole{position:absolute;bottom:22px;width:52px;height:16px;border-radius:50%;background:#6b5a36}
+.scsurf{position:absolute;left:0;right:0;top:0;height:30px;background:linear-gradient(#bfeaf2,rgba(120,210,225,.25) 60%,transparent)}
+.scbar{position:absolute;left:12px;top:38px;width:120px;height:14px;border-radius:7px;background:rgba(0,0,0,.45);overflow:hidden;z-index:4}
+.scbar i{display:block;height:100%;background:#4fd39a}
+.scsay{position:absolute;max-width:150px;background:#fff;color:#122;font-size:13.5px;font-weight:700;line-height:1.35;padding:6px 10px;border-radius:12px;z-index:6;pointer-events:none;animation:ppop .2s ease-out}
+.scring{position:absolute;width:72px;height:72px;border-radius:50%;border:4px solid #f5c542;box-shadow:0 0 16px #f5c542,inset 0 0 12px rgba(245,197,66,.5);animation:scring 1s ease-in-out infinite;pointer-events:none}
+@keyframes scring{50%{transform:scale(1.12)}}
+.scgoal{font-size:18px;font-weight:800;text-align:center;margin:0;color:#f5c542}
+.gm.done .scgoal{color:#4fd39a}
 </style>
 <style>html,body{background:#071a20}</style>
 </head>
@@ -3185,22 +3209,22 @@ const QKS=[
 ];
 const QKART={nemo:'A11',bfly:'A11',wrasse:'F2',camo:'F5',eel:'F4',school:'F6',fish:'F4',shark:'F3',turtle:'R1',whale:'K1',ceph:'M2',nudi:'M1',crust:'X2',star:'E1',coral:'C1'};
 const QKEASY={"nemo":["小丑鱼住在海葵里，海葵就是它的家。雀鲷是它的亲戚，喜欢成群待在珊瑚旁边。",["个子小，和手掌差不多大，或者更小","小丑鱼是橙色的，身上有白色条纹","总在同一个地方游来游去，不走远"],"找到海葵，往里面看，常常就有小丑鱼。"],"bfly":["蝴蝶鱼和神仙鱼是珊瑚礁上最漂亮的鱼，颜色很鲜艳。",["身体扁扁的，像一个盘子","蝴蝶鱼嘴巴尖尖的，常常两条一起游","神仙鱼个子大一些，花纹更华丽"],"在珊瑚多的地方慢慢游，很容易看到。"],"wrasse":["隆头鱼用身体两边的小鳍划水，像在水里飞。鹦嘴鱼的嘴像鹦鹉的嘴，会啃珊瑚上的藻。",["鹦嘴鱼的嘴又硬又大，像鸟嘴","游的时候，两边的鳍一扇一扇","颜色常常是蓝色、绿色，很鲜艳"],"白天在珊瑚礁上到处都是。仔细听，能听到鹦嘴鱼啃东西的咔咔声。"],"camo":["有些鱼不爱游泳。它们装成石头、海绵或海草，一动不动。",["看起来像石头或海绵，其实有眼睛","海马的头像马，尾巴会卷起来","它们几乎不动，要慢慢找"],"盯着礁石和海扇慢慢看。有的背上有毒刺，只看，不要摸。"],"eel":["海鳝身体长长的，像蛇，白天躲在洞里只露出头。河鲀圆滚滚的，受到惊吓会鼓成一个球。",["海鳝：洞里伸出一个头，嘴一张一合","它张嘴是在呼吸，不是要咬人","河鲀：圆圆胖胖，游得慢"],"看礁石的洞和缝。不要把手伸进洞里。"],"school":["有些鱼喜欢成百上千条一起游，像一团会动的云。",["很多条鱼挤在一起，朝同一个方向","身体多半是银色的，会反光","一起转弯，像一个整体"],"在礁石外面的蓝色水里，抬头往远处看。"],"fish":["珊瑚礁上还有很多别的鱼，比如石斑鱼、刺尾鱼和虾虎鱼。",["石斑鱼：大嘴巴，胖身体，爱待在礁石旁","刺尾鱼：身体扁，尾巴前面有一根小刺","虾虎鱼：很小，趴在沙地或珊瑚上"],"游慢一点，礁石上上下下都看一看。"],"shark":["鲨鱼和魟鱼的骨头是软的，和我们耳朵里的软骨一样。大多数鲨鱼怕人，不会主动靠近。",["鲨鱼：背上有尖尖的鳍，尾巴左右摆","魟鱼：身体扁扁的像一张饼，有长尾巴","蝠鲼：像一只大鸟在水里飞"],"魟鱼常趴在沙地上，鲨鱼多在礁石外面游。远远地看，不要追。"],"turtle":["海龟和海蛇都是爬行动物。它们不能在水里呼吸，要游到水面换气。",["海龟：背上有硬壳，四只脚像船桨","绿海龟的头圆圆的，玳瑁的嘴尖尖的像鹰","海蛇：身上一圈黑一圈白，尾巴扁扁的"],"海龟常在海草和珊瑚旁边吃东西。海蛇有毒，但很少咬人，不要碰它。"],"whale":["鲸和海豚不是鱼。它们和我们一样用肺呼吸，生小宝宝，小宝宝喝妈妈的奶。",["尾巴是横的，上下摆动；鱼的尾巴是竖的","头顶有呼吸孔，会喷气","海豚常常一群一起跳出水面"],"多半坐在船上看。水面有喷气或背鳍，就是它们。"],"ceph":["章鱼、乌贼和鱿鱼没有骨头。它们很聪明，还会变颜色。",["章鱼：八条手臂，圆圆的头，爱躲在洞里","乌贼：身体宽宽的，周围有一圈裙边","鱿鱼：身体细长，常常几只排成一排"],"章鱼藏在礁石洞里，洞口常有一堆小贝壳。"],"nudi":["海蛞蝓是没有壳的海螺。它们个子很小，颜色特别鲜艳。",["像一条彩色的小虫子，慢慢爬","头上有两根小触角","背上常有一朵像花一样的鳃"],"贴近礁石慢慢找。它们常常只有一根手指那么长。"],"crust":["虾和蟹穿着硬硬的壳，像盔甲。长大的时候，要把旧壳脱掉。",["虾：身体长，有长长的触须","蟹：身体扁圆，横着走，有两只大钳子","寄居蟹：背着别人的螺壳当房子"],"看礁石的缝，还有海葵和海参旁边。晚上它们出来得更多。"],"star":["海星、海胆和海参是一家人。它们的身体像花一样，从中间向四周长。",["海星：多半有五条手臂","海胆：一个圆球，全身是刺","海参：像一根软软的黄瓜，趴在沙上"],"沙地和礁石上都有。海胆的刺会扎人，不要踩，也不要摸。"],"coral":["珊瑚看起来像石头或植物，其实是很多很小的动物住在一起。",["硬珊瑚：硬硬的，像树枝、像桌子、像大脑","软珊瑚：软软的，会随着水摆动","水母：透明的，像一把小伞在水里漂"],"珊瑚到处都是。它们很脆弱，碰一下就可能受伤，所以不要摸，也不要踩。"]};
-const PBASIC=[["h","先看外形"],["p","认生物的第一步，先不看颜色，看它长什么样子。"],["show","Chaetodon auriga","扁扁的，像一个盘子"],["show","Rhinomuraena quaesita","长长的，像一条带子"],["show","Taeniura lymma","平平的，像一张饼"],["show","Arothron nigropunctatus","圆滚滚的，像一个球"],["p","拼一条扁扁的鱼，看清它的样子。"],["jig","Chaetodon auriga"],["h","再看颜色和花纹"],["p","外形看好了，再看它身上有什么：条纹，还是斑点？"],["show","Amphiprion ocellaris","橙色身体，三条白色条纹"],["show","Laticauda colubrina","一圈黑，一圈白"],["p","下面这一位，身上满是白点。把它照出来。"],["torch","Rhincodon typus"],["p","小心：有些鱼小时候和长大以后，颜色完全不一样。所以先看外形，再看颜色。"],["h","看它住在哪里"],["p","每种生物都有自己喜欢待的地方。知道它住哪里，就更容易找到它。"],["home",[["Amphiprion ocellaris",0],["Heteroconger hassi",1],["Caranx sexfasciatus",2],["Hippocampus bargibanti",3]],["海葵里","沙地洞里","蓝水里","海扇上"]],["h","看它在做什么"],["p","最后看动作。它是一个人，还是一大群？在游，还是一动不动？"],["show","Antennarius commerson","一动不动，装成一块海绵"],["show","Labroides dimidiatus","给别的鱼“洗澡”，吃掉它们身上的小虫"],["show","Caranx sexfasciatus","很多条一起游，像一团云"],["catch","Caranx sexfasciatus",["Chelonia mydas","Labroides dimidiatus","Antennarius commerson"]],["h","水下三件事"],["p","看海里的生物，记住三件事：不摸，不追，不喂。"],["p","不摸：有的很脆弱，有的有毒。"],["p","不追：你一追，它就害怕，游走了。试试看，不动会怎样。"],["still","Chelonia mydas"],["p","不喂：它们自己会找吃的。"],["h","翻翻乐"],["p","最后玩一局，把今天的朋友再找出来。"],["mem",["Amphiprion ocellaris","Rhincodon typus","Chelonia mydas","Taeniura lymma"]]];
+const PBASIC=[["h","先看外形"],["p","认生物的第一步，先不看颜色，看它长什么样子。"],["show","Chaetodon auriga","扁扁的，像一个盘子"],["show","Rhinomuraena quaesita","长长的，像一条带子"],["show","Taeniura lymma","平平的，像一张饼"],["show","Arothron nigropunctatus","圆滚滚的，像一个球"],["p","圆滚滚的河鲀还有一招。去碰碰它。"],["sc","react"],["h","再看颜色和花纹"],["p","外形看好了，再看它身上有什么：条纹，还是斑点？"],["show","Amphiprion ocellaris","橙色身体，三条白色条纹"],["show","Rhincodon typus","深色身体，满身白点"],["show","Laticauda colubrina","一圈黑，一圈白"],["p","小心：有些鱼小时候和长大以后，颜色完全不一样。所以先看外形，再看颜色。"],["h","看它住在哪里"],["p","每种生物都有自己的家。待错了地方，它会害怕。"],["sc","home"],["h","看它在做什么"],["p","每种鱼都有自己的本事。"],["show","Labroides dimidiatus","裂唇鱼：专门给别的鱼“洗澡”"],["sc","clean"],["show","Antennarius commerson","躄鱼：一动不动，装成海绵"],["sc","ambush"],["show","Caranx sexfasciatus","鲹鱼：很多条一起游"],["sc","school"],["show","Chelonia mydas","海龟：要到水面换气"],["sc","breath"],["h","水下三件事"],["p","看海里的生物，记住三件事：不摸，不追，不喂。"],["p","不摸：有的很脆弱，有的有毒。"],["p","不追：你一追，它就害怕，游走了。试试看，不动会怎样。"],["still","Chelonia mydas"],["p","不喂：它们自己会找吃的。"],["h","翻翻乐"],["p","最后玩一局，把今天的朋友再找出来。"],["mem",["Amphiprion ocellaris","Rhincodon typus","Chelonia mydas","Taeniura lymma"]]];
 /* ---------- 初级：一直往下滑、边滑边玩的课（戳一戳、手电筒、拼图、翻翻乐、捞一捞、送回家、别动） ---------- */
 const pSh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 function playBlocks(id){const ok=k=>BIO[k]&&hasPh('sp-'+slotKey(k));
- if(id==='basic')return PBASIC.map(b=>{const t=b[0];if(t==='show'||t==='jig'||t==='torch'||t==='still')return ok(b[1])?b:null;if(t==='mem'){const L=b[1].filter(ok);return L.length>=3?['mem',L]:null}
+ if(id==='basic')return PBASIC.map(b=>{const t=b[0];if(t==='show'||t==='still')return ok(b[1])?b:null;if(t==='mem'){const L=b[1].filter(ok);return L.length>=3?['mem',L]:null}
   if(t==='catch'){const o=b[2].filter(ok);return ok(b[1])&&o.length?['catch',b[1],o]:null}if(t==='home'){const I=b[1].filter(x=>ok(x[0]));return I.length>=2?['home',I,b[2]]:null}return b}).filter(Boolean);
  const E=QKEASY[id],L=qkList(id).slice(0,8),B=[];if(!L.length)return[['p',E[0]]];
  B.push(['h','它们是谁'],['p',E[0]],['poke',L[0],E[1]]);
- if(L[1]){B.push(['h','夜潜手电筒'],['p','有些朋友，要凑近了才看得清。']);B.push(['torch',L[1]]);if(L[2])B.push(['torch',L[2]])}
- if(L[3])B.push(['h','拼一拼'],['p','拼好了，就记住它的样子了。'],['jig',L[3]]);
- const M=L.length>=8?L.slice(4,8):L.slice(0,4);if(M.length>=3)B.push(['h','翻翻乐'],['p','找到两张一样的，它就告诉你名字。'],['mem',M]);
- if(L.length>=8){B.push(['p','再翻开看看它们各有什么特点。']);L.slice(4,8).forEach(k=>B.push(['flip',k]))}
- B.push(['h','去哪里找'],['p',E[2]]);if(L.length>=3)B.push(['catch',L[0],L.slice(1,4)]);
+ if(QKGAME[id])B.push(['h','玩一玩'],['p',QKGAME[id][1]],['sc',QKGAME[id][0]]);
+ B.push(['h','一个一个认识'],['p','点一下，翻开看看它是谁。']);L.forEach(k=>B.push(['flip',k]));
+ if(L.length>=4)B.push(['h','翻翻乐'],['p','找到两张一样的，它就告诉你名字。'],['mem',L.slice(0,4)]);
+ B.push(['h','去哪里找'],['p',E[2]]);
  return B}
+const QKGAME={nemo:['home','小丑鱼离不开海葵。别的生物也各有各的家。'],wrasse:['clean','隆头鱼里有一位“清洁工”，叫裂唇鱼。'],camo:['ambush','伪装的鱼为什么一动不动？看看躄鱼在等什么。'],school:['school','一大群鱼，是怎么一起转弯的？你来指挥试试。'],turtle:['breath','海龟不能在水里呼吸。'],eel:['react','河鲀和海鳝都有点吓人，其实它们只是在保护自己。']};
 function playPage(meta){const id=meta.id,B=playBlocks(id),X=typeof BIOX!=='undefined'?BIOX:{},title=id==='basic'?'认生物基础':qkSec(id).n;
- const G=['flip','poke','torch','jig','mem','catch','home','still'],N=B.filter(b=>G.includes(b[0])).length,pic=k=>`<span class="pimg">${qkPic(k)}</span>`,nm=k=>esc(BIO[k][0].replace(/／.*/,''));let ch=0;
+ const G=['flip','poke','mem','still','sc'],N=B.filter(b=>G.includes(b[0])).length,pic=k=>`<span class="pimg">${qkPic(k)}</span>`,nm=k=>esc(BIO[k][0].replace(/／.*/,''));let ch=0;
  const ans=k=>{const c=(X[k]&&X[k].c)||[],q=(X[k]&&X[k].q)||BIO[k][7];return `<span class="pa"><b>${nm(k)}</b>${c.length?`<span class="qktags">${c.slice(0,3).map(x=>`<i>${esc(x)}</i>`).join('')}</span>`:''}${q?`<em>${esc(q)}</em>`:''}</span>`};
  const html=B.map(b=>{const t=b[0],k=b[1];
   if(t==='h')return `<h2 class="ph"><i>第 ${++ch} 关</i>${k}</h2>`;
@@ -3213,6 +3237,7 @@ function playPage(meta){const id=meta.id,B=playBlocks(id),X=typeof BIOX!=='undef
   if(t==='mem')return `<div class="pgame gm mm"><span class="pgt">翻翻乐</span><p class="pkh">一次翻两张，找到一样的</p><div class="mgridp">${pSh([...k,...k]).map(q=>`<button class="mc" data-mem="${esc(q)}"><span class="mcb">${qkPic(q)}<i>${nm(q)}</i></span></button>`).join('')}</div></div>`;
   if(t==='catch')return `<div class="pgame gm ct" data-target="${esc(k)}" data-others="${esc(b[2].join('|'))}"><span class="pgt">捞一捞</span><div class="ctref"><span>${qkPic(k)}</span><p class="pkh">它们游过来了！只点<b>${nm(k)}</b>，点到 5 次</p></div><div class="arena"><button class="ctgo" data-ctgo="1">开始</button></div><p class="ctn mono">0 / 5</p></div>`;
   if(t==='home')return `<div class="pgame gm hm"><span class="pgt">送它回家</span><p class="pkh">按住圆圈，拖到它住的地方</p><div class="hzones">${b[2].map((z,i)=>k.some(x=>x[1]===i)?`<div class="hz" data-z="${i}"><b>${z}</b></div>`:'').join('')}</div><div class="htray">${pSh(k).map(([q,z])=>`<div class="htk" data-z="${z}">${qkPic(q)}<i>${nm(q)}</i></div>`).join('')}</div></div>`;
+  if(t==='sc'){const m=SCMETA[k];return `<div class="pgame gm sc" data-sc="${k}"><span class="pgt">${m[0]}</span><p class="pkh">${m[1]}</p><div class="scbox" style="height:${m[2]}px${m[3]?';touch-action:none':''}"></div><p class="scgoal mono">${m[4]}</p></div>`}
   if(t==='still')return `<div class="pgame gm sl"><span class="pgt">别动</span><p class="pkh">它在远处。按住按钮不松手，看看会怎样</p><div class="slbox"><span class="slf">${qkPic(k)}</span></div><button class="slb" type="button">按住，别动</button><p class="pfb" hidden></p></div>`;
   return''}).join('');
  return bar(title,meta,`<span class="pstar mono">⭐ <b>0</b>/${N}</span>`)+`<div class="play" data-n="${N}" data-id="${id}">${html}<section class="pend"><span class="pendstar">⭐</span><h2>还有没玩的</h2><p>往上找找，把每个小游戏都玩一遍。</p><button class="cta2" data-back="1">回去看照片</button>${id!=='basic'&&QKART[id]&&A[QKART[id]]?`<button class="mini" data-open="${QKART[id]}">想学更多：${A[QKART[id]].title} ›</button>`:''}</section></div>`}
@@ -3247,9 +3272,102 @@ function bindPlay(el){
   const stop=()=>{if(!iv)return;clearInterval(iv);iv=0;if(g.dataset.done)return;f.style.transform='';f.classList.add('flee');fb.hidden=false;fb.className='pfb no';fb.textContent='你一动，它就游走了。再按住试试。'};
   b.addEventListener('pointerdown',e=>{if(g.dataset.done)return;e.preventDefault();f.classList.remove('flee');t0=Date.now();fb.hidden=true;iv=setInterval(()=>{const p=Math.min(1,(Date.now()-t0)/3200);f.style.transform=`scale(${.28+.72*p})`;if(p>=1){clearInterval(iv);iv=0;playWin(g);b.textContent='它自己游过来了';b.disabled=true;fb.hidden=false;fb.className='pfb ok';fb.textContent='你安安静静不动，它就放心地靠近了。'}},50)});
   ['pointerup','pointerleave','pointercancel'].forEach(n=>b.addEventListener(n,stop));b.addEventListener('contextmenu',e=>e.preventDefault())});
- const L=el.querySelectorAll('.play>*');if(!('IntersectionObserver' in window)){L.forEach(x=>{x.classList.add('in');if(x.matches('.tc'))torchInit(x)});return}
- const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');if(e.target.matches('.tc'))requestAnimationFrame(()=>torchInit(e.target));io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});L.forEach(x=>io.observe(x))}
+ const scI=x=>{if(x._sc)return;const b=x.querySelector('.scbox');if(!b.clientWidth)return;x._sc=1;try{SCENES[x.dataset.sc](x)}catch(e){console.error(e)}};
+ const L=el.querySelectorAll('.play>*');if(!('IntersectionObserver' in window)){L.forEach(x=>{x.classList.add('in');if(x.matches('.sc'))scI(x)});return}
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');if(e.target.matches('.sc'))requestAnimationFrame(()=>scI(e.target));io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});L.forEach(x=>io.observe(x))}
 const easyPage=playPage;
+/* ---------- 小海景：每个生物按自己的习性行动，玩的人通过互动发现它 ---------- */
+const SCMETA={home:['送它回家','它们都待错了地方，垂头丧气的。把每一位拖到它该住的地方，让大家开心起来。',400,0,'0 / 4 回到家了'],
+ clean:['清洁站','大鱼身上长了小虫，好痒。拖一拖那条蓝黑条纹的小鱼，看它会去做什么。',330,0,'0 / 3 洗干净了'],
+ ambush:['它在等什么','躄鱼装成了一块海绵。小鱼游过来了……你可以碰碰它，也可以什么都不做。',300,0,'0 / 2 条小鱼'],
+ school:['指挥鱼群','手指按在水里滑动，鱼群会跟着你。带它们穿过 3 个光圈。',340,1,'0 / 3 个光圈'],
+ breath:['别憋坏了','海龟在水下吃草，可它不能在水里呼吸。左上角是它的气。气快用完时点它一下，让它上去换气。',380,0,'0 / 3 次换气'],
+ react:['碰一碰','点一点河鲀，再点一点洞里的海鳝，看它们怎么反应。',300,0,'0 / 2 个发现']};
+const svFace=(ex,ey,mx,my)=>`<circle cx="${ex}" cy="${ey}" r="5.5" fill="#fff"/><circle cx="${ex+1.5}" cy="${ey}" r="2.6" fill="#111"/><path class="ma" d="M${ex-7} ${ey-10}l13 5" stroke="#111" stroke-width="2.6" stroke-linecap="round" fill="none"/><path class="mh" d="M${mx} ${my}q-5 6-11 2" stroke="#111" stroke-width="2.2" stroke-linecap="round" fill="none"/><path class="ms" d="M${mx} ${my+5}q-6-6-11-1" stroke="#111" stroke-width="2.2" stroke-linecap="round" fill="none"/><ellipse class="mo" cx="${mx-4}" cy="${my+1}" rx="4.5" ry="6" fill="#501"/>`;
+const svFish=(body,tail,extra,ry)=>`<svg viewBox="0 0 100 60"><path d="M24 30L3 12l6 18-6 18z" fill="${tail}"/><ellipse cx="55" cy="30" rx="36" ry="${ry||20}" fill="${body}"/>${extra||''}${svFace(75,24,89,32)}</svg>`;
+const svBand=x=>`<path d="M${x} 12q6 18 0 36h8q6-18 0-36z" fill="#fff" stroke="#111" stroke-width="1.6"/>`;
+const SV={clown:svFish('#ff7a1a','#ff7a1a',svBand(30)+svBand(46)+svBand(62)),
+ cleaner:svFish('#bfe6ff','#2a6fb0','<path d="M22 30H90" stroke="#111" stroke-width="7" stroke-linecap="round"/>',12),
+ jack:svFish('#cfd8dc','#e6c84a','<path d="M30 20q25-8 50 0" stroke="#9aa7ad" stroke-width="2" fill="none"/>',15),
+ prey:svFish('#ffd166','#f2a541','',17),
+ client:c=>svFish(c,c,'<circle cx="40" cy="24" r="3" fill="rgba(0,0,0,.18)"/><circle cx="52" cy="38" r="3" fill="rgba(0,0,0,.18)"/><circle cx="60" cy="22" r="2.5" fill="rgba(0,0,0,.18)"/>'+[[34,34],[48,18],[58,40],[66,30]].map(([x,y])=>`<circle class="par" cx="${x}" cy="${y}" r="3.4" fill="#fff" stroke="#c0392b" stroke-width="1.6"/>`).join('')),
+ eel:`<svg viewBox="0 0 40 110"><path d="M20 108C20 72 8 52 22 22" stroke="#efe9d6" stroke-width="12" fill="none" stroke-linecap="round"/><circle cx="16" cy="60" r="2" fill="#333"/><circle cx="18" cy="84" r="2" fill="#333"/><circle cx="27" cy="18" r="4" fill="#fff"/><circle cx="28" cy="18" r="2" fill="#111"/><path class="mh" d="M30 27q-4 4-8 1" stroke="#111" stroke-width="1.8" fill="none" stroke-linecap="round"/><path class="ms" d="M30 30q-4-4-8-1" stroke="#111" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>`,
+ horse:`<svg viewBox="0 0 50 90"><path d="M26 26C8 40 34 52 22 66c-8 10 4 18 8 10" stroke="#e58aa6" stroke-width="11" fill="none" stroke-linecap="round"/><circle cx="26" cy="18" r="11" fill="#e58aa6"/><rect x="32" y="15" width="14" height="6" rx="3" fill="#e58aa6"/><circle cx="18" cy="38" r="3" fill="#c0392b"/><circle cx="27" cy="52" r="3" fill="#c0392b"/><circle cx="20" cy="12" r="2.6" fill="#c0392b"/><circle cx="29" cy="15" r="3.6" fill="#fff"/><circle cx="30" cy="15" r="1.8" fill="#111"/><path class="mh" d="M44 23q-3 3-6 1" stroke="#111" stroke-width="1.6" fill="none" stroke-linecap="round"/><path class="ms" d="M44 25q-3-3-6-1" stroke="#111" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`,
+ frog:`<svg viewBox="0 0 100 80"><path d="M10 64Q2 32 30 22 50 6 72 22q26 8 20 40-22 14-52 10-20 2-30-8z" fill="#e0a030"/><circle cx="30" cy="40" r="5" fill="#c98a20"/><circle cx="48" cy="56" r="6" fill="#c98a20"/><circle cx="52" cy="30" r="4" fill="#c98a20"/><path d="M34 68l-6 10M56 70l2 9" stroke="#c98a20" stroke-width="6" stroke-linecap="round"/><g class="lure"><path d="M62 18q4-14 14-12" stroke="#fff" stroke-width="2" fill="none"/><circle cx="77" cy="6" r="3.4" fill="#fff"/></g><circle cx="70" cy="34" r="4" fill="#fff"/><circle cx="71" cy="34" r="2" fill="#111"/><path class="ma" d="M62 24l13 5" stroke="#111" stroke-width="2.6" stroke-linecap="round"/><path class="mc" d="M76 50q9 3 14-2" stroke="#7a4a00" stroke-width="2.4" fill="none" stroke-linecap="round"/><ellipse class="mo" cx="84" cy="48" rx="10" ry="13" fill="#501"/></svg>`,
+ sponge:`<svg viewBox="0 0 100 80"><path d="M12 78Q4 40 30 26 50 10 70 26q24 12 18 52z" fill="#e0a030"/><ellipse cx="46" cy="24" rx="12" ry="6" fill="#7a4a00"/><circle cx="34" cy="50" r="5" fill="#c98a20"/><circle cx="60" cy="58" r="6" fill="#c98a20"/></svg>`,
+ turtle:`<svg viewBox="0 0 110 70"><path d="M40 44l-16 22 22-10zM70 46l8 20 8-18zM36 26L18 8l26 8z" fill="#8fb86a"/><ellipse cx="52" cy="36" rx="32" ry="21" fill="#5b8a3c"/><path d="M30 36h44M52 16v40M38 22l28 28M66 22L38 50" stroke="#47702e" stroke-width="2"/><circle cx="92" cy="32" r="12" fill="#8fb86a"/><circle cx="96" cy="28" r="4" fill="#fff"/><circle cx="97" cy="28" r="2" fill="#111"/><path class="mh" d="M103 36q-4 5-9 2" stroke="#111" stroke-width="2" fill="none" stroke-linecap="round"/><path class="ms" d="M103 39q-5-5-9-1" stroke="#111" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
+ puffer:`<svg viewBox="0 0 80 80"><g class="spk" stroke="#b8960f" stroke-width="2.4" stroke-linecap="round">${[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>{const a=i*Math.PI/6;return `<path d="M${(40+Math.cos(a)*26).toFixed(1)} ${(40+Math.sin(a)*26).toFixed(1)}L${(40+Math.cos(a)*35).toFixed(1)} ${(40+Math.sin(a)*35).toFixed(1)}"/>`}).join('')}</g><path d="M16 40L4 30v20z" fill="#e0b92e"/><circle cx="40" cy="40" r="26" fill="#f2d04b"/><path d="M18 48a24 24 0 0 0 44 0z" fill="#fff8dc"/><circle cx="34" cy="28" r="2.4" fill="#7a5c00"/><circle cx="44" cy="22" r="2.4" fill="#7a5c00"/><circle cx="26" cy="36" r="2.4" fill="#7a5c00"/><circle cx="54" cy="32" r="6" fill="#fff"/><circle cx="55.5" cy="32" r="2.8" fill="#111"/><path class="mh" d="M66 42q-4 5-9 2" stroke="#111" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse class="ms" cx="63" cy="43" rx="3" ry="4" fill="#501"/></svg>`,
+ moray:`<svg viewBox="0 0 120 84"><path d="M0 84V30Q20 4 52 14q20 6 22 34v36z" fill="#3a4a50"/><ellipse cx="46" cy="52" rx="24" ry="18" fill="#0a1418"/><path d="M34 52q30-20 66-6 12 6 0 12-36 12-66 0z" fill="#8a6b3a"/><circle cx="56" cy="50" r="2.6" fill="#5e4520"/><circle cx="68" cy="56" r="2.6" fill="#5e4520"/><circle cx="84" cy="46" r="4.4" fill="#fff"/><circle cx="85" cy="46" r="2.2" fill="#111"/><path class="mh" d="M106 53l-16 2" stroke="#3a2a10" stroke-width="2.4" stroke-linecap="round"/><path class="mo" d="M108 50l-18 4 18 6z" fill="#501"/></svg>`,
+ anem:`<svg viewBox="0 0 120 90"><path d="M20 90q40-16 80 0z" fill="#a8456a"/>${[10,24,38,52,66,80,94,108].map((x,i)=>`<path d="M${30+i*8} 84Q${x} 50 ${x+(i%2?6:-6)} ${20+(i%3)*8}" stroke="#f29bb5" stroke-width="8" fill="none" stroke-linecap="round"/>`).join('')}</svg>`,
+ fan:`<svg viewBox="0 0 100 120"><path d="M50 120V70M50 96L20 50M50 96l32-44M50 70L32 14M50 70l20-54M20 50L8 26M20 50l8-30M82 52l10-28M82 52l-8-30" stroke="#e06a8a" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`,
+ grass:`<svg viewBox="0 0 120 80"><path d="M14 80q-6-40 6-70M34 80q8-36-2-60M56 80q-8-44 4-74M78 80q10-34 0-56M100 80q-6-40 6-66" stroke="#4fae5a" stroke-width="6" fill="none" stroke-linecap="round"/></svg>`};
+function scNew(g){const box=g.querySelector('.scbox'),S={g,box,W:box.clientWidth,H:box.clientHeight,sp:[]};
+ S.put=o=>{o.el.style.transform=`translate(${(o.x-o.w/2).toFixed(1)}px,${(o.y-o.h/2).toFixed(1)}px) rotate(${o.rot||0}deg) scale(${(o.flip?-1:1)*o.sc},${o.sc})`};
+ S.add=(svg,x,y,w,h,cls)=>{const el=document.createElement('div');el.className='spr '+(cls||'');el.style.width=w+'px';el.style.height=h+'px';el.innerHTML=svg;box.appendChild(el);const o={el,x,y,w,h,flip:0,rot:0,sc:1};S.sp.push(o);S.put(o);return o};
+ S.dec=(svg,x,y,w,h)=>{const o=S.add(svg,x,y,w,h,'dec');return o};
+ S.del=o=>{o.el.remove();if(o.bub)o.bub.remove();const i=S.sp.indexOf(o);if(i>=0)S.sp.splice(i,1)};
+ S.mood=(o,m)=>{if(o.mood===m)return;o.mood=m;o.el.className=o.el.className.replace(/ ?m-\w+/g,'')+' m-'+m};
+ S.say=(o,t,ms)=>{if(o.bub)o.bub.remove();const b=document.createElement('div');b.className='scsay';b.textContent=t;box.appendChild(b);const top=o.y-o.h/2*o.sc-40;b.style.left=Math.max(6,Math.min(S.W-156,o.x-75))+'px';b.style.top=(top<4?o.y+o.h/2*o.sc+6:top)+'px';o.bub=b;setTimeout(()=>{if(o.bub===b){b.remove();o.bub=null}},ms||2000)};
+ S.pt=e=>{const r=box.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
+ S.goal=t=>{g.querySelector('.scgoal').textContent=t};
+ S.drag=(o,h)=>{const el=o.el;let on=0,mv=0,ox=0,oy=0;el.style.touchAction='none';el.classList.add('sgrab');
+  el.addEventListener('pointerdown',e=>{on=1;mv=0;const[x,y]=S.pt(e);ox=o.x-x;oy=o.y-y;o.drag=1;try{el.setPointerCapture(e.pointerId)}catch(_){}});
+  el.addEventListener('pointermove',e=>{if(!on)return;const[x,y]=S.pt(e);mv++;if(h.move)h.move(Math.max(12,Math.min(S.W-12,x+ox)),Math.max(12,Math.min(S.H-12,y+oy)))});
+  const up=()=>{if(!on)return;on=0;o.drag=0;if(mv<3&&h.tap)h.tap();else if(h.end)h.end()};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)};
+ let last=0;const fr=ts=>{if(!box.isConnected)return;const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(S.tick&&box.offsetParent)S.tick(dt,ts/1000);requestAnimationFrame(fr)};requestAnimationFrame(fr);return S}
+const SCENES={
+ home(g){const S=scNew(g),{W,H,box}=S;box.insertAdjacentHTML('beforeend','<div class="scsand"></div><div class="schole" style="left:'+(W*.55-26)+'px"></div>');
+  S.dec(SV.anem,W*.2,H-72,120,90);S.dec(SV.fan,W*.86,H-92,96,116);
+  const Z={anem:[W*.2,H-80,62],sand:[W*.55,H-34,50],fan:[W*.86,H-100,58]},zone=(x,y)=>{for(const k in Z)if(Math.hypot(x-Z[k][0],y-Z[k][1])<Z[k][2])return k;return y<H*.42?'blue':''};
+  const jacks='<svg viewBox="0 0 100 60">'+[[0,0],[34,22],[4,34]].map(([x,y])=>`<g transform="translate(${x} ${y}) scale(.62)">${SV.jack.replace(/<\/?svg[^>]*>/g,'')}</g>`).join('')+'</svg>';
+  const C=[['clown',SV.clown,'anem',64,40,W*.74,H*.16,'这里没地方躲…我要海葵','海葵是我的家！',-14],['eel',SV.eel,'sand',30,84,W*.24,H*.26,'我想钻进沙子里…','钻进沙洞，只露半截！',-34],['jack',jacks,'blue',110,66,W*.34,H*.66,'太挤了…我们要宽宽的蓝水','蓝水里游得真痛快！',0],['horse',SV.horse,'fan',40,70,W*.58,H*.34,'我要抓住海扇…','抓住海扇，谁也看不见我！',-6]];let n=0;
+  C.forEach(([id,svg,home,w,h,x,y,sad,happy,dy])=>{const o=S.add(svg,x,y,w,h);S.mood(o,'sad');o.rot=id==='eel'?0:14;S.put(o);
+   const drop=()=>{const z=zone(o.x,o.y);if(z===home){if(!o.ok){o.ok=1;n++}S.mood(o,'happy');o.rot=0;if(Z[z]){o.x=Z[z][0];o.y=Z[z][1]+dy}o.el.classList.add('homey');S.put(o);S.say(o,happy,2400);S.goal(n+' / 4 回到家了');if(n>=4)playWin(g)}
+    else{if(o.ok){o.ok=0;n--;S.goal(n+' / 4 回到家了')}o.el.classList.remove('homey');S.mood(o,'sad');o.rot=id==='eel'?0:14;S.put(o);S.say(o,sad,2400)}};
+   S.drag(o,{move:(x2,y2)=>{o.x=x2;o.y=y2;o.rot=0;o.el.classList.remove('homey');S.put(o)},end:drop,tap:()=>S.say(o,o.ok?happy:sad,2200)})});
+  S.tick=(dt,t)=>{S.sp.forEach((o,i)=>{if(!o.drag&&!o.ok&&!o.el.classList.contains('dec')){o.y+=Math.sin(t*1.6+i)*.12;S.put(o)}})}},
+ clean(g){const S=scNew(g),{W,H}=S;const cl=[[.22,.26,'#b0744a'],[.76,.3,'#7a8fb0'],[.48,.6,'#c26a6a']].map(([fx,fy,c],i)=>{const o=S.add(SV.client(c),W*fx,H*fy,112,67);S.mood(o,'sad');o.dirty=4;o.by=o.y;o.flip=i===1;S.put(o);o.el.addEventListener('pointerdown',()=>S.say(o,o.dirty?'好痒…清洁鱼快来':'干净了，真舒服'));return o});
+  const w=S.add(SV.cleaner,W*.5,H-34,60,36);S.mood(w,'happy');let tgt=null,ct=0,n=0;
+  const go=()=>{const D=cl.filter(c=>c.dirty);if(!D.length){S.say(w,'都洗干净啦！');return}tgt=D.sort((a,b)=>Math.hypot(a.x-w.x,a.y-w.y)-Math.hypot(b.x-w.x,b.y-w.y))[0];ct=0;S.say(w,'我去给它洗澡！',1200)};
+  S.drag(w,{move:(x,y)=>{tgt=null;w.x=x;w.y=y;S.put(w)},end:go,tap:go});
+  S.tick=(dt,t)=>{cl.forEach((c,i)=>{c.y=c.by+Math.sin(t+i*2)*5;S.put(c)});
+   if(tgt&&!w.drag){const dx=tgt.x-w.x,dy=tgt.y-w.y,d=Math.hypot(dx,dy);
+    if(d>40&&ct===0){w.x+=dx/d*170*dt;w.y+=dy/d*170*dt;w.flip=dx<0}
+    else{ct+=dt;w.x=tgt.x+Math.cos(t*7)*32;w.y=tgt.y+Math.sin(t*7)*18;w.flip=Math.sin(t*7)>0;S.mood(tgt,'open');const left=Math.max(0,4-Math.floor(ct/.45));
+     if(left<tgt.dirty){tgt.dirty=left;const p=tgt.el.querySelector('.par:not(.off)');if(p)p.classList.add('off')}
+     if(!tgt.dirty){S.mood(tgt,'happy');S.say(tgt,'真舒服！谢谢');n++;S.goal(n+' / 3 洗干净了');tgt=null;if(n>=3){playWin(g);S.say(w,'这里就是清洁站')}else setTimeout(()=>{if(!w.drag&&!tgt)go()},1100)}}
+    S.put(w)}else if(!w.drag){w.y+=Math.sin(t*6)*.5;S.put(w)}}},
+ ambush(g){const S=scNew(g),{W,H,box}=S;box.insertAdjacentHTML('beforeend','<div class="scsand"></div>');S.dec(SV.sponge,W*.2,H-62,90,72);S.dec(SV.sponge,W*.9,H-56,70,56);
+  const f=S.add(SV.frog,W*.6,H-60,98,78);S.mood(f,'calm');f.el.classList.add('sgrab');let ang=0,n=0,sp=1;const prey=[];
+  f.el.addEventListener('pointerdown',()=>{ang=3;S.mood(f,'angry');S.say(f,'别碰我！我在装海绵',2200);prey.forEach(p=>{if(Math.abs(p.x-f.x)<200){p.vx=(p.x<f.x?-1:1)*170}})});
+  S.tick=(dt,t)=>{if(ang>0){ang-=dt;if(ang<=0)S.mood(f,'calm')}
+   sp-=dt;if(sp<=0&&prey.length<3&&!g.dataset.done){sp=2+Math.random()*1.4;const L=Math.random()<.6,p=S.add(SV.prey,L?-24:W+24,H-64-Math.random()*26,42,25);p.vx=(L?1:-1)*(40+Math.random()*18);p.by=p.y;S.mood(p,'happy');prey.push(p)}
+   for(let i=prey.length-1;i>=0;i--){const p=prey[i];p.x+=p.vx*dt;p.y=p.by+Math.sin(t*3+i)*5;p.flip=p.vx<0;S.put(p);
+    if(ang<=0&&!g.dataset.done&&Math.abs(p.x-(f.x+34))<22&&Math.abs(p.vx)<100){S.del(p);prey.splice(i,1);S.mood(f,'open');setTimeout(()=>{if(ang<=0)S.mood(f,'calm')},450);n++;S.say(f,n>=2?'我不追，我只等。':'啊呜！',2200);S.goal(n+' / 2 条小鱼');if(n>=2)playWin(g);continue}
+    if(p.x<-50||p.x>W+50){S.del(p);prey.splice(i,1)}}}},
+ school(g){const S=scNew(g),{W,H,box}=S,F=[];for(let i=0;i<16;i++){const o=S.add(SV.jack,W/2,H/2,36,22);o.oa=i*2.4;o.or=14+(i%5)*9;S.mood(o,'happy');F.push(o)}
+  let tx=W/2,ty=H/2,down=0,n=0,ring=null,rx=0,ry=0;const set=e=>{[tx,ty]=S.pt(e)};
+  box.addEventListener('pointerdown',e=>{down=1;set(e);try{box.setPointerCapture(e.pointerId)}catch(_){}});box.addEventListener('pointermove',e=>{if(down)set(e)});['pointerup','pointercancel'].forEach(k=>box.addEventListener(k,()=>{down=0}));
+  const nr=()=>{ring=document.createElement('div');ring.className='scring';do{rx=46+Math.random()*(W-92);ry=46+Math.random()*(H-92)}while(Math.hypot(rx-tx,ry-ty)<110);ring.style.left=(rx-36)+'px';ring.style.top=(ry-36)+'px';box.appendChild(ring)};nr();
+  S.tick=(dt,t)=>{if(!down){tx=W/2+Math.cos(t*.5)*W*.22;ty=H/2+Math.sin(t*.7)*H*.18}let cx=0,cy=0;
+   F.forEach((o,i)=>{const a=o.oa+t*1.3,gx=tx+Math.cos(a)*o.or,gy=ty+Math.sin(a)*o.or*.6,k=Math.min(1,dt*(2.6+(i%4)*.9)),nx=o.x+(gx-o.x)*k,ny=o.y+(gy-o.y)*k;if(Math.abs(nx-o.x)>.15)o.flip=nx<o.x;o.x=nx;o.y=ny;S.put(o);cx+=nx;cy+=ny});
+   if(ring&&down&&Math.hypot(cx/F.length-rx,cy/F.length-ry)<30){ring.remove();ring=null;n++;S.goal(n+' / 3 个光圈');if(n>=3){playWin(g);S.say(F[0],'一起转弯，像一个整体！',2600)}else nr()}}},
+ breath(g){const S=scNew(g),{W,H,box}=S;box.insertAdjacentHTML('beforeend','<div class="scsurf"></div><div class="scsand"></div><div class="scbar"><i></i></div>');S.dec(SV.grass,W*.3,H-66,120,80);S.dec(SV.grass,W*.72,H-62,110,74);
+  const T=S.add(SV.turtle,W*.5,H-74,112,72),bar=box.querySelector('.scbar i');S.mood(T,'happy');T.el.classList.add('sgrab');let air=1,stt=0,n=0,auto=0;
+  T.el.addEventListener('pointerdown',()=>{if(stt===0){stt=1;auto=0;S.say(T,'上去换口气',1200)}});
+  S.tick=(dt,t)=>{if(stt===0){if(!g.dataset.done)air-=dt/8;T.x=W*.5+Math.sin(t*.6)*W*.22;T.flip=Math.cos(t*.6)<0;S.mood(T,air<.35?'sad':'happy');if(air<.35&&!T.bub&&!g.dataset.done)S.say(T,'气快没了…',900);if(air<=0){stt=1;auto=1;S.say(T,'憋不住了！',1200)}}
+   else if(stt===1){T.y-=170*dt;T.rot=T.flip?28:-28;if(T.y<=44){T.y=44;air=1;S.mood(T,'happy');T.rot=0;if(auto)S.say(T,'下次早点让我上来',1800);else{n++;S.goal(n+' / 3 次换气');S.say(T,'呼——吸到气了',1500);if(n>=3)playWin(g)}stt=2;T.wait=.9}}
+   else{if(T.wait>0)T.wait-=dt;else{T.y+=130*dt;T.rot=T.flip?-22:22;if(T.y>=H-74){T.y=H-74;stt=0;T.rot=0}}}
+   bar.style.width=Math.max(0,air*100)+'%';bar.style.background=air<.35?'#ff7a5c':'#4fd39a';S.put(T)}},
+ react(g){const S=scNew(g),{W,H,box}=S;box.insertAdjacentHTML('beforeend','<div class="scsand"></div>');
+  const m=S.add(SV.moray,W*.24,H-74,124,87),p=S.add(SV.puffer,W*.7,H*.38,72,72);S.mood(p,'happy');m.el.classList.add('sgrab');p.el.classList.add('sgrab');let pf=0;const d={};
+  const chk=k=>{d[k]=1;const c=Object.keys(d).length;S.goal(c+' / 2 个发现');if(c>=2)playWin(g)};
+  m.el.addEventListener('pointerdown',()=>{S.say(m,'我张嘴是在呼吸，不是要咬你',2600);chk('m')});
+  p.el.addEventListener('pointerdown',()=>{pf=3.6;p.el.classList.add('puff');S.mood(p,'sad');S.say(p,'别吓我！我鼓成一个球',2400);chk('p')});
+  S.tick=(dt,t)=>{S.mood(m,Math.sin(t*3)>0?'open':'happy');
+   if(pf>0){pf-=dt;p.sc+=(1.65-p.sc)*Math.min(1,dt*8);p.y+=(H*.3-p.y)*dt;if(pf<=0){p.el.classList.remove('puff');S.mood(p,'happy')}}
+   else{p.sc+=(1-p.sc)*Math.min(1,dt*3);p.x=W*.68+Math.sin(t*.5)*W*.16;p.y+=(H*.4+Math.sin(t)*10-p.y)*dt*2;p.flip=Math.cos(t*.5)<0}S.put(p)}}};
+
 const qkSec=id=>QKS.find(x=>x.id===id)||rgSecs().find(x=>x.id===id);
 const qkList=id=>qkBuild()[id]||rgBuild()[id]||[];
 let _qk=null;
