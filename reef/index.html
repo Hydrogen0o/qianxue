@@ -118,6 +118,43 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .sheet .offer .cc{height:132px}
 .sheet .offer p{grid-column:1/-1}
 .ctoast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 120px);transform:translateX(-50%);background:rgba(4,18,24,.95);border:1px solid var(--line);border-radius:12px;padding:8px 16px;font-size:15px;font-weight:700;z-index:30;max-width:86vw;text-align:center;pointer-events:none}
+
+.scene{position:relative;width:100%;aspect-ratio:100/88;border-radius:14px;overflow:hidden;transition:filter 1s;touch-action:manipulation;flex:none}
+.scene .bg{position:absolute;inset:0;width:100%;height:100%}
+.scene .haze{position:absolute;inset:0;background:#4a4a14;pointer-events:none;transition:opacity 1s;mix-blend-mode:multiply}
+#cSpots,#cMurk,#cFx{position:absolute;inset:0}
+#cMurk,#cFx{pointer-events:none}
+.murk{position:absolute;width:30%;aspect-ratio:1;margin:-15% 0 0 -15%;border-radius:50%;background:radial-gradient(circle,rgba(10,14,8,.95) 0 34%,rgba(10,14,8,.7) 52%,rgba(10,14,8,0) 72%);transition:opacity 1.2s,transform 1.2s}
+.murk.gone{opacity:0;transform:scale(1.5)}
+.rub{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;opacity:.9;pointer-events:none}
+.rub svg{width:100%;height:100%}
+.cr{position:absolute;display:block}
+.cr .cs{display:block;width:100%;height:100%;transform-origin:50% 70%;transition:transform .5s;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+.cr svg{width:100%;height:100%;display:block;overflow:visible}
+.cr.res{z-index:3}.cr.hab{z-index:2}.cr.solo{z-index:3}
+.cr.swim{animation:swim 3.4s ease-in-out infinite alternate}
+@keyframes swim{to{transform:translate(-7px,5px)}}
+.cr .v{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);min-width:18px;height:17px;border-radius:99px;background:rgba(4,18,24,.82);color:var(--sun);font:700 12px/17px var(--num);text-align:center;padding:0 4px}
+.cr .v.x2{background:var(--good);color:#06231c}
+.cr.on .cs{filter:drop-shadow(0 0 5px #fff)}
+.cr.pulse .cs{animation:crp .35s}
+@keyframes crp{40%{filter:brightness(1.9) drop-shadow(0 0 8px #fff3b0)}}
+.ring{position:absolute;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;border:3px dashed var(--sun);background:rgba(255,201,60,.16);z-index:5;animation:ringp .8s infinite alternate}
+@keyframes ringp{to{box-shadow:0 0 0 6px rgba(255,201,60,.28)}}
+.fl{position:absolute;transform:translate(-50%,-50%);font:800 17px var(--num);color:var(--sun);text-shadow:0 1px 2px #000,0 0 6px rgba(0,0,0,.6);animation:flo .9s forwards;z-index:8}
+.fl.x2{color:var(--good);font-size:20px}
+@keyframes flo{to{transform:translate(-50%,-190%);opacity:0}}
+.wave{position:absolute;width:20px;height:20px;margin-left:-10px;margin-top:-10px;border-radius:50%;border:2px solid rgba(160,245,220,.9);animation:wav .7s forwards;transform:translate(0,0)}
+@keyframes wav{to{transform:scale(5);opacity:0}}
+.chand .cc{touch-action:none;height:116px}
+.cc.hb{background:linear-gradient(#5a4a3c,#3b3029);border-color:#7d6650}
+.cc.dead{opacity:.5}
+.cc.lift{opacity:.25}
+.cc.ghost{position:fixed;left:0;top:0;width:72px;height:116px;z-index:60;pointer-events:none;box-shadow:0 10px 22px rgba(0,0,0,.5);border-color:var(--sun)}
+.mini{background:var(--sun);color:#221a00;border-radius:99px;padding:1px 13px;font-weight:700;font-size:13px}
+.mini.alt{background:none;border:1px solid var(--line);color:var(--dim)}
+.ctext{min-height:44px;font-size:13px}
+@media (prefers-reduced-motion:reduce){.cr.swim,.ring{animation:none}}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
 </style>
 <div id="app">
@@ -125,10 +162,10 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
  <div id="mCG" class="mode">
   <div class="goal"><div class="n"><b id="cTot">0</b><span id="cTgt"></span><em id="cGain"></em></div><div class="bar"><i id="cBar"></i></div></div>
   <p class="tip" id="cTip"></p>
-  <div class="slots" id="cSlots"></div>
+  <div class="scene" id="cScene"></div>
   <div class="ctext" id="cText"></div>
   <div class="chand" id="cHand"></div>
-  <div class="foot"><button id="cDis">弃掉</button><button class="pri" id="cEnd"></button></div>
+  <div class="foot"><button id="cDis">换牌</button><button class="pri" id="cEnd"></button></div>
  </div>
  <div id="mTD" class="mode" hidden>
  <div class="hud"><div class="en" id="enBox"><i></i><b id="en">0</b></div><div class="prog"><i id="pg"></i><s id="pgf"></s></div><span class="lv" id="lv"></span><button class="sm" id="bPrev" aria-label="上一关">‹</button><button class="sm" id="bNext" aria-label="下一关">›</button><button class="sm" id="bSnd" aria-label="声音">声</button></div>
@@ -337,61 +374,67 @@ function tdStep(G,dt){if(G.over)return;G.t+=dt;const L=G.L;for(const k in G.cd)G
 const TD={COLS,UNITS,FOES,TDL,tdNew,tdCan,tdPlace,tdSun,tdStep,unitAt};
 
 </script>
-<script>/* 牌局：5 个礁位，生物留在场上每回合得分并长大 +1；每回合 5 张牌最多打 2 张。规则层，无界面。 */
-const SLOTS=5,HANDN=5,PLAYN=2;
+<script>/* 牌局 v2：一片被污染的礁。把栖息地和生物拖进场景；生物留在场上，每回合净化并长大。净化越多，露出的地方越多。规则层，无界面。 */
+const HANDN=5,PLAYN=3,SWAPN=3;
+/* 场景里的位置：x,y 是百分比；t 是哪一档净化后露出来；type: bare 荒礁（可种珊瑚/海葵）、sand 沙地、blue 蓝水、grass 海草、cave 洞穴 */
+const SPOTS=[
+ {type:'bare',t:0,x:33,y:43},{type:'bare',t:0,x:53,y:50},{type:'sand',t:0,x:13,y:52},{type:'blue',t:0,x:84,y:33},{type:'blue',t:0,x:90,y:52},
+ {type:'bare',t:1,x:40,y:62},{type:'sand',t:1,x:22,y:63},{type:'blue',t:1,x:80,y:67},{type:'sand',t:1,x:9,y:39},
+ {type:'bare',t:2,x:61,y:66},{type:'grass',t:2,x:13,y:22},{type:'blue',t:2,x:86,y:15},{type:'sand',t:2,x:26,y:30},
+ {type:'cave',t:3,x:17,y:89},{type:'bare',t:3,x:50,y:86},{type:'blue',t:3,x:85,y:86},{type:'bare',t:3,x:70,y:82}];
+const TIERS=[0,.18,.42,.68];
 const CD={
- clown:{n:'小丑鱼',p:2,art:'clown',tx:'有海葵就翻倍',fact:'小丑鱼一辈子住在海葵里：它替海葵赶走天敌，海葵的毒触手保护它。'},
- anem:{n:'海葵',p:0,art:'anemone',tx:'小丑鱼 ×2',fact:'海葵自己不会动，靠触手上的毒刺捕食。小丑鱼身上有一层黏液，不会被蜇。'},
- chromis:{n:'光鳃鱼',p:1,art:'chromis',tx:'每条同伴 +2',fact:'光鳃鱼成群悬在鹿角珊瑚上方，一有危险就整群缩回枝杈里。'},
- coral:{n:'鹿角珊瑚',p:0,art:'coral',tx:'每回合多打1张',fact:'珊瑚搭起了整片礁的骨架。礁只占海底不到 1%，却养活了约四分之一的海洋鱼类。'},
- cleaner:{n:'裂唇鱼',p:1,art:'cleaner',tx:'左右的鱼 ×2',fact:'裂唇鱼在固定的“清洁站”替别的鱼吃掉寄生虫，大鱼会排队等它。'},
- sardine:{n:'沙丁鱼',p:1,art:'sardine',tx:'鲹鱼的食物',fact:'沙丁鱼成千上万挤成“饵球”，是鲹鱼、鲨鱼这些掠食者的主要食物。'},
- jack:{n:'鲹鱼',p:2,art:'jack',tx:'每条沙丁鱼 +3',fact:'鲹鱼白天聚成大鱼群，追着沙丁鱼这样的小鱼捕食。'},
- eel:{n:'花园鳗',p:1,art:'gardeneel',tx:'挨着同伴 +3',fact:'花园鳗成片住在沙洞里，只探出半截身子，迎着水流吃浮游生物。'},
- turtle:{n:'绿海龟',p:5,art:'turtle',tx:'稳稳的 5 分',fact:'绿海龟成年后主要吃海草。它像割草机一样啃食，反而让海草床长得更健康。'},
- butterfly:{n:'蝴蝶鱼',p:3,art:'butterfly',tx:'成对 ×2',lg:'挨着另一条蝴蝶鱼时，得分 ×2。',fact:'很多蝴蝶鱼成对生活，一对常常相伴多年。'},
- spawn:{n:'产卵季',p:0,fx:1,art:'',tx:'本回合 ×2',lg:'一次性：这个回合的总得分 ×2。用完就没了，留到礁上最热闹的时候。',fact:'很多礁鱼在满月前后集体产卵。'},
- shark:{n:'礁鲨',p:3,art:'shark',tx:'每种生物 +3',lg:'礁上每有一种不同的生物，+3 分。',fact:'有鲨鱼巡游的礁，说明下面整条食物链是健康的。'},
- grouper:{n:'石斑鱼',p:2,art:'grouper',tx:'每回合长 3 分',lg:'别的生物每回合长大 +1，它 +3。越早放越值。',fact:'石斑鱼领地性很强，常年守着同一块礁石，越长越大。'},
- moray:{n:'海鳝',p:2,art:'moray',tx:'有石斑鱼 ×3',fact:'石斑鱼会到洞口摇头“邀请”海鳝一起捕猎：海鳝钻缝赶鱼，石斑在外面堵。'},
- nudi:{n:'海蛞蝓',p:1,art:'nudi',tx:'留手牌各 +3',lg:'回合结束时，手里每留着 1 张牌，+3 分。',fact:'海蛞蝓爬得很慢。鲜艳的颜色是在警告捕食者：我有毒。'},
- parrot:{n:'鹦嘴鱼',p:2,art:'parrot',tx:'打出时抽 2 张',fact:'鹦嘴鱼刮食礁石上的藻类，磨碎的石灰质排出来就是白沙。'},
- frog:{n:'躄鱼',p:3,art:'frogfish',tx:'吃掉左边的鱼',lg:'每回合结束吃掉左边礁位上的生物，把它的基础分永久加到自己身上。',fact:'躄鱼装成一块海绵，晃动头上的“钓竿”引小鱼靠近，然后一口吞下。'}};
-const CSTART=['clown','clown','clown','anem','anem','chromis','chromis','chromis','sardine','sardine','jack','turtle','coral','eel','eel','cleaner','spawn'];
-const CPOOL=['shark','grouper','moray','nudi','parrot','frog','anem','cleaner','spawn','turtle','butterfly','butterfly','jack','coral','eel'];
-const CST=[
- {n:'浅滩',turns:6,rule:''},
- {n:'礁坡',turns:7,block:2,rule:'藻类盖住了正中间的礁位，那一格不能用。'},
- {n:'峭壁',turns:8,wash:1,rule:'急流：每回合结束，最右边礁位上的生物被冲走。'}];
+ coral:{n:'鹿角珊瑚',p:1,hab:1,art:'coral',tx:'能住 2 条礁鱼',lg:'种在荒礁上。种下后，光鳃鱼、蝴蝶鱼这些礁鱼才有地方住，一丛能住 2 条。',fact:'珊瑚搭起了整片礁的骨架。礁只占海底不到 1%，却养活了约四分之一的海洋鱼类。'},
+ anem:{n:'海葵',p:1,hab:1,art:'anemone',tx:'能住 2 条小丑鱼',lg:'种在荒礁上。住进一对小丑鱼时，两条都 ×2。',fact:'海葵靠触手上的毒刺捕食。小丑鱼身上有一层黏液，不会被蜇。'},
+ clown:{n:'小丑鱼',p:4,home:'anem',art:'clown',tx:'住海葵 · 成对 ×2',lg:'只能住进海葵。同一个海葵里住满一对时，两条都 ×2。',fact:'小丑鱼一辈子住在海葵里：它替海葵赶走天敌，海葵的毒触手保护它。'},
+ chromis:{n:'光鳃鱼',p:1,home:'coral',art:'chromis',tx:'住珊瑚 · 每条同伴 +2',fact:'光鳃鱼成群悬在鹿角珊瑚上方，一有危险就整群缩回枝杈里。'},
+ butterfly:{n:'蝴蝶鱼',p:3,home:'coral',art:'butterfly',tx:'住珊瑚 · 成对 ×2',lg:'住珊瑚。场上有另一条蝴蝶鱼时，得分 ×2。',fact:'很多蝴蝶鱼成对生活，一对常常相伴多年。'},
+ cleaner:{n:'裂唇鱼',p:1,home:'coral',art:'cleaner',tx:'住珊瑚 · 最高分的鱼 ×2',lg:'住珊瑚。它开清洁站：场上得分最高的那条鱼 ×2。',fact:'裂唇鱼在固定的“清洁站”替别的鱼吃掉寄生虫，大鱼会排队等它。'},
+ parrot:{n:'鹦嘴鱼',p:2,home:'coral',art:'parrot',tx:'住珊瑚 · 打出时抽 2 张',fact:'鹦嘴鱼刮食礁石上的藻类，磨碎的石灰质排出来就是白沙。'},
+ grouper:{n:'石斑鱼',p:2,home:'coral',art:'grouper',tx:'住珊瑚 · 每回合长 3 分',lg:'住珊瑚。别的生物每回合长大 +1，它 +3。越早放越值。',fact:'石斑鱼领地性很强，常年守着同一块礁石，越长越大。'},
+ eel:{n:'花园鳗',p:1,home:'sand',art:'gardeneel',tx:'住沙地 · 每条同伴 +3',fact:'花园鳗成片住在沙洞里，只探出半截身子，迎着水流吃浮游生物。'},
+ ray:{n:'蓝斑魟',p:4,home:'sand',art:'ray',tx:'住沙地 · 稳稳的 4 分',fact:'蓝斑魟白天常躲在礁石下，涨潮时到沙地上翻沙找贝类吃。'},
+ sardine:{n:'沙丁鱼',p:1,home:'blue',art:'sardine',tx:'游蓝水 · 鲹鱼的食物',fact:'沙丁鱼成千上万挤成“饵球”，是鲹鱼、鲨鱼这些掠食者的主要食物。'},
+ jack:{n:'鲹鱼',p:2,home:'blue',art:'jack',tx:'游蓝水 · 每条沙丁鱼 +3',fact:'鲹鱼白天聚成大鱼群，追着沙丁鱼这样的小鱼捕食。'},
+ shark:{n:'礁鲨',p:3,home:'blue',art:'shark',tx:'游蓝水 · 每种生物 +2',lg:'游蓝水。场上每有一种不同的生物，+2 分。',fact:'有鲨鱼巡游的礁，说明下面整条食物链是健康的。'},
+ turtle:{n:'绿海龟',p:6,home:'grass',art:'turtle',tx:'去海草床 · 稳稳的 6 分',fact:'绿海龟成年后主要吃海草。它像割草机一样啃食，反而让海草床长得更健康。'},
+ moray:{n:'海鳝',p:3,home:'cave',art:'moray',tx:'住洞穴 · 有石斑鱼 ×3',fact:'石斑鱼会到洞口摇头“邀请”海鳝一起捕猎：海鳝钻缝赶鱼，石斑在外面堵。'},
+ spawn:{n:'产卵季',p:0,fx:1,art:'',tx:'本回合 ×2',lg:'一次性：这个回合的总净化 ×2。留到礁上最热闹的时候。',fact:'很多礁鱼在满月前后集体产卵。'}};
+const HOMEN={coral:'珊瑚',anem:'海葵',sand:'沙地',blue:'蓝水',grass:'海草床',cave:'洞穴',bare:'荒礁'};
+const CSTART=['coral','coral','coral','coral','anem','anem','clown','clown','clown','clown','chromis','chromis','chromis','chromis','butterfly','butterfly','cleaner','eel','eel','eel','eel','sardine','sardine','sardine','jack','jack','turtle','ray','spawn','spawn'];
+const CPOOL=['shark','grouper','moray','ray','parrot','butterfly','coral','anem','spawn','jack','cleaner','clown'];
+const CST=[{n:'浅滩',turns:7,tier0:0,rule:''},{n:'礁坡',turns:8,tier0:0,rule:'这片水域污染更重，要净化更多才会退。'},{n:'峭壁',turns:9,tier0:0,rule:'最后一片。把整片礁都种满。'}];
+let CTARGET=[380,600,820];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const cmk=id=>({id,u:++CUID,b:0});
-function cgNew(){const S={stage:0,cards:CSTART.map(cmk)};cgStage(S);return S}
-function cgStage(S){S.turn=0;S.total=0;S.slots=Array(SLOTS).fill(null);S.deck=cshuf(S.cards.map(k=>({id:k.id,u:k.u,b:0})));S.hand=[];S.dis=[];S.over=null;S.offer=null;cgTurn(S)}
+function cgInit(){const S={stage:0,cards:CSTART.map(cmk)};cgStage(S);return S}
+function cgStage(S){S.target=CTARGET[S.stage];S.turn=0;S.total=0;S.tier=0;S.spots=SPOTS.map((s,i)=>({i,type:s.type,t:s.t,x:s.x,y:s.y,hab:null,res:[],c:null}));
+ S.deck=cshuf(S.cards.map(k=>({id:k.id,u:k.u,b:0})));S.hand=[];S.dis=[];S.over=null;S.offer=null;cgTurn(S)}
 function cgDraw(S,n){for(let i=0;i<n;i++){if(!S.deck.length){if(!S.dis.length)return;S.deck=cshuf(S.dis);S.dis=[]}S.hand.push(S.deck.pop())}}
-function cgTurn(S){S.turn++;S.played=0;S.x2=0;cgDraw(S,Math.max(0,HANDN-S.hand.length))}
-const cgLimit=S=>PLAYN+S.slots.filter(c=>c&&c.id==='coral').length;
-function cgScore(S){const B=S.slots,cnt={};B.forEach(c=>{if(c)cnt[c.id]=(cnt[c.id]||0)+1});const kinds=Object.keys(cnt).length,hold=S.hand.length;
- const F=B.map((c,i)=>{if(!c)return null;let p=CD[c.id].p+c.b;const L=B[i-1],R=B[i+1];
-  if(c.id==='chromis')p+=2*(cnt.chromis-1);if(c.id==='jack')p+=3*(cnt.sardine||0);
-  if(c.id==='eel')p+=3*((L&&L.id==='eel'?1:0)+(R&&R.id==='eel'?1:0));if(c.id==='shark')p+=3*kinds;if(c.id==='nudi')p+=3*hold;
-  if(c.id==='clown')p*=Math.pow(2,cnt.anem||0);if(c.id==='butterfly'&&((L&&L.id==='butterfly')||(R&&R.id==='butterfly')))p*=2;if(c.id==='moray'&&cnt.grouper)p*=3;
-  if(c.id!=='cleaner'&&((L&&L.id==='cleaner')||(R&&R.id==='cleaner')))p*=2;if(c.net)p=0;return p});
- const sum=F.reduce((a,p)=>a+(p||0),0);return {F,sum,total:sum*(S.x2?2:1)}}
-function cgPlay(S,i,slot){const k=S.hand[i];if(S.over||!k||S.played>=cgLimit(S))return false;
- if(CD[k.id].fx){S.hand.splice(i,1);S.dis.push(k);S.played++;if(k.id==='spawn')S.x2=1;return true}
- if(slot<0||slot>=SLOTS||slot===CST[S.stage].block)return false;const old=S.slots[slot];if(old)S.dis.push({id:old.id,u:old.u,b:0});S.hand.splice(i,1);S.slots[slot]={id:k.id,u:k.u,b:0};S.played++;if(k.id==='parrot')cgDraw(S,2);return true}
-function cgDiscard(S,i){if(S.over||!S.hand[i])return false;S.dis.push(S.hand.splice(i,1)[0]);return true}
-function cgEnd(S){if(S.over)return null;const st=CST[S.stage],sc=cgScore(S),ev={sc,net:null,wash:null,ate:[]};S.total+=sc.total;S.slots.forEach(c=>{if(c)delete c.net});
- S.slots.forEach((c,i)=>{if(!c)return;c.b+=c.id==='grouper'?3:1;if(c.id==='frog'&&i>0&&S.slots[i-1]){const v=S.slots[i-1];c.b+=CD[v.id].p+v.b;S.dis.push({id:v.id,u:v.u,b:0});S.slots[i-1]=null;ev.ate.push(i-1)}});
- if(S.total>=S.target){S.over='win';if(S.stage<CST.length-1)S.offer=cshuf(CPOOL.slice()).filter((v,i,a)=>a.indexOf(v)===i).slice(0,3);return ev}
- if(S.turn>=st.turns){S.over='lose';return ev}
- if(st.net){let b=-1,bi=-1;sc.F.forEach((p,i)=>{if(p!=null&&p>b&&S.slots[i]){b=p;bi=i}});if(bi>=0&&b>0){S.slots[bi].net=1;ev.net=bi}}
- if(st.wash&&S.slots[SLOTS-1]){const v=S.slots[SLOTS-1];S.dis.push({id:v.id,u:v.u,b:0});S.slots[SLOTS-1]=null;ev.wash=SLOTS-1}
- cgTurn(S);return ev}
-function cgPick(S,i){if(!S.offer||!S.offer[i])return false;S.cards.push(cmk(S.offer[i]));S.stage++;S.target=CTARGET[S.stage];cgStage(S);return true}
-let CTARGET=[220,260,400];
-const cgInit=()=>{const S=cgNew();S.target=CTARGET[0];return S};
-const CG={SLOTS,CD,CSTART,CPOOL,CST,cgInit,cgScore,cgPlay,cgDiscard,cgEnd,cgPick,cgLimit,setT:t=>{CTARGET=t}};
+function cgTurn(S){S.turn++;S.played=0;S.swaps=SWAPN;S.x2=0;cgDraw(S,Math.max(0,HANDN-S.hand.length))}
+/* 场上所有生物：{c:牌, sp:位置, k:'hab'|'res'|'solo', j} */
+function cgAll(S){const A=[];S.spots.forEach(sp=>{if(sp.hab)A.push({c:sp.hab,sp,k:'hab'});sp.res.forEach((c,j)=>A.push({c,sp,k:'res',j}));if(sp.c)A.push({c:sp.c,sp,k:'solo'})});return A}
+function cgCan(S,id,sp){const d=CD[id];if(d.fx||sp.t>S.tier)return false;if(d.hab)return sp.type==='bare'&&!sp.hab;if(d.home==='coral'||d.home==='anem')return !!sp.hab&&sp.hab.id===d.home&&sp.res.length<2;return sp.type===d.home&&!sp.c}
+const cgTargets=(S,id)=>S.spots.filter(sp=>cgCan(S,id,sp));
+function cgScore(S){const A=cgAll(S),cnt={};A.forEach(a=>cnt[a.c.id]=(cnt[a.c.id]||0)+1);const kinds=Object.keys(cnt).length;
+ A.forEach(a=>{const c=a.c;let p=CD[c.id].p+c.b;
+  if(c.id==='chromis')p+=2*(cnt.chromis-1);if(c.id==='eel')p+=3*(cnt.eel-1);if(c.id==='jack')p+=3*(cnt.sardine||0);if(c.id==='shark')p+=2*kinds;
+  if(c.id==='clown'&&a.sp.res.length===2)p*=2;if(c.id==='butterfly'&&cnt.butterfly>1)p*=2;if(c.id==='moray'&&cnt.grouper)p*=3;a.p=p});
+ for(let n=0;n<(cnt.cleaner||0);n++){const top=A.filter(a=>a.c.id!=='cleaner').sort((x,y)=>y.p-x.p)[0];if(top){top.p*=2;top.x2=1}}
+ const sum=A.reduce((s,a)=>s+a.p,0);return {A,sum,total:sum*(S.x2?2:1)}}
+function cgPlay(S,i,si){const k=S.hand[i];if(S.over||!k||S.played>=PLAYN)return false;const d=CD[k.id];
+ if(d.fx){S.hand.splice(i,1);S.dis.push(k);S.played++;S.x2=1;return true}
+ const sp=S.spots[si];if(!sp||!cgCan(S,k.id,sp))return false;S.hand.splice(i,1);const c={id:k.id,u:k.u,b:0};if(d.hab)sp.hab=c;else if(d.home==='coral'||d.home==='anem')sp.res.push(c);else sp.c=c;S.played++;if(k.id==='parrot')cgDraw(S,2);return true}
+function cgSwap(S,i){if(S.over||!S.hand[i]||S.swaps<=0)return false;S.dis.push(S.hand.splice(i,1)[0]);S.swaps--;cgDraw(S,1);return true}
+/* 移走场上的生物（不花次数）。移走栖息地时，住在里面的也一起走 */
+function cgRemove(S,si,k,j){const sp=S.spots[si];if(S.over||!sp)return false;const out=c=>S.dis.push({id:c.id,u:c.u,b:0});
+ if(k==='hab'&&sp.hab){out(sp.hab);sp.res.forEach(out);sp.hab=null;sp.res=[];return true}if(k==='res'&&sp.res[j]){out(sp.res.splice(j,1)[0]);return true}if(k==='solo'&&sp.c){out(sp.c);sp.c=null;return true}return false}
+function cgEnd(S){if(S.over)return null;const st=CST[S.stage],sc=cgScore(S),ev={sc,tier:null};S.total+=sc.total;cgAll(S).forEach(a=>{a.c.b+=a.c.id==='grouper'?3:1});
+ let t=0;TIERS.forEach((f,i)=>{if(S.total>=f*S.target)t=i});if(t>S.tier){S.tier=t;ev.tier=t}
+ if(S.total>=S.target){S.over='win';S.tier=3;if(S.stage<CST.length-1)S.offer=cshuf(CPOOL.slice()).filter((v,i,a)=>a.indexOf(v)===i).slice(0,3);return ev}
+ if(S.turn>=st.turns){S.over='lose';return ev}cgTurn(S);return ev}
+function cgPick(S,i){if(!S.offer||!S.offer[i])return false;S.cards.push(cmk(S.offer[i]));S.stage++;cgStage(S);return true}
+const CG={SPOTS,TIERS,CD,HOMEN,CSTART,CPOOL,CST,PLAYN,cgInit,cgAll,cgCan,cgTargets,cgScore,cgPlay,cgSwap,cgRemove,cgEnd,cgPick,setT:t=>{CTARGET=t}};
 
 </script>
 <script>
@@ -449,51 +492,90 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t||
  if(d.r!=null&&sel){if(tdPlace(G,sel,+d.r,+d.c)){sel=null;hint()}else tone(140,.12,'square',.04)}});
 requestAnimationFrame(loop);
 </script>
-<script>
-/* ---------- 牌局界面 ---------- */
-let mode='cg',S,csel=null,cinfo=null,cbusy=false,ctT=0,tdStarted=false;
+<script>/* ---------- 牌局界面（场景版） ---------- */
+let mode='cg',S,csel=null,cinfo=null,cbusy=false,ctT=0,tdStarted=false,cdrag=null,cpick=null;
 const cart=id=>CD[id].art?svg(P[CD[id].art]()):'';
-const ccard=(k,attr,extra)=>{const d=CD[k.id||k];return `<button class="cc ${d.fx?'fx':''} ${extra||''}" ${attr||''}>${d.fx?'':`<span class="no">${d.p}</span>`}${cart(k.id||k)}<b>${d.n}</b><small>${d.tx}</small></button>`};
-function csay(t){document.querySelectorAll('.ctoast').forEach(e=>e.remove());const d=document.createElement('div');d.className='ctoast';d.textContent=t;document.body.appendChild(d);clearTimeout(ctT);ctT=setTimeout(()=>d.remove(),1800)}
-const CTIPS=['打出的生物留在礁上，每回合结束都得分，还会长大 +1。每回合只能打 2 张。','没打的牌会留在手里。不想要的，选中后点“弃掉”，下回合补新的。','礁位满了？把新牌放到旧牌上，就能替换它。','单张都不强，搭起来才强：海葵让小丑鱼翻倍，裂唇鱼让左右翻倍。'];
-function crender(){const st=CST[S.stage],sc=cgScore(S),lim=cgLimit(S),left=lim-S.played,k=csel!=null?S.hand[csel]:null;
- $('mInfo').textContent=`${st.n} · 第 ${S.turn} / ${st.turns} 回合`;$('cTot').textContent=S.total;$('cTgt').textContent='/ '+S.target;$('cBar').style.width=Math.min(100,S.total/S.target*100)+'%';
+const ccard=(k,attr,extra)=>{const d=CD[k.id||k];return `<button class="cc ${d.fx?'fx':''} ${d.hab?'hb':''} ${extra||''}" ${attr||''}>${d.fx?'':`<span class="no">${d.p}</span>`}${cart(k.id||k)}<b>${d.n}</b><small>${d.tx}</small></button>`};
+function csay(t){document.querySelectorAll('.ctoast').forEach(e=>e.remove());const d=document.createElement('div');d.className='ctoast';d.textContent=t;document.body.appendChild(d);clearTimeout(ctT);ctT=setTimeout(()=>d.remove(),2000)}
+const CTIPS=['把手牌拖进海里。小丑鱼住海葵、礁鱼住珊瑚，所以先在荒礁上种珊瑚或海葵。每回合打 3 张。','留在礁上的生物每回合都净化，还会长大 +1。净化越多，黑色的污染退得越远。','打不出去的牌可以换：选中它，点“换牌”。','搭起来才强：一对小丑鱼 ×2，成群的光鳃鱼、花园鳗互相加分。'];
+const RUB=`<svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="74" rx="40" ry="14" fill="#6f7a80"/><circle cx="34" cy="62" r="15" fill="#8a949a"/><circle cx="58" cy="56" r="19" fill="#9aa4a9"/><circle cx="72" cy="68" r="11" fill="#7c868c"/><path d="M50 44 L46 30 M50 44 L58 28 M44 50 L34 40" stroke="#b9c0c3" stroke-width="4" stroke-linecap="round"/></svg>`;
+function cbg(){let rock='';let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;for(let i=0;i<46;i++){const x=rnd()*76,y=76+rnd()*26;rock+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.5+rnd()*3).toFixed(1)}" fill="${rnd()<.5?'#4b677d':'#2e4354'}"/>`}
+ let grass='';for(let i=0;i<9;i++)grass+=`<path d="M${2+i*2.6} 30 Q${1+i*2.6} ${18-rnd()*6} ${4+i*2.8} ${9+rnd()*5}" stroke="${i%2?'#3f9b58':'#59b86c'}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
+ return `<svg class="bg" viewBox="0 0 100 102" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="cgw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#39b3d2"/><stop offset=".5" stop-color="#1368a8"/><stop offset="1" stop-color="#072a5c"/></linearGradient><linearGradient id="cgs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3e3b8"/><stop offset="1" stop-color="#d7bd86"/></linearGradient></defs>
+ <rect width="100" height="102" fill="url(#cgw)"/><path d="M14 0 L30 0 L16 70 L-6 70Z M44 0 L56 0 L52 60 L34 60Z M72 0 L80 0 L84 50 L70 50Z" fill="#fff" opacity=".07"/>
+ <path d="M0 0 H100 V2.5 Q92 5 84 2.5 T68 2.5 T52 2.5 T36 2.5 T20 2.5 T4 2.5 L0 3Z" fill="#d6f3fa" opacity=".55"/>
+ <path d="M74 102 C76 88 88 84 100 86 V102Z" fill="#06224e" opacity=".75"/>
+ <path d="M0 78 L52 73 C61 71 67 65 70 55 C76 64 76 84 72 102 L0 102Z" fill="#3b5266"/>${rock}
+ <path d="M24 87 C40 82 60 84 73 91 L76 102 L22 102Z" fill="#8cc0cb" opacity=".5"/>
+ <ellipse cx="17" cy="91" rx="13" ry="8" fill="#08131c"/><path d="M4 92 C5 80 29 80 30 92" stroke="#587489" stroke-width="2.4" fill="none"/>
+ <path d="M0 13 C12 12 24 19 31 27 L0 33Z" fill="#cdb97f"/>${grass}
+ <path d="M0 29 C20 24 50 30 68 38 C74 42 73 50 70 56 C67 66 60 71 52 73 L0 79Z" fill="url(#cgs)"/>
+ <path d="M6 44 Q16 41 26 44 M30 54 Q42 51 54 55 M8 68 Q20 65 32 68 M40 40 Q50 38 58 41" stroke="#c7ad76" stroke-width=".7" fill="none" opacity=".7"/></svg>`}
+function cinit(){$('cScene').innerHTML=cbg()+'<div class="haze" id="cHaze"></div><div id="cSpots"></div><div id="cMurk"></div><div id="cFx"></div>';
+ $('cMurk').innerHTML=S.spots.filter(sp=>sp.t>S.tier).map(sp=>`<i class="murk" data-m="${sp.i}" data-t="${sp.t}" style="left:${sp.x}%;top:${sp.y/1.02}%"></i>`).join('')}
+const spos=sp=>`left:${sp.x}%;top:${sp.y/1.02}%`;
+const gs=c=>1+Math.min(.55,c.b*.05);
+function crender(){const st=CST[S.stage],sc=cgScore(S),left=PLAYN-S.played,k=csel!=null?S.hand[csel]:(cdrag&&cdrag.moved?S.hand[cdrag.i]:null),prog=Math.min(1,S.total/S.target);
+ $('mInfo').textContent=`${st.n} · 第 ${S.turn} / ${st.turns} 回合`;$('cTot').textContent=S.total;$('cTgt').textContent='/ '+S.target;$('cBar').style.width=prog*100+'%';
  $('cGain').textContent=sc.total?`这回合 +${sc.total}${S.x2?'（×2）':''}`:'';
  $('cTip').innerHTML=S.stage===0?`<b>${S.turn<=4?'第 '+S.turn+' 步':'提示'}</b>${CTIPS[Math.min(3,S.turn-1)]}`:`<b>${st.n}</b>${st.rule}`;
- const canPut=k&&!CD[k.id].fx&&left>0;
- $('cSlots').innerHTML=S.slots.map((c,i)=>{if(st.block===i)return `<div class="slot algae">藻类</div>`;const p=sc.F[i];
-  return `<button class="slot ${c?'full':''} ${canPut?'tgt':''}" data-s="${i}">${c?ccard(c,'tabindex="-1"',cinfo===i?'sel':'').replace('<button','<span').replace('</button>','</span>')+`<span class="pt ${p?'':'z'}">${p}</span>`+(c.b?`<span class="gr">+${c.b}</span>`:'')+(c.net?'<span class="net"></span>':''):(st.wash&&i===SLOTS-1?'急流':'礁位')}</button>`}).join('');
- let tx='';const show=k?k.id:(cinfo!=null&&S.slots[cinfo]?S.slots[cinfo].id:null);
- if(show){const d=CD[show];tx=`<b>${d.n}</b><i>${d.lg||d.tx+(d.fx?'':'。')}</i>${k&&d.fx?' <button class="pri" id="cUse" style="background:var(--sun);color:#221a00;border-radius:99px;padding:2px 14px;font-weight:700">使用</button>':''}<br>${d.fact}`}
- else tx=left>0?'点一张手牌，再点一个礁位。':'这回合打满了。点“结束回合”结算。';
+ $('cScene').style.filter=`saturate(${(.5+.5*prog).toFixed(2)}) brightness(${(.88+.12*prog).toFixed(2)})`;$('cHaze').style.opacity=(.32*(1-prog)).toFixed(2);
+ const ok=k&&!CD[k.id].fx&&left>0?new Set(cgTargets(S,k.id).map(s=>s.i)):new Set();let h='';const val=a=>{const f=sc.A.find(o=>o.c===a);return f?f.p:0};
+ const cr=(c,sp,kk,j,dx,dy,size)=>{const s=gs(c),on=cinfo&&cinfo.si===sp.i&&cinfo.k===kk&&cinfo.j===j;return `<button class="cr ${kk} ${on?'on':''} ${CD[c.id].home==='blue'?'swim':''}" data-si="${sp.i}" data-k="${kk}" data-j="${j==null?'':j}" style="${spos(sp)};width:${size}px;height:${size}px;margin:${dy-size/2}px 0 0 ${dx-size/2}px;animation-delay:-${(c.u%7)*.4}s"><span class="cs" style="transform:scale(${s})">${cart(c.id)}</span><span class="v ${sc.A.find(o=>o.c===c&&o.x2)?'x2':''}">${val(c)}</span></button>`};
+ S.spots.forEach(sp=>{if(sp.t>S.tier)return;
+  if(sp.type==='bare'&&!sp.hab)h+=`<span class="rub" style="${spos(sp)}">${RUB}</span>`;
+  if(sp.hab){h+=cr(sp.hab,sp,'hab',null,0,4,60);sp.res.forEach((c,j)=>h+=cr(c,sp,'res',j,j?20:-20,j?-22:-26,38))}
+  if(sp.c)h+=cr(sp.c,sp,'solo',null,0,0,sp.type==='blue'?50:46);
+  if(ok.has(sp.i))h+=`<button class="ring" data-ring="${sp.i}" style="${spos(sp)}" aria-label="放到这里"></button>`});
+ $('cSpots').innerHTML=h;
+ let tx='';const show=csel!=null?S.hand[csel].id:(cinfo?(()=>{const sp=S.spots[cinfo.si],c=cinfo.k==='hab'?sp.hab:cinfo.k==='res'?sp.res[cinfo.j]:sp.c;return c&&c.id})():null);
+ if(show){const d=CD[show];let why='';if(csel!=null&&!d.fx&&!cgTargets(S,show).length)why=`<br><i style="color:var(--bad)">现在没地方放：${d.hab?'没有空着的荒礁':d.home==='coral'||d.home==='anem'?'先种'+HOMEN[d.home]+'，或者'+HOMEN[d.home]+'住满了':HOMEN[d.home]+'还被污染盖着，或者满了'}。</i>`;
+  tx=`<b>${d.n}</b><i>${d.lg||d.tx+'。'}</i>${csel!=null&&d.fx?' <button id="cUse" class="mini">使用</button>':''}${cinfo&&csel==null?' <button id="cRem" class="mini alt">移走</button>':''}${why}<br>${d.fact}`}
+ else tx=left>0?'把手牌拖进海里，或者点一张牌再点发光的位置。点礁上的生物可以看它。':'这回合打满了。点“结束回合”，看它们净化。';
  $('cText').innerHTML=tx;
- $('cHand').innerHTML=S.hand.map((c,i)=>ccard(c,`data-h="${i}"`,csel===i?'sel':'')).join('');
- $('cDis').disabled=csel==null;$('cEnd').innerHTML=`结束回合 <small>${left>0?'还能打 '+left+' 张':'打满了'}</small>`}
-function cfloat(i,txt){const el=document.querySelectorAll('#cSlots>*')[i];if(!el)return;el.classList.add('pop')}
-async function cend(){if(cbusy||S.over)return;cbusy=true;csel=null;cinfo=null;crender();const sc=cgScore(S),sl=()=>[...document.querySelectorAll('#cSlots>*')];let run=0;const t0=S.total;
- for(let i=0;i<SLOTS;i++){if(sc.F[i]==null)continue;run+=sc.F[i];sl()[i].classList.add('pop');$('cGain').textContent='+'+run;tone(440+i*70,.09,'triangle',.07);await new Promise(r=>setTimeout(r,window.__fast?0:170))}
- if(S.x2){$('cGain').textContent='+'+run+' ×2 = +'+run*2;tone(990,.25,'triangle',.09);await new Promise(r=>setTimeout(r,window.__fast?0:500))}
- const ev=cgEnd(S);$('cTot').textContent=S.total;$('cBar').style.width=Math.min(100,S.total/S.target*100)+'%';await new Promise(r=>setTimeout(r,window.__fast?0:450));
- const msg=[];if(ev.ate.length){ev.ate.forEach(i=>sl()[i].classList.add('gone'));msg.push('躄鱼吃掉了左边的鱼')}if(ev.wash!=null){sl()[ev.wash].classList.add('gone');msg.push('急流冲走了最右边的生物')}if(ev.net!=null)msg.push('渔网缠住了得分最高的生物');
- if(msg.length){csay(msg.join('；'));await new Promise(r=>setTimeout(r,window.__fast?0:500))}
- cbusy=false;if(S.over){cfinish();return}crender()}
-function cfinish(){const st=CST[S.stage];if(S.over==='lose'){SFX.lose();ov(`<h1>污染没有退去</h1><p style="text-align:center;font:700 26px var(--num);color:var(--sun)">${S.total} / ${S.target}</p><p>单张牌的分数不够。把能互相加强的生物放到一起，越早放下，长得越大。</p><button class="go" data-cact="new">再来一局</button>`);return}
- SFX.win();if(S.offer)ov(`<h1>${st.n}净化完成</h1><p style="text-align:center">博士刻好了新的记忆卡，选 1 张加入牌组。</p><div class="offer">${S.offer.map((k,i)=>ccard(k,`data-pick="${i}"`)).join('')}<p id="cPickInfo" style="font-size:13px;color:var(--dim)">点一张看说明，再点一次确认。</p></div>`);
- else ov(`<h1>这片礁净化完成</h1><p style="text-align:center;font:700 26px var(--num);color:var(--sun)">${S.total} / ${S.target}</p><p>三片水域都恢复了。你的牌组里现在有 ${S.cards.length} 张记忆卡。</p><button class="go" data-cact="new">再来一局</button>`)}
-let cpick=null;
+ $('cHand').innerHTML=S.hand.map((c,i)=>ccard(c,`data-h="${i}"`,(csel===i?'sel ':'')+(!CD[c.id].fx&&!cgTargets(S,c.id).length?'dead':''))).join('');
+ $('cDis').disabled=csel==null||S.swaps<=0;$('cDis').innerHTML=`换牌 <small>${S.swaps} 次</small>`;$('cEnd').innerHTML=`结束回合 <small>${left>0?'还能打 '+left+' 张':'打满了'}</small>`}
+function cfx(sp,dx,dy,txt,cls){const f=document.createElement('span');f.className='fl '+(cls||'');f.textContent=txt;f.style.cssText=spos(sp)+`;margin:${dy}px 0 0 ${dx}px`;$('cFx').appendChild(f);setTimeout(()=>f.remove(),900);const r=document.createElement('i');r.className='wave';r.style.cssText=spos(sp)+`;margin:${dy}px 0 0 ${dx}px`;$('cFx').appendChild(r);setTimeout(()=>r.remove(),700)}
+const cwait=ms=>new Promise(r=>setTimeout(r,window.__fast?0:ms));
+async function cend(){if(cbusy||S.over)return;cbusy=true;csel=null;cinfo=null;crender();const sc=cgScore(S),t0=S.total,mult=S.x2?2:1;let run=0;const step=sc.A.length>10?90:150;
+ for(const a of sc.A){if(!a.p)continue;run+=a.p;const el=document.querySelector(`.cr[data-si="${a.sp.i}"][data-k="${a.k}"][data-j="${a.j==null?'':a.j}"]`);if(el){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse')}
+  cfx(a.sp,a.k==='res'?(a.j?20:-20):0,a.k==='res'?-30:-8,'+'+a.p,a.x2?'x2':'');$('cGain').textContent='+'+run;$('cTot').textContent=t0+run;$('cBar').style.width=Math.min(100,(t0+run)/S.target*100)+'%';tone(392+Math.min(run,300)*2.4,.09,'triangle',.07);await cwait(step)}
+ if(mult>1){$('cGain').textContent='+'+run+' ×2 = +'+run*2;tone(1047,.3,'triangle',.1);await cwait(550)}
+ const ev=cgEnd(S);$('cTot').textContent=S.total;const prog=Math.min(1,S.total/S.target);$('cBar').style.width=prog*100+'%';$('cScene').style.filter=`saturate(${(.5+.5*prog).toFixed(2)}) brightness(${(.88+.12*prog).toFixed(2)})`;$('cHaze').style.opacity=(.32*(1-prog)).toFixed(2);await cwait(350);
+ const gone=[...document.querySelectorAll('.murk')].filter(m=>+m.dataset.t<=S.tier);if(gone.length){gone.forEach(m=>{m.classList.add('gone');setTimeout(()=>m.remove(),1300)});tone(330,.5,'sine',.1,990);if(!S.over)csay('污染退了，露出了新的地方');await cwait(900)}
+ if(S.over){await cwait(500);cbusy=false;cfinish();return}cbusy=false;crender()}
+function cfinish(){const st=CST[S.stage];if(S.over==='lose'){SFX.lose();ov(`<h1>污染没有退完</h1><p style="text-align:center;font:700 26px var(--num);color:var(--sun)">${S.total} / ${S.target}</p><p>越早住进来的生物长得越大。先种栖息地，再让能互相加分的鱼住到一起。</p><button class="go" data-cact="again">再试这片水域</button>`);return}
+ SFX.win();if(S.offer){cpick=null;ov(`<h1>${st.n}净化完成</h1><p style="text-align:center">博士刻好了新的记忆卡，选 1 张加入牌组。</p><div class="offer">${S.offer.map((k,i)=>ccard(k,`data-pick="${i}"`)).join('')}<p id="cPickInfo" style="font-size:13px;color:var(--dim)">点一张看说明，再点一次确认。</p></div>`)}
+ else ov(`<h1>整片礁净化完成</h1><p style="text-align:center;font:700 26px var(--num);color:var(--sun)">${S.total} / ${S.target}</p><p>三片水域都恢复了。你的牌组里现在有 ${S.cards.length} 张记忆卡。</p><button class="go" data-cact="new">再来一局</button>`)}
+function cplay(i,si){if(cgPlay(S,i,si)){csel=null;cinfo=null;SFX.place();crender();if(si>=0){const sp=S.spots[si];cfx(sp,0,0,'','')}return true}return false}
+/* 拖动：按住手牌拖进场景；没拖动就当作点选 */
+document.addEventListener('pointerdown',e=>{if(mode!=='cg'||cbusy||!S||S.over)return;const c=e.target.closest('#cHand .cc');if(!c)return;cdrag={i:+c.dataset.h,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,pid:e.pointerId};try{c.setPointerCapture(e.pointerId)}catch(_){}});
+document.addEventListener('pointermove',e=>{if(!cdrag||e.pointerId!==cdrag.pid)return;if(!cdrag.moved){if(Math.hypot(e.clientX-cdrag.x0,e.clientY-cdrag.y0)<10)return;cdrag.moved=true;csel=null;cinfo=null;const src=document.querySelector(`#cHand .cc[data-h="${cdrag.i}"]`);const g=src.cloneNode(true);g.className='cc ghost'+(g.classList.contains('fx')?' fx':'');g.removeAttribute('data-h');document.body.appendChild(g);cdrag.ghost=g;src.classList.add('lift');crender();const s2=document.querySelector(`#cHand .cc[data-h="${cdrag.i}"]`);if(s2)s2.classList.add('lift')}
+ cdrag.ghost.style.transform=`translate(${e.clientX-36}px,${e.clientY-88}px) scale(.82)`;e.preventDefault()},{passive:false});
+function cdrop(e){if(!cdrag||e.pointerId!==cdrag.pid)return;const d=cdrag;cdrag=null;if(d.ghost)d.ghost.remove();
+ if(!d.moved){csel=csel===d.i?null:d.i;cinfo=null;crender();return}
+ const k=S.hand[d.i],r=$('cScene').getBoundingClientRect(),x=e.clientX,y=e.clientY-40,inside=x>r.left&&x<r.right&&e.clientY>r.top&&e.clientY<r.bottom+30;
+ if(!inside){crender();return}
+ if(CD[k.id].fx){if(!cplay(d.i,-1)){csay('这回合打满了');crender()}return}
+ if(S.played>=PLAYN){csay('这回合打满了，点“结束回合”');crender();return}
+ let best=null,bd=1e9;cgTargets(S,k.id).forEach(sp=>{const px=r.left+sp.x/100*r.width,py=r.top+sp.y/102*r.height,dd=Math.hypot(px-x,py-y);if(dd<bd){bd=dd;best=sp}});
+ if(best&&bd<r.width*.3){cplay(d.i,best.i)}else{const dd=CD[k.id];csay(best?'拖到发光的圈里':dd.hab?'没有空着的荒礁了':dd.home==='coral'||dd.home==='anem'?'先种'+HOMEN[dd.home]+'，'+dd.n+'才有地方住':HOMEN[dd.home]+'还被污染盖着，或者已经满了');csel=d.i;crender()}}
+document.addEventListener('pointerup',cdrop);document.addEventListener('pointercancel',e=>{if(cdrag&&e.pointerId===cdrag.pid){if(cdrag.ghost)cdrag.ghost.remove();cdrag=null;crender()}});
 document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
  if(t.id==='mA'||t.id==='mB'){mode=t.id==='mA'?'cg':'td';$('mA').className=mode==='cg'?'on':'';$('mB').className=mode==='td'?'on':'';$('mCG').hidden=mode!=='cg';$('mTD').hidden=mode!=='td';$('ov').hidden=true;try{localStorage.setItem('reefMode',mode)}catch(e){}
   if(mode==='td'){$('mInfo').textContent='';if(!tdStarted){tdStarted=true;start()}}else crender();return}
  if(mode!=='cg')return;
- if(d.cact==='new'){S=cgInit();csel=cinfo=null;$('ov').hidden=true;crender();return}
- if(d.pick!=null){const i=+d.pick;if(cpick===i){cpick=null;cgPick(S,i);csel=cinfo=null;$('ov').hidden=true;crender()}else{cpick=i;const dd=CD[S.offer[i]];document.querySelectorAll('.offer .cc').forEach((c,j)=>c.classList.toggle('sel',j===i));$('cPickInfo').innerHTML=`<b style="color:var(--ink)">${dd.n}</b>　<span style="color:var(--sun)">${dd.lg||dd.tx}</span><br>${dd.fact}<br>再点一次确认。`}return}
+ if(d.cact==='new'){S=cgInit();csel=cinfo=null;$('ov').hidden=true;cinit();crender();return}
+ if(d.cact==='again'){cgStage(S);csel=cinfo=null;$('ov').hidden=true;cinit();crender();return}
+ if(d.pick!=null){const i=+d.pick;if(cpick===i){cpick=null;cgPick(S,i);csel=cinfo=null;$('ov').hidden=true;cinit();crender()}else{cpick=i;const dd=CD[S.offer[i]];document.querySelectorAll('.offer .cc').forEach((c,j)=>c.classList.toggle('sel',j===i));$('cPickInfo').innerHTML=`<b style="color:var(--ink)">${dd.n}</b>　<span style="color:var(--sun)">${dd.lg||dd.tx}</span><br>${dd.fact}<br>再点一次确认。`}return}
  if(cbusy||S.over)return;
- if(t.id==='cUse'){if(cgPlay(S,csel,-1)){csel=null;tone(660,.2,'triangle',.09);crender()}else csay('这回合打满了');return}
- if(d.h!=null){csel=csel===+d.h?null:+d.h;cinfo=null;crender();return}
- if(d.s!=null){const i=+d.s;if(csel!=null){const k=S.hand[csel];if(CD[k.id].fx){csay('点“使用”来用这张牌');return}if(cgPlay(S,csel,i)){csel=null;cinfo=null;SFX.place();crender();document.querySelectorAll('#cSlots>*')[i].classList.add('pop')}else csay(S.played>=cgLimit(S)?'这回合打满了，点“结束回合”':'这一格不能放')}else{cinfo=cinfo===i?null:i;crender()}return}
- if(t.id==='cDis'){if(csel!=null&&cgDiscard(S,csel)){csel=null;crender()}return}
+ if(t.id==='cUse'){if(!cplay(csel,-1))csay('这回合打满了');return}
+ if(t.id==='cRem'){if(cinfo&&cgRemove(S,cinfo.si,cinfo.k,cinfo.j)){cinfo=null;crender()}return}
+ if(d.ring!=null){if(csel!=null&&!cplay(csel,+d.ring))csay('这回合打满了，点“结束回合”');return}
+ if(d.si!=null){const si=+d.si;if(csel!=null){const k=S.hand[csel];if(!CD[k.id].fx&&cgCan(S,k.id,S.spots[si])){if(!cplay(csel,si))csay('这回合打满了，点“结束回合”');return}}csel=null;const ni={si,k:d.k,j:d.j===''?null:+d.j};cinfo=cinfo&&cinfo.si===ni.si&&cinfo.k===ni.k&&cinfo.j===ni.j?null:ni;crender();return}
+ if(t.id==='cDis'){if(csel!=null&&cgSwap(S,csel)){csel=null;crender()}return}
  if(t.id==='cEnd'){cend();return}});
-S=cgInit();crender();
+S=cgInit();cinit();crender();
 try{if(localStorage.getItem('reefMode')==='td')$('mB').click()}catch(e){}
 </script>
 </body></html>
