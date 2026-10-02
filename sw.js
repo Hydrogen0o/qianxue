@@ -1,5 +1,5 @@
 /* 潜学离线缓存。页面本身优先走网络（保证拿到最新版），数据和图片包按版本号缓存，载过一次后没网也能用。 */
-const VER = 'f981c3f4e1', C = 'qianxue-v1';
+const VER = 'af08963147', C = 'qianxue-v1';
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 async function put(req, res) {
