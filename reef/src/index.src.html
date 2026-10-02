@@ -69,17 +69,78 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .sheet .new small{color:var(--sun);font-weight:700}
 @keyframes rise{from{transform:translateY(30px) scale(.8);opacity:0}}
 .sheet .go{display:block;width:100%;margin-top:14px;background:var(--sun);color:#221a00;font-weight:700;font-size:16px;border-radius:12px;padding:12px}
+
+.modes{display:flex;align-items:center;gap:10px}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;flex:none}
+.seg button{padding:4px 14px;font-size:13px;color:var(--dim);font-weight:700}
+.seg button.on{background:var(--ink);color:var(--sea)}
+.modes span{font-size:12.5px;color:var(--dim);margin-left:auto}
+.mode{display:flex;flex-direction:column;gap:10px;flex:1}
+.goal{display:flex;flex-direction:column;gap:5px}
+.goal .n{display:flex;align-items:baseline;gap:8px;font:700 16px var(--num);font-variant-numeric:tabular-nums;color:var(--dim)}
+.goal .n b{font-size:34px;line-height:1;color:var(--sun)}
+.goal .n em{font:700 18px var(--num);margin-left:auto;font-style:normal;color:var(--good)}
+.bar{height:10px;border-radius:99px;background:#2a3117;overflow:hidden;border:1px solid #3c4a1c}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#1fa7b8,#4fd39a);border-radius:99px;transition:width .5s}
+.slots,.chand{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.slots{padding:10px 8px;border-radius:14px;background:linear-gradient(#0e4a5c,#0b3a52);margin-block:auto}
+.slot{position:relative;height:122px;border-radius:10px;border:2px dashed rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:12px}
+.slot.algae{border:2px solid #3c4a1c;background:radial-gradient(circle at 30% 30%,#6b7a2c 0 20%,transparent 21%),radial-gradient(circle at 70% 65%,#56642a 0 24%,transparent 25%),#2a3117;color:#aab777}
+.slot.tgt{border-color:var(--sun);animation:glow .9s infinite alternate}
+@keyframes glow{to{box-shadow:0 0 0 3px rgba(255,201,60,.55)}}
+.cc{position:relative;width:100%;height:122px;border-radius:10px;background:linear-gradient(#1a5666,#103e4c);border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 2px 5px;overflow:hidden;text-align:center}
+.cc svg{position:absolute;left:10%;top:20px;width:80%;height:42px}
+.cc b{font-size:12.5px;line-height:1.15}
+.cc small{font-size:10.5px;line-height:1.2;color:var(--sun);min-height:25px;display:flex;align-items:center}
+.cc .no{position:absolute;left:0;top:0;min-width:22px;height:22px;border-radius:8px 0 9px 0;background:#dfe9ea;color:#10242b;font:700 14px/22px var(--num)}
+.cc.fx{background:linear-gradient(#3a2f5e,#251e42);border-color:#51448a}
+.cc.sel{border-color:var(--sun);transform:translateY(-8px);box-shadow:0 6px 14px rgba(0,0,0,.45)}
+.slot .cc{height:100%;border:0}
+.slot .cc .no{display:none}
+.slot.full{border:2px solid var(--line)}
+.slot .pt{position:absolute;right:-5px;top:-9px;min-width:28px;height:28px;border-radius:99px;background:var(--sun);color:#221a00;font:700 16px/28px var(--num);text-align:center;padding:0 5px;z-index:2;box-shadow:0 2px 5px rgba(0,0,0,.4)}
+.slot .pt.z{background:#59626a;color:#dfe5e8}
+.slot .gr{position:absolute;left:-4px;top:-8px;border-radius:99px;background:var(--good);color:#06231c;font:700 11px/18px var(--num);padding:0 5px;z-index:2}
+.slot .net{position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,122,89,.35) 0 2px,transparent 2px 9px),repeating-linear-gradient(-45deg,rgba(255,122,89,.35) 0 2px,transparent 2px 9px);z-index:1;border-radius:8px}
+.slot.pop{animation:cpop .3s}
+@keyframes cpop{40%{transform:scale(1.12);filter:brightness(1.5)}}
+.slot.gone{animation:cgone .5s}
+@keyframes cgone{40%{filter:brightness(2.4) saturate(0)}}
+.ctext{min-height:62px;font-size:13.5px;line-height:1.45;color:var(--dim)}
+.ctext b{color:var(--ink);font-size:15px;margin-right:6px}
+.ctext i{font-style:normal;color:var(--sun)}
+.foot{display:flex;gap:8px}
+.foot button{flex:1;border-radius:12px;padding:13px 4px;font-weight:700;font-size:15.5px;background:var(--panel);border:1px solid var(--line)}
+.foot button.pri{flex:2;background:var(--sun);color:#221a00;border-color:var(--sun)}
+.foot button[disabled]{opacity:.35}
+.foot small{font-weight:400;opacity:.75;font-size:12.5px}
+.sheet .offer{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.sheet .offer .cc{height:132px}
+.sheet .offer p{grid-column:1/-1}
+.ctoast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 120px);transform:translateX(-50%);background:rgba(4,18,24,.95);border:1px solid var(--line);border-radius:12px;padding:8px 16px;font-size:15px;font-weight:700;z-index:30;max-width:86vw;text-align:center;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
 </style>
 <div id="app">
+ <div class="modes"><div class="seg"><button id="mA" class="on">牌局</button><button id="mB">守礁</button></div><span id="mInfo"></span></div>
+ <div id="mCG" class="mode">
+  <div class="goal"><div class="n"><b id="cTot">0</b><span id="cTgt"></span><em id="cGain"></em></div><div class="bar"><i id="cBar"></i></div></div>
+  <p class="tip" id="cTip"></p>
+  <div class="slots" id="cSlots"></div>
+  <div class="ctext" id="cText"></div>
+  <div class="chand" id="cHand"></div>
+  <div class="foot"><button id="cDis">弃掉</button><button class="pri" id="cEnd"></button></div>
+ </div>
+ <div id="mTD" class="mode" hidden>
  <div class="hud"><div class="en" id="enBox"><i></i><b id="en">0</b></div><div class="prog"><i id="pg"></i><s id="pgf"></s></div><span class="lv" id="lv"></span><button class="sm" id="bPrev" aria-label="上一关">‹</button><button class="sm" id="bNext" aria-label="下一关">›</button><button class="sm" id="bSnd" aria-label="声音">声</button></div>
  <p class="tip" id="tip"></p>
  <div class="field" id="field"></div>
  <div class="tray" id="tray"></div>
+ </div>
 </div>
 <div class="ov" id="ov" hidden></div>
 <script>/*ART*/</script>
 <script>/*CORE*/</script>
+<script>/*CG*/</script>
 <script>
 const $=id=>document.getElementById(id);
 const ALG=big=>`<path d="M50 12 C66 6 78 18 80 28 C94 32 96 52 86 62 C92 78 76 92 62 86 C52 98 32 94 28 82 C12 82 4 62 14 50 C6 36 18 18 32 22 C36 14 44 10 50 12Z" fill="${big?'#4c6620':'#7a9a2e'}"/><path d="M30 30 C40 22 58 20 70 28" stroke="${big?'#6f8f2a':'#a4c04a'}" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/><circle cx="36" cy="48" r="9" fill="#fff"/><circle cx="33" cy="49" r="4.2" fill="#111"/><circle cx="60" cy="48" r="9" fill="#fff"/><circle cx="57" cy="49" r="4.2" fill="#111"/><path d="M25 35 L44 41 M71 35 L52 41" stroke="#22310c" stroke-width="4.5" stroke-linecap="round"/><path d="M36 70 Q48 61 60 70" stroke="#22310c" stroke-width="4" fill="none" stroke-linecap="round"/>`;
@@ -119,12 +180,12 @@ function events(){for(const e of G.ev){const k=e[0];if(SFX[k])SFX[k]();
   if(k==='die')burst(e[1],e[2]);if(k==='sun'){$('enBox').classList.remove('bump');void $('enBox').offsetWidth;$('enBox').classList.add('bump')}
   if(k==='wave'){const b=mk('banner');b.textContent='大潮来了';setTimeout(()=>b.remove(),2400)}
   if(k==='win')setTimeout(()=>finish(true),900);if(k==='lose')setTimeout(()=>finish(false),600)}G.ev.length=0}
-function loop(ts){requestAnimationFrame(loop);const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(!G||paused||!$('ov').hidden||document.hidden)return;if(!G.over){const n=window.__speed||1;for(let i=0;i<n;i++)tdStep(G,dt)}events();draw()}
+function loop(ts){requestAnimationFrame(loop);const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(mode!=='td'||!G||paused||!$('ov').hidden||document.hidden)return;if(!G.over){const n=window.__speed||1;for(let i=0;i<n;i++)tdStep(G,dt)}events();draw()}
 function ov(html){$('ov').innerHTML=`<div class="sheet">${html}</div>`;$('ov').hidden=false}
 function finish(win){const L=G.L,last=li===TDL.length-1;if(!win){ov(`<h1>礁石被盖住了</h1><p>有一条水道没守住。每条水道的海流只能帮你冲一次。</p><p>${li?'先种珊瑚攒能量，再把鱼补到有敌人的水道。':'看到藻团出现，就在那条水道放鹦嘴鱼。'}</p><button class="go" data-act="retry">再来一次</button>`);return}
  const u=L.unlock&&UNITS[L.unlock];ov(`<h1>${last?'这片礁守住了':'守住了'}</h1>${u?`<p style="text-align:center">博士刻好了一张新的记忆卡</p><div class="new">${uart(L.unlock)}<b>${u.n}</b><small>${u.role}</small></div><p>${u.fact}</p>`:`<p>大潮退了，藻类没能盖住礁石。${UNITS.shark.fact}</p>`}<button class="go" data-act="${last?'retry':'next'}">${last?'再守一次':'下一关'}</button>`)}
 document.addEventListener('pointerdown',e=>{const s=e.target.closest('.sunb');if(s&&G&&!G.over){e.preventDefault();if(tdSun(G,+s.dataset.sun)){seenSun=true;document.querySelectorAll('.finger.s').forEach(f=>f.remove())}}});
-document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t||mode!=='td')return;const d=t.dataset;
  if(t.id==='bSnd'){snd=!snd;save();t.style.opacity=snd?1:.4;return}
  if(t.id==='bPrev'){if(li>0){li--;start()}return}
  if(t.id==='bNext'){if(li<TDL.length-1){li++;start()}return}
@@ -133,5 +194,52 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)r
  if(!G||G.over)return;
  if(d.k){const U=UNITS[d.k];if(G.energy<U.cost||G.cd[d.k]>0){tone(140,.12,'square',.04);return}sel=sel===d.k?null:d.k;hint();return}
  if(d.r!=null&&sel){if(tdPlace(G,sel,+d.r,+d.c)){sel=null;hint()}else tone(140,.12,'square',.04)}});
-start();requestAnimationFrame(loop);
+requestAnimationFrame(loop);
+</script>
+<script>
+/* ---------- 牌局界面 ---------- */
+let mode='cg',S,csel=null,cinfo=null,cbusy=false,ctT=0,tdStarted=false;
+const cart=id=>CD[id].art?svg(P[CD[id].art]()):'';
+const ccard=(k,attr,extra)=>{const d=CD[k.id||k];return `<button class="cc ${d.fx?'fx':''} ${extra||''}" ${attr||''}>${d.fx?'':`<span class="no">${d.p}</span>`}${cart(k.id||k)}<b>${d.n}</b><small>${d.tx}</small></button>`};
+function csay(t){document.querySelectorAll('.ctoast').forEach(e=>e.remove());const d=document.createElement('div');d.className='ctoast';d.textContent=t;document.body.appendChild(d);clearTimeout(ctT);ctT=setTimeout(()=>d.remove(),1800)}
+const CTIPS=['打出的生物留在礁上，每回合结束都得分，还会长大 +1。每回合只能打 2 张。','没打的牌会留在手里。不想要的，选中后点“弃掉”，下回合补新的。','礁位满了？把新牌放到旧牌上，就能替换它。','单张都不强，搭起来才强：海葵让小丑鱼翻倍，裂唇鱼让左右翻倍。'];
+function crender(){const st=CST[S.stage],sc=cgScore(S),lim=cgLimit(S),left=lim-S.played,k=csel!=null?S.hand[csel]:null;
+ $('mInfo').textContent=`${st.n} · 第 ${S.turn} / ${st.turns} 回合`;$('cTot').textContent=S.total;$('cTgt').textContent='/ '+S.target;$('cBar').style.width=Math.min(100,S.total/S.target*100)+'%';
+ $('cGain').textContent=sc.total?`这回合 +${sc.total}${S.x2?'（×2）':''}`:'';
+ $('cTip').innerHTML=S.stage===0?`<b>${S.turn<=4?'第 '+S.turn+' 步':'提示'}</b>${CTIPS[Math.min(3,S.turn-1)]}`:`<b>${st.n}</b>${st.rule}`;
+ const canPut=k&&!CD[k.id].fx&&left>0;
+ $('cSlots').innerHTML=S.slots.map((c,i)=>{if(st.block===i)return `<div class="slot algae">藻类</div>`;const p=sc.F[i];
+  return `<button class="slot ${c?'full':''} ${canPut?'tgt':''}" data-s="${i}">${c?ccard(c,'tabindex="-1"',cinfo===i?'sel':'').replace('<button','<span').replace('</button>','</span>')+`<span class="pt ${p?'':'z'}">${p}</span>`+(c.b?`<span class="gr">+${c.b}</span>`:'')+(c.net?'<span class="net"></span>':''):(st.wash&&i===SLOTS-1?'急流':'礁位')}</button>`}).join('');
+ let tx='';const show=k?k.id:(cinfo!=null&&S.slots[cinfo]?S.slots[cinfo].id:null);
+ if(show){const d=CD[show];tx=`<b>${d.n}</b><i>${d.lg||d.tx+(d.fx?'':'。')}</i>${k&&d.fx?' <button class="pri" id="cUse" style="background:var(--sun);color:#221a00;border-radius:99px;padding:2px 14px;font-weight:700">使用</button>':''}<br>${d.fact}`}
+ else tx=left>0?'点一张手牌，再点一个礁位。':'这回合打满了。点“结束回合”结算。';
+ $('cText').innerHTML=tx;
+ $('cHand').innerHTML=S.hand.map((c,i)=>ccard(c,`data-h="${i}"`,csel===i?'sel':'')).join('');
+ $('cDis').disabled=csel==null;$('cEnd').innerHTML=`结束回合 <small>${left>0?'还能打 '+left+' 张':'打满了'}</small>`}
+function cfloat(i,txt){const el=document.querySelectorAll('#cSlots>*')[i];if(!el)return;el.classList.add('pop')}
+async function cend(){if(cbusy||S.over)return;cbusy=true;csel=null;cinfo=null;crender();const sc=cgScore(S),sl=()=>[...document.querySelectorAll('#cSlots>*')];let run=0;const t0=S.total;
+ for(let i=0;i<SLOTS;i++){if(sc.F[i]==null)continue;run+=sc.F[i];sl()[i].classList.add('pop');$('cGain').textContent='+'+run;tone(440+i*70,.09,'triangle',.07);await new Promise(r=>setTimeout(r,window.__fast?0:170))}
+ if(S.x2){$('cGain').textContent='+'+run+' ×2 = +'+run*2;tone(990,.25,'triangle',.09);await new Promise(r=>setTimeout(r,window.__fast?0:500))}
+ const ev=cgEnd(S);$('cTot').textContent=S.total;$('cBar').style.width=Math.min(100,S.total/S.target*100)+'%';await new Promise(r=>setTimeout(r,window.__fast?0:450));
+ const msg=[];if(ev.ate.length){ev.ate.forEach(i=>sl()[i].classList.add('gone'));msg.push('躄鱼吃掉了左边的鱼')}if(ev.wash!=null){sl()[ev.wash].classList.add('gone');msg.push('急流冲走了最右边的生物')}if(ev.net!=null)msg.push('渔网缠住了得分最高的生物');
+ if(msg.length){csay(msg.join('；'));await new Promise(r=>setTimeout(r,window.__fast?0:500))}
+ cbusy=false;if(S.over){cfinish();return}crender()}
+function cfinish(){const st=CST[S.stage];if(S.over==='lose'){SFX.lose();ov(`<h1>污染没有退去</h1><p style="text-align:center;font:700 26px var(--num);color:var(--sun)">${S.total} / ${S.target}</p><p>单张牌的分数不够。把能互相加强的生物放到一起，越早放下，长得越大。</p><button class="go" data-cact="new">再来一局</button>`);return}
+ SFX.win();if(S.offer)ov(`<h1>${st.n}净化完成</h1><p style="text-align:center">博士刻好了新的记忆卡，选 1 张加入牌组。</p><div class="offer">${S.offer.map((k,i)=>ccard(k,`data-pick="${i}"`)).join('')}<p id="cPickInfo" style="font-size:13px;color:var(--dim)">点一张看说明，再点一次确认。</p></div>`);
+ else ov(`<h1>这片礁净化完成</h1><p style="text-align:center;font:700 26px var(--num);color:var(--sun)">${S.total} / ${S.target}</p><p>三片水域都恢复了。你的牌组里现在有 ${S.cards.length} 张记忆卡。</p><button class="go" data-cact="new">再来一局</button>`)}
+let cpick=null;
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
+ if(t.id==='mA'||t.id==='mB'){mode=t.id==='mA'?'cg':'td';$('mA').className=mode==='cg'?'on':'';$('mB').className=mode==='td'?'on':'';$('mCG').hidden=mode!=='cg';$('mTD').hidden=mode!=='td';$('ov').hidden=true;try{localStorage.setItem('reefMode',mode)}catch(e){}
+  if(mode==='td'){$('mInfo').textContent='';if(!tdStarted){tdStarted=true;start()}}else crender();return}
+ if(mode!=='cg')return;
+ if(d.cact==='new'){S=cgInit();csel=cinfo=null;$('ov').hidden=true;crender();return}
+ if(d.pick!=null){const i=+d.pick;if(cpick===i){cpick=null;cgPick(S,i);csel=cinfo=null;$('ov').hidden=true;crender()}else{cpick=i;const dd=CD[S.offer[i]];document.querySelectorAll('.offer .cc').forEach((c,j)=>c.classList.toggle('sel',j===i));$('cPickInfo').innerHTML=`<b style="color:var(--ink)">${dd.n}</b>　<span style="color:var(--sun)">${dd.lg||dd.tx}</span><br>${dd.fact}<br>再点一次确认。`}return}
+ if(cbusy||S.over)return;
+ if(t.id==='cUse'){if(cgPlay(S,csel,-1)){csel=null;tone(660,.2,'triangle',.09);crender()}else csay('这回合打满了');return}
+ if(d.h!=null){csel=csel===+d.h?null:+d.h;cinfo=null;crender();return}
+ if(d.s!=null){const i=+d.s;if(csel!=null){const k=S.hand[csel];if(CD[k.id].fx){csay('点“使用”来用这张牌');return}if(cgPlay(S,csel,i)){csel=null;cinfo=null;SFX.place();crender();document.querySelectorAll('#cSlots>*')[i].classList.add('pop')}else csay(S.played>=cgLimit(S)?'这回合打满了，点“结束回合”':'这一格不能放')}else{cinfo=cinfo===i?null:i;crender()}return}
+ if(t.id==='cDis'){if(csel!=null&&cgDiscard(S,csel)){csel=null;crender()}return}
+ if(t.id==='cEnd'){cend();return}});
+S=cgInit();crender();
+try{if(localStorage.getItem('reefMode')==='td')$('mB').click()}catch(e){}
 </script>
