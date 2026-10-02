@@ -1254,10 +1254,58 @@ html:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidde
 .arow .adepth{display:none}
 .arow{grid-template-columns:76px minmax(0,1fr)!important;padding-left:10px}
 .alist::before{display:none}
+#boot{position:fixed;inset:0;z-index:95;background:#071a20;color:#5cc8cf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#boot b{font-size:34px;font-weight:800;letter-spacing:.14em;margin-right:-.14em;color:#eaf6f6}
+#boot i{width:34px;height:34px;border-radius:50%;border:3px solid rgba(92,200,207,.25);border-top-color:#5cc8cf;animation:bootspin .8s linear infinite;margin-top:10px}
+#boot span{font-size:13.5px;color:#8fb3b8;letter-spacing:.1em}
+#boot svg{animation:bootswim 1.8s ease-in-out infinite}
+@keyframes bootspin{to{transform:rotate(360deg)}}
+@keyframes bootswim{0%,100%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
+#boot.out{opacity:0;transition:opacity .25s;pointer-events:none}
 </style>
 <style>html,body{background:#071a20}</style>
 </head>
 <body>
+<style>
+#a2hs{position:fixed;inset:0;z-index:99;display:grid;place-items:center;padding:24px;background:rgba(2,12,16,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#a2hs[hidden]{display:none}
+#a2hs .box{width:100%;max-width:340px;background:#f5c542;color:#2a2000;border-radius:22px;padding:22px 20px 16px;box-shadow:0 18px 50px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:12px;font-size:15px;line-height:1.6}
+#a2hs img{width:64px;height:64px;border-radius:15px;align-self:center;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#a2hs h2{font-size:21px;line-height:1.3;text-align:center;font-weight:800;margin:0;font-family:inherit}
+#a2hs ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px}
+#a2hs p{margin:0;text-align:center}
+#a2hs svg{vertical-align:-3px}
+#a2hs .btns{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+#a2hs button,#a2hs a.btn{border:none;border-radius:13px;font:inherit;font-weight:800;font-size:16px;padding:12px;background:#2a2000;color:#f5c542;text-align:center;text-decoration:none;display:block}
+#a2hs button.ghost{background:none;color:#2a2000;font-weight:600;font-size:14px;padding:6px}
+</style>
+<div id="a2hs" hidden role="dialog" aria-modal="true" aria-label="安装到主屏幕"><div class="box"></div></div>
+<script>
+(function(){
+ var el=document.getElementById('a2hs'),box=el.querySelector('.box'),K='qx-a2hs',URL0='https://hydrogen0o.github.io/qianxue/';
+ var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone;
+ var seen=0;try{seen=+localStorage.getItem(K)||0}catch(e){}
+ if(standalone||seen>=3)return;
+ var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),android=/Android/.test(ua);
+ var inapp=/MicroMessenger|QQ\/|Weibo|AlipayClient|DingTalk|Line\/|FBAN|FBAV|Instagram/i.test(ua),other=ios&&/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+ if(!ios&&!android)return;
+ var share='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg>';
+ function close(){el.hidden=true;try{localStorage.setItem(K,seen+1)}catch(e){}}
+ function copy(b){try{navigator.clipboard.writeText(URL0).then(function(){b.textContent='已复制，去浏览器粘贴打开'},function(){b.textContent=URL0.replace('https://','')})}catch(e){b.textContent=URL0.replace('https://','')}}
+ function render(title,body,btns){box.innerHTML='<img src="icon-180.png" alt=""><h2>'+title+'</h2>'+body+'<div class="btns"></div>';var w=box.querySelector('.btns');
+  btns.forEach(function(x){var b;if(x.href){b=document.createElement('a');b.className='btn';b.href=x.href}else{b=document.createElement('button');if(x.ghost)b.className='ghost'}b.textContent=x.t;if(x.f)b.addEventListener('click',function(){x.f(b)});w.appendChild(b)});el.hidden=false}
+ var later={t:'先不装，直接看',ghost:1,f:close};
+ var steps=function(where){return '<ol><li>点'+where+'的 '+share+' 分享按钮</li><li>往下找到“添加到主屏幕”</li><li>以后从主屏幕的“潜学”图标打开</li></ol>'};
+ var dp=null;
+ function androidUI(){render('把潜学装到手机上','<p>装好后像普通 App 一样全屏打开，没网也能看。</p>',[{t:'安装',f:function(b){if(dp){dp.prompt();dp.userChoice.then(function(r){if(r&&r.outcome==='accepted')el.hidden=true})}else{box.querySelector('p').innerHTML='点浏览器右上角的菜单 ⋮ ，选“安装应用”或“添加到主屏幕”。';b.remove()}}},later])}
+ addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e});
+ addEventListener('appinstalled',function(){el.hidden=true;try{localStorage.setItem(K,9)}catch(e){}});
+ if(inapp)render(ios?'用 Safari 打开，装到主屏幕':'用浏览器打开，装到手机上','<p>这里装不了，要换到'+(ios?' Safari':'浏览器')+'。<br>如果下面的按钮没反应：点右上角“…”，选“在浏览器中打开”。</p>',[{t:ios?'用 Safari 打开':'用浏览器打开',href:ios?'x-safari-'+URL0:'intent://hydrogen0o.github.io/qianxue/#Intent;scheme=https;action=android.intent.action.VIEW;end'},{t:'复制网址',f:copy},later]);
+ else if(other)render('用 Safari 打开，装到主屏幕','<p>iPhone 上用 Safari 安装最稳妥，装好后全屏、没网也能看。</p>',[{t:'用 Safari 打开',href:'x-safari-'+URL0},{t:'复制网址',f:copy},{t:'就在这个浏览器里装',ghost:1,f:function(){render('把潜学装到主屏幕',steps('地址栏旁边'),[{t:'知道了',f:close}])}},later]);
+ else if(ios)render('把潜学装到主屏幕',steps('下方工具栏')+'<p>装好后全屏打开，没网也能看。</p>',[{t:'知道了',f:close}]);
+ else androidUI();
+})();
+</script>
 
 
 <div class="app">
@@ -1276,6 +1324,7 @@ html:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidde
 <div id="sheet" hidden></div>
 <div id="phload" hidden role="status" aria-live="polite"><span>正在载入图片</span><b><i></i></b></div>
 <div class="toast" id="toast" hidden></div>
+<div id="boot" role="status" aria-live="polite"><svg viewBox="0 0 48 48" width="64" height="64" aria-hidden="true"><path d="M6 27c6-11 18-13 28-7l8-7-1.8 10.5L42 33l-8-6c-10 6-22 4-28 0z" fill="currentColor"/><circle cx="16" cy="23.5" r="2" fill="#071a20"/></svg><b>潜学</b><i></i><span>正在载入…</span></div>
 <script>
 /* ============ helpers ============ */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -3532,48 +3581,11 @@ function wkClick(t,d){
  if(d.wkclear){WK.q='';const q=$('#wkq');if(q){q.value='';q.focus()}wkRender();return 1}
  return 0}
 
+/* 全部脚本就绪：收起开场的载入画面 */
+(function(){const b=document.getElementById('boot');if(b){b.classList.add('out');setTimeout(()=>b.remove(),280)}})();
+
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});if(window.caches)setTimeout(()=>caches.open('qianxue-v1').then(c=>{c.add('./').catch(()=>{});performance.getEntriesByType('resource').map(r=>r.name).filter(u=>u.startsWith(location.origin)&&/\/d\//.test(u)).forEach(u=>c.match(u).then(h=>h||c.add(u).catch(()=>{})))}),1500)});</script>
-<style>
-#a2hs{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:24px;background:rgba(2,12,16,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-#a2hs[hidden]{display:none}
-#a2hs .box{width:100%;max-width:340px;background:#f5c542;color:#2a2000;border-radius:22px;padding:22px 20px 16px;box-shadow:0 18px 50px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:12px;font-size:15px;line-height:1.6}
-#a2hs img{width:64px;height:64px;border-radius:15px;align-self:center;box-shadow:0 4px 14px rgba(0,0,0,.3)}
-#a2hs h2{font-size:21px;line-height:1.3;text-align:center;font-weight:800;margin:0;font-family:inherit}
-#a2hs ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px}
-#a2hs p{margin:0;text-align:center}
-#a2hs svg{vertical-align:-3px}
-#a2hs .btns{display:flex;flex-direction:column;gap:8px;margin-top:4px}
-#a2hs button,#a2hs a.btn{border:none;border-radius:13px;font:inherit;font-weight:800;font-size:16px;padding:12px;background:#2a2000;color:#f5c542;text-align:center;text-decoration:none;display:block}
-#a2hs button.ghost{background:none;color:#2a2000;font-weight:600;font-size:14px;padding:6px}
-</style>
-<div id="a2hs" hidden role="dialog" aria-modal="true" aria-label="安装到主屏幕"><div class="box"></div></div>
-<script>
-(function(){
- var el=document.getElementById('a2hs'),box=el.querySelector('.box'),K='qx-a2hs',URL0='https://hydrogen0o.github.io/qianxue/';
- var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone;
- var seen=0;try{seen=+localStorage.getItem(K)||0}catch(e){}
- if(standalone||seen>=3)return;
- var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),android=/Android/.test(ua);
- var inapp=/MicroMessenger|QQ\/|Weibo|AlipayClient|DingTalk|Line\/|FBAN|FBAV|Instagram/i.test(ua),other=ios&&/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
- if(!ios&&!android)return;
- var share='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg>';
- function close(){el.hidden=true;try{localStorage.setItem(K,seen+1)}catch(e){}}
- function copy(b){try{navigator.clipboard.writeText(URL0).then(function(){b.textContent='已复制，去浏览器粘贴打开'},function(){b.textContent=URL0.replace('https://','')})}catch(e){b.textContent=URL0.replace('https://','')}}
- function render(title,body,btns){box.innerHTML='<img src="icon-180.png" alt=""><h2>'+title+'</h2>'+body+'<div class="btns"></div>';var w=box.querySelector('.btns');
-  btns.forEach(function(x){var b;if(x.href){b=document.createElement('a');b.className='btn';b.href=x.href}else{b=document.createElement('button');if(x.ghost)b.className='ghost'}b.textContent=x.t;if(x.f)b.addEventListener('click',function(){x.f(b)});w.appendChild(b)});el.hidden=false}
- var later={t:'先不装，直接看',ghost:1,f:close};
- var steps=function(where){return '<ol><li>点'+where+'的 '+share+' 分享按钮</li><li>往下找到“添加到主屏幕”</li><li>以后从主屏幕的“潜学”图标打开</li></ol>'};
- var dp=null;
- function androidUI(){render('把潜学装到手机上','<p>装好后像普通 App 一样全屏打开，没网也能看。</p>',[{t:'安装',f:function(b){if(dp){dp.prompt();dp.userChoice.then(function(r){if(r&&r.outcome==='accepted')el.hidden=true})}else{box.querySelector('p').innerHTML='点浏览器右上角的菜单 ⋮ ，选“安装应用”或“添加到主屏幕”。';b.remove()}}},later])}
- addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e});
- addEventListener('appinstalled',function(){el.hidden=true;try{localStorage.setItem(K,9)}catch(e){}});
- if(inapp)render(ios?'用 Safari 打开，装到主屏幕':'用浏览器打开，装到手机上','<p>这里装不了，要换到'+(ios?' Safari':'浏览器')+'。<br>如果下面的按钮没反应：点右上角“…”，选“在浏览器中打开”。</p>',[{t:ios?'用 Safari 打开':'用浏览器打开',href:ios?'x-safari-'+URL0:'intent://hydrogen0o.github.io/qianxue/#Intent;scheme=https;action=android.intent.action.VIEW;end'},{t:'复制网址',f:copy},later]);
- else if(other)render('用 Safari 打开，装到主屏幕','<p>iPhone 上用 Safari 安装最稳妥，装好后全屏、没网也能看。</p>',[{t:'用 Safari 打开',href:'x-safari-'+URL0},{t:'复制网址',f:copy},{t:'就在这个浏览器里装',ghost:1,f:function(){render('把潜学装到主屏幕',steps('地址栏旁边'),[{t:'知道了',f:close}])}},later]);
- else if(ios)render('把潜学装到主屏幕',steps('下方工具栏')+'<p>装好后全屏打开，没网也能看。</p>',[{t:'知道了',f:close}]);
- else androidUI();
-})();
-</script>
 </body>
 </html>
