@@ -1250,6 +1250,10 @@ html:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidde
 #fullhint b{font-size:20px;margin-bottom:4px}
 #fullhint .fhgo{font-size:16px;padding:12px;border-radius:13px}
 #fullhint .fhx{font-size:14px;font-weight:600}
+.ano{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--deep)}
+.arow .adepth{display:none}
+.arow{grid-template-columns:76px minmax(0,1fr)!important;padding-left:10px}
+.alist::before{display:none}
 </style>
 <style>html,body{background:#071a20}</style>
 </head>
@@ -3070,7 +3074,7 @@ function coursePage(cid,meta){
 
 
 
- <ol class="alist">${c.arts.map((id,i)=>{const d=depthIn(c,id),a=A[id],shared=homeCourse(id).id!==cid;return `<li><button class="arow" data-open="${id}" data-course="${cid}"><span class="adepth mono"><b>${i+1}</b></span><span class="ath">${slotHTML(covKey(id),scene(a.scene,a.sceneDepth||d,a.sceneOpt||{}),'thumb')}</span><span class="atx"><span class="atitle">${a.title}</span><span class="ameta mono">${shared&&i===0?'<em>总览 · </em>':''}<span data-tick="${id}">${st.read[id]?'已读 ✓':mins(id)+' 分钟'}</span></span></span></button></li>`}).join('')}</ol>`;
+ <ol class="alist">${c.arts.map((id,i)=>{const d=depthIn(c,id),a=A[id],shared=homeCourse(id).id!==cid;return `<li><button class="arow" data-open="${id}" data-course="${cid}"><span class="adepth mono"><b>${i+1}</b></span><span class="ath">${slotHTML(covKey(id),scene(a.scene,a.sceneDepth||d,a.sceneOpt||{}),'thumb')}</span><span class="atx"><span class="ano">课程 ${i+1}</span><span class="atitle">${a.title}</span><span class="ameta mono">${shared&&i===0?'<em>总览 · </em>':''}<span data-tick="${id}">${st.read[id]?'已读 ✓':mins(id)+' 分钟'}</span></span></span></button></li>`}).join('')}</ol>`;
 }
 
 function galTile(sci){const juv=sci.endsWith(' juv'),base=juv?sci.slice(0,-4):sci,x=SPX[sci]||SPX[base];let cn=x?x[0]+(juv&&!SPX[sci]?'（幼鱼）':''):sci,pic=x&&x[1];sci=base;
