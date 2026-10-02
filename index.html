@@ -1262,6 +1262,9 @@ html:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidde
 @keyframes bootspin{to{transform:rotate(360deg)}}
 @keyframes bootswim{0%,100%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
 #boot.out{opacity:0;transition:opacity .25s;pointer-events:none}
+.learnrow{display:flex;justify-content:center;padding:16px 18px 2px}
+.learnrow .learnb{font-size:20px;padding:15px 30px;border-radius:18px;letter-spacing:.06em;max-width:100%;box-shadow:0 6px 18px rgba(255,120,90,.35)}
+.learnrow+.subrow{display:flex;justify-content:center}
 </style>
 <style>html,body{background:#071a20}</style>
 </head>
@@ -2874,7 +2877,7 @@ const THEME=[
 ];
 const GUIDE={id:'guide',photo:'cover-S1',tier:'指南',name:'学习指南',en:'Guide',arts:['S1','A14'],range:[0,0],pics:[['diver',110,40,1.3,0],['nudi',250,110,.7,0]],opt:{surface:true},desc:'怎么学、按什么顺序学、去哪里继续学：四个学习方法、一份 12 周计划，以及按用途整理的数据库、课程和工具书清单。',learn:['用主动回忆和间隔复习记住物种','照着 12 周计划一周一个主题','知道去哪里查名字、看照片、上课']};
 const REGC=typeof REGCUR==='undefined'?[]:[
- {id:'rg-core',name:'总论',group:'海域特色',pic:'turtle',depth:8,arts:['RG1','RG2','RG3','RG4','RG5'],desc:''},
+ {id:'rg-core',name:'海域基础',group:'海域特色',pic:'turtle',depth:8,arts:['RG1','RG2','RG3','RG4','RG5'],desc:''},
  {id:'rg-temp',name:'三种水温',group:'海域特色',pic:'coral',depth:10,arts:['RC1','RC2','RC3'],desc:''},
  {id:'rg-reg',name:'各片海域',group:'海域特色',pic:'butterfly',depth:12,arts:Object.keys(A).filter(k=>k.startsWith('RR-')),desc:''}];
 REGC.forEach(c=>{c.photo=A[c.arts[0]].cover});
@@ -3082,7 +3085,8 @@ function quickPage(meta){const Q=qkBuild();
 
  <div class="qklist">${QKS.filter(x=>Q[x.id].length).map(x=>{const L=Q[x.id],best=st.qk&&st.qk[x.id];return `<button class="qkrow" data-qk="${x.id}"><span class="qkth">${L.slice(0,3).map(qkPic).join('')}</span><span class="qktx"><b>${x.n}</b><em class="mono">${L.length} 种</em></span><span class="chev2">›</span></button>`}).join('')}</div>`}
 function qkPage(meta){const x=qkSec(meta.id),L=qkList(x.id);
- return bar(x.n,meta,(a=>a&&A[a]?`<button class="learnb" data-open="${a}">学习</button>`:'')(x.rg?x.art:QKART[x.id]))+`
+ return bar(x.n,meta)+`
+ ${(a=>a&&A[a]?`<div class="learnrow"><button class="learnb" data-open="${a}">学习${esc(x.n)}${x.rg?'海域':''}</button></div>`:'')(x.rg?x.art:QKART[x.id])}
  ${x.rg&&x.reg?`<div class="subrow"><button class="mini" data-dvgoreg="${x.reg}">看这里的潜点 ›</button></div>`:''}
  <div class="ggrid qkgrid">${L.map(k=>`<div class="gtile tap" data-wkbio="${esc(k)}" role="button" tabindex="0" aria-label="${esc(BIO[k][0])} 详情">${st.seen&&st.seen[k]?'<span class="seenb">✓ 见过</span>':''}<div class="qkph">${qkPic(k)}</div><div class="gmeta"><b>${esc(BIO[k][0])}</b></div></div>`).join('')}</div>`}
 function qzNew(meta){const L=qkList(meta.id).slice(),sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -3111,7 +3115,8 @@ function rgBuild(){if(_rg)return _rg;_rg={};if(typeof DSITES==='undefined')retur
 function regsPage(meta){const R=rgBuild(),S=rgSecs().filter(x=>R[x.id].length>=3);
  const row=x=>{const L=R[x.id],best=st.qk&&st.qk[x.id];return `<button class="qkrow" data-qk="${x.id}"><span class="qkth">${L.slice(0,3).map(qkPic).join('')}</span><span class="qktx"><b>${x.n}</b><em class="mono">${L.length} 种</em></span><span class="chev2">›</span></button>`};
  const crow=c=>{const n=readN(c.arts),t=c.arts.length;return `<button class="crow" data-course="${c.id}" data-go="course"><span class="crth">${slotHTML(c.photo,courseScene(c),'thumb')}</span><span class="crtx"><b>${c.name}</b><span class="crbar">${progress(n,t)}</span></span><span class="chev2">›</span></button>`};
- return bar('海域特色',meta,REGC.length?`<button class="learnb" data-course="rg-core" data-go="course">学习</button>`:'')+`
+ return bar('海域特色',meta)+`
+ ${REGC.length?`<div class="learnrow"><button class="learnb" data-course="rg-core" data-go="course">学习海域基础</button></div>`:''}
 
  <section class="csec"><div class="csh"><h2>按水温</h2></div><div class="qklist in">${S.filter(x=>!x.reg).map(row).join('')}</div></section>
  <section class="csec"><div class="csh"><h2>按海域</h2></div><div class="qklist in">${S.filter(x=>x.reg).map(row).join('')}</div></section>`}
