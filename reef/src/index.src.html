@@ -1,245 +1,181 @@
 <title>记忆礁</title>
 <style>
-/* 布局：一屏竖版牌桌。上=关卡与净化进度，中=4×3 礁盘，下=栖息地托盘、说明条、手牌、操作。单一深海配色，不随主题切换。 */
+/* 布局：一屏竖版。顶=版本切换与关卡，一句提示，大号进度，玩法区，手牌，一个主按钮。单一深海配色。 */
 :root{color-scheme:dark;
- --sea:#061d26;--deep:#0b2c38;--panel:#103a48;--line:#1f5362;--ink:#e9f5f2;--dim:#8db1b5;
- --sun:#ffc93c;--good:#4fd39a;--bad:#ff7a59;--algae:#5d6b2a;--water:#0f4656;
+ --sea:#061d26;--deep:#0b2c38;--panel:#123f4e;--line:#1f5362;--ink:#e9f5f2;--dim:#8db1b5;
+ --sun:#ffc93c;--good:#4fd39a;--bad:#ff7a59;
  --ui:"PingFang SC","HarmonyOS Sans SC","MiSans","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
  --num:"DIN Alternate","Bahnschrift","Roboto Condensed",ui-monospace,monospace}
 [hidden]{display:none!important}
 html,body{height:100%}
-body{background:var(--sea);color:var(--ink);font:14px/1.45 var(--ui);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+body{background:var(--sea);color:var(--ink);font:15px/1.5 var(--ui);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation}
 button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
-#app{max-width:460px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:8px;padding-inline:16px;padding-block:10px 12px}
-.top{display:flex;align-items:baseline;gap:10px}
-.top .lv{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px}
-.top .lv b{font-size:20px;letter-spacing:.04em}
-.top .lv span{color:var(--bad);font-size:12.5px;font-weight:700}
-.top .rd{font:700 14px var(--num);color:var(--dim);letter-spacing:.04em}
-.top button{border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:12.5px;color:var(--dim)}
-.meter{display:flex;align-items:center;gap:10px}
-.bar{flex:1;height:12px;border-radius:99px;background:#24300f;overflow:hidden;border:1px solid #3c4a1c}
-.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#1fa7b8,#4fd39a);border-radius:99px;transition:width .6s}
-.nums{font:700 15px var(--num);font-variant-numeric:tabular-nums;white-space:nowrap}
-.nums b{color:var(--sun);font-size:19px}
-.prev{min-height:38px;display:flex;flex-direction:column;justify-content:center;font-size:13px;color:var(--dim)}
-.prev b{font:700 17px var(--num);color:var(--ink)}
-.prev b.t{color:var(--sun);font-size:20px}
-.prev small{font-size:11.5px;opacity:.8}
-.prev.pulse b.t{animation:pulse .5s}
-@keyframes pulse{40%{transform:scale(1.5)}}
-.prev b{display:inline-block}
-.board{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;width:100%;max-width:min(100%,calc((100dvh - 494px)*4/3));min-width:240px;margin:0 auto}
-.cell{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--water);border:1.5px dashed var(--line)}
-.cell.has{border:1.5px solid transparent}
-.cell.pol{border:1.5px solid #3c4a1c;background:radial-gradient(circle at 28% 30%,#6b7a2c 0 17%,transparent 18%),radial-gradient(circle at 72% 62%,#56642a 0 21%,transparent 22%),radial-gradient(circle at 40% 82%,#4a5722 0 13%,transparent 14%),#2a3117}
-.cell.pol::after{content:"污染";position:absolute;left:0;right:0;bottom:4px;text-align:center;font-size:10.5px;color:#aab777;letter-spacing:.2em}
-.cell.b-sand{background:linear-gradient(#dcc890,#c3ab71)}
-.cell.b-blue{background:linear-gradient(#1f78b5,#0d4577)}
-.cell.b-coral,.cell.b-anemone,.cell.b-seafan,.cell.b-sponge,.cell.b-seagrass{background:linear-gradient(#14586a,#0d3f4e)}
+#app{max-width:440px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:12px;padding-inline:16px;padding-block:10px 14px}
+.top{display:flex;align-items:center;gap:8px}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;flex:none}
+.seg button{padding:4px 11px;font-size:12.5px;color:var(--dim);font-weight:700}
+.seg button.on{background:var(--ink);color:var(--sea)}
+.lvl{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:13px;color:var(--dim)}
+.lvl b{color:var(--ink);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvl button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);font-size:16px;line-height:1;color:var(--dim);flex:none}
+.lvl button[disabled]{opacity:.3}
+.tip{margin:0;font-size:15.5px;line-height:1.45;text-wrap:pretty;min-height:46px}
+.tip b{display:inline-block;background:var(--sun);color:#221a00;border-radius:6px;font-size:12px;padding:0 6px;margin-right:6px;vertical-align:2px}
+.goal{display:flex;flex-direction:column;gap:5px}
+.goal .n{display:flex;align-items:baseline;gap:8px;font:700 16px var(--num);font-variant-numeric:tabular-nums;color:var(--dim)}
+.goal .n b{font-size:34px;line-height:1;color:var(--sun)}
+.goal .n b.done{color:var(--good)}
+.goal .n em{font:13px var(--ui);margin-left:auto;font-style:normal;text-align:right}
+.bar{height:10px;border-radius:99px;background:#2a3117;overflow:hidden;border:1px solid #3c4a1c}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#1fa7b8,#4fd39a);border-radius:99px;transition:width .5s}
+.sub{min-height:24px;font-size:13.5px;color:var(--dim);text-align:center}
+.sub b{font:700 17px var(--num);color:var(--ink)}
+.sub b.t{color:var(--sun);font-size:20px}
+.sub.pulse{animation:pulse .5s}
+@keyframes pulse{40%{transform:scale(1.18)}}
+/* 家的颜色：牌底和格子用同一种颜色 */
+.h-A{--h:#ff6fae}.h-C,.h-reef{--h:#ff8a6b}.h-S,.h-sand{--h:#e3cf9a}.h-B,.h-blue{--h:#4aa8ff}.h-grass{--h:#58c27a}.h-X{--h:#6b7a2c}
+.board{display:grid;gap:6px;margin:0 auto;width:100%}
+.cell{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;border:2.5px solid var(--h);background:color-mix(in srgb,var(--h) 22%,#0b2c38)}
+.cell.h-S{background:linear-gradient(#dcc890,#c3ab71)}
+.cell.h-B{background:linear-gradient(#1f78b5,#0d4577)}
+.cell.h-X{background:radial-gradient(circle at 28% 30%,#6b7a2c 0 17%,transparent 18%),radial-gradient(circle at 72% 62%,#56642a 0 21%,transparent 22%),radial-gradient(circle at 40% 82%,#4a5722 0 13%,transparent 14%),#2a3117;border-color:#3c4a1c}
 .cell svg{position:absolute;pointer-events:none}
-.cell .cb{inset:6% 6% 0 6%;width:88%;height:94%;opacity:.95}
-.cell.fishy .cb{opacity:.55}
-.cell .cf{left:12%;top:8%;width:76%;height:76%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
-.cell .bl{position:absolute;left:4px;bottom:3px;font-size:10px;font-weight:700;padding:0 5px;border-radius:99px;background:rgba(0,0,0,.5);color:#fff}
-.cell .pt{position:absolute;right:3px;top:3px;min-width:22px;height:22px;border-radius:99px;background:var(--sun);color:#221a00;font:700 13px/22px var(--num);text-align:center;padding:0 4px}
-.cell .pt.z{background:#59626a;color:#dfe5e8}
-.cell .nt{position:absolute;left:3px;top:3px;font-size:10px;font-weight:700;background:var(--bad);color:#2a0d05;border-radius:5px;padding:0 4px}
-.cell.hl{border:2px solid var(--sun);box-shadow:0 0 0 2px rgba(255,201,60,.25) inset;animation:glow 1.1s infinite alternate}
-.cell.hl2{border:2px dashed var(--good)}
-.cell.hl2::before{content:"+栖息地";position:absolute;inset:0;display:grid;place-items:center;font-size:11px;color:var(--good);font-weight:700}
-.cell.pick{outline:2px solid var(--ink);outline-offset:-2px}
-.cell.pop{animation:pop .28s}
-.cell.hit{animation:hit .7s}
-@keyframes glow{to{box-shadow:0 0 0 4px rgba(255,201,60,.4) inset}}
-@keyframes pop{40%{transform:scale(1.12);filter:brightness(1.5)}}
-@keyframes hit{30%{filter:brightness(2) saturate(0)}}
-.tray{display:flex;align-items:center;gap:8px}
-.en{flex:none;font:700 20px var(--num);color:var(--sun);min-width:52px}
-.en small{display:block;font:11px var(--ui);color:var(--dim);margin-top:-3px}
-.habs{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-block:2px}
-.habs::-webkit-scrollbar{display:none}
-.hab{flex:none;border-radius:99px;padding:5px 11px;font-size:12.5px;font-weight:700;background:var(--panel);border:1.5px solid var(--line);white-space:nowrap}
-.hab.sel{border-color:var(--sun);color:var(--sun)}
-.hab i{font-style:normal;display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
-.h-coral{--h:#ff8a6b}.h-anemone{--h:#ff6fae}.h-seafan{--h:#e85d4a}.h-sponge{--h:#f2b84b}.h-sand{--h:#e3cf9a}.h-seagrass{--h:#58c27a}.h-blue{--h:#4aa8ff}
-.hab i,.home{background:var(--h)}
-.info{height:96px;overflow:auto;background:var(--deep);border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:12.5px}
-.info h3{margin:0;font-size:14px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
-.info h3 em{font:italic 11.5px Georgia,serif;color:var(--dim)}
-.info h3 span{font-size:11.5px;font-weight:400;color:var(--dim)}
-.info p{margin:2px 0 0}
-.info .sk{color:var(--sun)}
-.info .fa{color:var(--dim)}
-.info .warn{color:var(--bad);font-weight:700}
-.info button{margin-top:4px;background:var(--sun);color:#221a00;font-weight:700;border-radius:99px;padding:3px 14px}
-.hand{display:flex;gap:6px;overflow-x:auto;padding-block:8px 2px;scrollbar-width:none;min-height:112px}
-.hand::-webkit-scrollbar{display:none}
-.card{position:relative;flex:1 0 62px;max-width:78px;height:102px;border-radius:9px;background:linear-gradient(#17505f,#0f3c49);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 2px 5px;transition:transform .15s}
-.card svg{position:absolute;left:10%;top:16px;width:80%;height:44px}
-.card b{font-size:12px;line-height:1.1;text-align:center}
-.card .home{margin-top:3px;font-size:10px;font-weight:700;color:#10242b;border-radius:99px;padding:0 6px}
-.card .co{position:absolute;left:-1px;top:-1px;width:21px;height:21px;border-radius:9px 0 9px 0;background:var(--sun);color:#221a00;font:700 13px/21px var(--num);text-align:center}
-.card .pv{position:absolute;right:4px;top:2px;font:700 12px var(--num);color:var(--dim)}
-.card.sel{transform:translateY(-8px);border-color:var(--sun)}
-.card.off{opacity:.45}
-.card.fx{background:linear-gradient(#3a2f5e,#251e42);border-color:#51448a;justify-content:center;gap:4px}
-.card.fx small{font-size:10px;color:#c9c0ee;text-align:center;line-height:1.2;padding:0 2px}
-.foot{display:flex;gap:8px}
-.foot button{flex:1;border-radius:10px;padding:10px 4px;font-weight:700;font-size:13.5px;background:var(--panel);border:1px solid var(--line)}
-.foot button.pri{flex:1.4;background:var(--sun);color:#221a00;border-color:var(--sun)}
-.foot button[disabled]{opacity:.4}
-.foot small{font-weight:400;opacity:.8}
-.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 96px);transform:translateX(-50%);background:rgba(4,18,24,.94);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;z-index:30;max-width:86vw;text-align:center;pointer-events:none}
-.toast.bad{border-color:var(--bad);color:#ffc2b0}
-.toast.good{border-color:var(--good);color:#b8f3d9}
-.ov{position:fixed;inset:0;z-index:40;background:rgba(3,14,19,.9);display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
-.sheet{width:100%;max-width:440px;max-height:100%;overflow:auto;background:var(--deep);border:1px solid var(--line);border-radius:16px;padding:18px 16px}
-.sheet h1{margin:0 0 4px;font-size:26px;letter-spacing:.06em;text-wrap:balance}
-.sheet h2{margin:16px 0 6px;font-size:15px;color:var(--sun)}
-.sheet p{margin:6px 0;color:#cfe3e1}
-.sheet .tag{color:var(--bad);font-weight:700;font-size:13px}
-.sheet .go{display:block;width:100%;margin-top:14px;background:var(--sun);color:#221a00;font-weight:700;font-size:15px;border-radius:10px;padding:11px}
-.sheet .x{float:right;border:1px solid var(--line);border-radius:99px;padding:2px 12px;color:var(--dim);font-size:12.5px}
-.sheet ol{margin:6px 0;padding-left:20px}
-.sheet li{margin:4px 0}
-.big{display:grid;grid-template-columns:64px 1fr;gap:4px 10px;align-items:center;text-align:left;width:100%;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:9px 10px;margin-top:8px}
-.big svg{width:64px;height:54px;grid-row:span 2}
-.big .fxi{width:64px;height:54px;grid-row:span 2;display:grid;place-items:center;border-radius:8px;background:#30285a;font-weight:700;color:#c9c0ee}
-.big h3{margin:0;font-size:15px;display:flex;flex-wrap:wrap;gap:3px 7px;align-items:baseline}
-.big h3 em{font:italic 11px Georgia,serif;color:var(--dim)}
-.big .meta{font-size:11.5px;color:var(--dim)}
-.big .meta .home{color:#10242b;font-weight:700;border-radius:99px;padding:0 6px}
-.big p{grid-column:1/-1;margin:0;font-size:12.5px}
-.big .sk{color:var(--sun)}
-.big .fa{color:var(--dim)}
-button.big:active{border-color:var(--sun)}
+.cell .cb{inset:8% 8% 0 8%;width:84%;height:92%}
+.cell.fishy .cb{opacity:.5}
+.cell .cf{left:10%;top:8%;width:80%;height:78%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
+.cell .bl{position:absolute;left:5px;bottom:4px;font-size:11px;font-weight:700;padding:0 7px;border-radius:99px;background:var(--h);color:#10242b}
+.cell.h-X .bl{background:none;color:#aab777}
+.cell .pt{position:absolute;right:4px;top:4px;min-width:24px;height:24px;border-radius:99px;background:var(--sun);color:#221a00;font:700 14px/24px var(--num);text-align:center;padding:0 5px}
+.cell .pt.x2{background:var(--good)}
+.cell.hl{animation:glow .9s infinite alternate}
+.cell.pop{animation:pop .3s}
+.cell.hit{animation:hit .8s}
+.cell.no{animation:no .3s}
+@keyframes glow{from{box-shadow:0 0 0 0 var(--sun)}to{box-shadow:0 0 0 4px var(--sun)}}
+@keyframes pop{40%{transform:scale(1.1);filter:brightness(1.5)}}
+@keyframes hit{30%{filter:brightness(2.2) saturate(0)}}
+@keyframes no{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.hand{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}
+.hand.g4{display:grid;grid-template-columns:repeat(4,1fr)}
+.card{position:relative;width:74px;height:100px;border-radius:10px;background:linear-gradient(#1a5666,#103e4c);border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;transition:transform .15s}
+.hand.g4 .card{width:auto}
+.card svg{position:absolute;left:12%;top:14px;width:76%;height:46px}
+.card b{font-size:13px;line-height:1.1;margin-bottom:4px}
+.card .hm{width:100%;background:var(--h);color:#10242b;font-size:11.5px;font-weight:700;text-align:center;line-height:18px;border-radius:0 0 7px 7px}
+.card .no{position:absolute;left:0;top:0;min-width:24px;height:24px;border-radius:8px 0 10px 0;background:var(--sun);color:#221a00;font:700 15px/24px var(--num);text-align:center}
+.card .st{position:absolute;right:5px;top:2px;color:var(--sun);font-size:13px}
+.card.sel{transform:translateY(-8px);border-color:var(--sun);box-shadow:0 6px 14px rgba(0,0,0,.4)}
+.card.mate{border-color:var(--good);border-style:dashed;animation:glow2 .8s infinite alternate}
+@keyframes glow2{to{box-shadow:0 0 0 3px var(--good)}}
+.card.fly{animation:fly .45s forwards}
+@keyframes fly{to{transform:translateY(-70px) scale(.7);opacity:0}}
+.cell .finger{right:6px;bottom:2px}
+.finger{position:absolute;right:-4px;bottom:-12px;font-size:26px;animation:tap 1s infinite;pointer-events:none;z-index:3}
+@keyframes tap{50%{transform:translate(-4px,-6px) scale(.9)}}
+.sk{min-height:22px;text-align:center;font-size:13.5px;color:var(--sun)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.chips button{border:1px solid var(--line);border-radius:99px;padding:2px 10px;font-size:12px;color:var(--dim)}
+.chips button.new{border-color:var(--sun);color:var(--sun)}
+.foot{display:flex;gap:8px;margin-top:auto}
+.foot button{flex:1;border-radius:12px;padding:13px 4px;font-weight:700;font-size:16px;background:var(--panel);border:1px solid var(--line)}
+.foot button.pri{flex:1.6;background:var(--sun);color:#221a00;border-color:var(--sun)}
+.foot button[disabled]{opacity:.35}
+.fact{background:var(--deep);border:1px solid var(--good);border-radius:12px;padding:9px 12px;font-size:13.5px;color:#cfe9df}
+.fact b{color:var(--good)}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 150px);transform:translateX(-50%);background:rgba(4,18,24,.95);border:1px solid var(--line);border-radius:12px;padding:9px 16px;font-size:15px;font-weight:700;z-index:30;max-width:86vw;text-align:center;pointer-events:none}
+.toast.bad{border-color:var(--bad);color:#ffc2b0}.toast.good{border-color:var(--good);color:#b8f3d9}
+.ov{position:fixed;inset:0;z-index:40;background:rgba(3,14,19,.88);display:flex;align-items:center;justify-content:center;padding:16px}
+.sheet{width:100%;max-width:400px;max-height:100%;overflow:auto;background:var(--deep);border:1px solid var(--line);border-radius:18px;padding:20px 18px}
+.sheet h1{margin:0 0 6px;font-size:26px;letter-spacing:.05em}
+.sheet p{margin:8px 0;color:#cfe3e1}
+.sheet .big{font:700 30px var(--num);color:var(--sun)}
+.sheet .go{display:block;width:100%;margin-top:14px;background:var(--sun);color:#221a00;font-weight:700;font-size:16px;border-radius:12px;padding:12px}
+.sheet table{width:100%;border-collapse:collapse;font-size:13.5px}
+.sheet td{padding:7px 4px;border-top:1px solid var(--line);vertical-align:top}
+.sheet td:last-child{font:700 13px var(--num);color:var(--sun);white-space:nowrap;text-align:right}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <div id="app">
- <div class="top"><div class="lv"><b id="lvn"></b><span id="lvs"></span></div><div class="rd" id="rd"></div><button id="bRules">规则和牌表</button></div>
- <div class="meter"><div class="bar"><i id="barI"></i></div><div class="nums"><b id="sc">0</b> / <span id="tg"></span></div></div>
- <div class="prev" id="prev"></div>
- <div class="board" id="board"></div>
- <div class="tray"><div class="en" id="en"></div><div class="habs" id="habs"></div></div>
- <div class="info" id="info"></div>
- <div class="hand" id="hand"></div>
- <div class="foot"><button id="bPur"></button><button id="bSwap"></button><button id="bEnd" class="pri">结束回合</button></div>
+ <div class="top"><div class="seg"><button id="bV1">v1 摆鱼</button><button id="bV2">v2 组牌</button></div><div class="lvl"><button id="bPrev" aria-label="上一关">‹</button><b id="lvt"></b><button id="bNext" aria-label="下一关">›</button></div></div>
+ <p class="tip" id="tip"></p>
+ <div class="goal"><div class="n"><b id="tot">0</b><span id="tgt"></span><em id="side"></em></div><div class="bar"><i id="barI"></i></div></div>
+ <div id="stage" style="display:flex;flex-direction:column;gap:12px"></div>
+ <div class="foot" id="foot"></div>
 </div>
 <div class="ov" id="ov" hidden></div>
 <script>/*ART*/</script>
-<script>/*ENGINE*/</script>
+<script>/*CORE*/</script>
 <script>
 const $=id=>document.getElementById(id);
-let S,sel=null,pick=null,busy=false,toastT=0;
-const art=a=>a&&P[a]?`<svg viewBox="0 0 100 100" aria-hidden="true">${P[a]()}</svg>`:'';
+let ver=1,LI={1:0,2:0},st,sel=null,busy=false,toastT=0;
+try{const s=JSON.parse(localStorage.getItem('reef')||'{}');if(s.ver)ver=s.ver;if(s.LI)LI=s.LI}catch(e){}
+const save=()=>{try{localStorage.setItem('reef',JSON.stringify({ver,LI}))}catch(e){}};
+const art=(a,cls)=>a&&P[a]?`<svg ${cls?'class="'+cls+'"':''} viewBox="0 0 100 100" aria-hidden="true">${P[a]()}</svg>`:'';
 const sleep=ms=>new Promise(r=>setTimeout(r,window.__fast?0:ms));
-function say(t,cls){document.querySelectorAll('.toast').forEach(e=>e.remove());const d=document.createElement('div');d.className='toast '+(cls||'');d.textContent=t;document.body.appendChild(d);clearTimeout(toastT);toastT=setTimeout(()=>d.remove(),1900)}
-const homeTag=h=>`<span class="home h-${h}">${HAB[h].s}</span>`;
-function bigCard(id,tag){const d=CARDS[id],fx=d.type==='fx';
- return `<${tag||'div'} class="big" data-pick="${id}">${fx?'<span class="fxi">效果</span>':art(d.art)}<h3>${d.full||d.n}${d.sci?`<em>${d.sci}</em>`:''}</h3><div class="meta">${fx?'效果牌':d.g+' · 住 '+homeTag(d.home)} · ⚡${d.cost}${fx?'':' · '+d.pts+' 分'}</div><p class="sk">${d.sk}</p><p class="fa">${d.fact}</p></${tag||'div'}>`}
-function infoHTML(){
- if(S.pending)return `<p class="warn">${S.pending.msg}</p>`;
- if(sel&&sel.t==='swap')return `<p class="warn">点一张手牌，把它换成牌库顶的一张（每回合一次）。</p>`;
- if(sel&&sel.t==='hab'){const h=HAB[sel.key];return `<h3>${h.n}<span>栖息地 · ⚡${RE.HABCOST}</span></h3><p>${h.tip}</p><p class="fa">点一个干净的空格铺下去。</p>`}
- let id=null,extra='';
- if(sel&&sel.t==='card'){id=S.hand[sel.i].id;const d=CARDS[id];
-  if(d.type==='fx')extra=`<button data-usefx="1">使用</button>`;
-  else if(S.energy<d.cost)extra=`<p class="warn">能量不够，需要 ⚡${d.cost}。</p>`;
-  else if(d.need&&RE.fishes(S).length<d.need)extra=`<p class="warn">场上要先有 ${d.need} 条鱼。</p>`;
-  else if(!RE.fishCells(S,id).length)extra=S.energy>=d.cost+RE.HABCOST&&RE.baseCells(S).length?`<p class="fa">没有空的${HAB[d.home].s}。点绿色虚线格，连栖息地一起放（共 ⚡${d.cost+RE.HABCOST}）。</p>`:`<p class="warn">没有空的${HAB[d.home].s}，能量也不够再铺一个。</p>`}
- else if(pick){const x=S.grid[pick[0]][pick[1]];if(x.fish)id=x.fish.id;else if(x.pol)return `<h3>污染<span>藻类盖住的格子</span></h3><p>花 ⚡${RE.PURIFY} 净化，或者用鹦嘴鱼、刺尾鱼、净滩牌清掉。</p>`;else if(x.base)return `<h3>${HAB[x.base].n}<span>栖息地</span></h3><p>${HAB[x.base].tip}</p>`;else return `<h3>干净的空格</h3><p>可以铺栖息地。空着的格子回合结束时可能被藻类盖回去。</p>`}
- if(id){const d=CARDS[id];return `<h3>${d.full||d.n}${d.sci?`<em>${d.sci}</em>`:''}<span>${d.type==='fx'?'效果牌':d.g+' · 住'+HAB[d.home].s} · ⚡${d.cost}${d.type==='fx'?'':' · '+d.pts+' 分'}</span></h3><p class="sk">${d.sk}</p><p class="fa">${d.fact}</p>${extra}`}
- return `<p class="fa">点一张手牌，再点亮起的格子。每种鱼只能住进自己的栖息地。<br>回合结束时结算：所有鱼的分数相加 × 场上的类群数。</p>`}
-function render(){const L=LV[S.level],sc=RE.score(S);
- $('lvn').textContent=L.n;$('lvs').textContent=L.sub;$('rd').textContent='回合 '+S.round+' / '+RE.ROUNDS;$('sc').textContent=S.score;$('tg').textContent=S.target;$('barI').style.width=Math.min(100,S.score/S.target*100)+'%';
- $('prev').innerHTML=sc.F.length?`<span>本回合预计 <b>${sc.chips}</b> 分 × <b>${sc.mult}</b> 倍 = <b class="t">${sc.total}</b></span><small>倍率：${sc.mw.join('，')}</small>`:`<span>场上还没有鱼。放下第一条鱼就开始得分。</span>`;
- const H={},H2={},key=(r,c)=>r+','+c;
- if(S.pending)S.pending.cells.forEach(p=>H[key(...p)]=1);
- else if(sel&&sel.t==='card'){const d=CARDS[S.hand[sel.i].id];if(d.type!=='fx'){if(S.energy>=d.cost)RE.fishCells(S,S.hand[sel.i].id).forEach(p=>H[key(...p)]=1);if(S.energy>=d.cost+RE.HABCOST&&!(d.need&&RE.fishes(S).length<d.need))RE.baseCells(S).forEach(p=>H2[key(...p)]=1)}}
- else if(sel&&sel.t==='hab'&&S.energy>=RE.HABCOST)RE.baseCells(S).forEach(p=>H[key(...p)]=1);
- let b='';RE.each(S,(x,r,c)=>{const k=key(r,c),f=x.fish&&sc.F.find(o=>o.r===r&&o.c===c);
-  b+=`<button class="cell ${x.pol?'pol':''} ${x.base?'has b-'+x.base:''} ${x.fish?'fishy':''} ${H[k]?'hl':''} ${H2[k]?'hl2':''} ${pick&&pick[0]===r&&pick[1]===c&&!sel?'pick':''}" data-r="${r}" data-c="${c}" aria-label="第${r+1}行第${c+1}列">${x.base&&HAB[x.base].art?art(HAB[x.base].art).replace('<svg','<svg class="cb"'):''}${x.fish?art(CARDS[x.fish.id].art).replace('<svg','<svg class="cf"'):''}${x.base&&!x.fish?`<span class="bl">${HAB[x.base].s}</span>`:''}${f?`<span class="pt ${f.pts?'':'z'}">${f.pts}</span>`:''}${x.fish&&x.fish.net?'<span class="nt">渔网</span>':''}</button>`});
- $('board').innerHTML=b;
- $('en').innerHTML='⚡'+S.energy+`<small>牌库 ${S.deck.length}</small>`;
- $('habs').innerHTML=Object.keys(HAB).map(k=>`<button class="hab h-${k} ${sel&&sel.t==='hab'&&sel.key===k?'sel':''}" data-hab="${k}"><i></i>${HAB[k].s}</button>`).join('');
- $('info').innerHTML=infoHTML();
- $('hand').innerHTML=S.hand.map((k,i)=>{const d=CARDS[k.id],on=sel&&sel.t==='card'&&sel.i===i;
-  return d.type==='fx'?`<button class="card fx ${on?'sel':''} ${S.energy<d.cost?'off':''}" data-i="${i}"><span class="co">${d.cost}</span><b>${d.n}</b><small>${d.sk}</small></button>`
-  :`<button class="card ${on?'sel':''} ${S.energy<d.cost?'off':''}" data-i="${i}"><span class="co">${d.cost}</span><span class="pv">${d.pts}分</span>${art(d.art)}<b>${d.n}</b>${homeTag(d.home)}</button>`}).join('')||'<p class="fa" style="margin:auto;color:var(--dim)">手牌打完了</p>';
- $('bPur').innerHTML=S.pending&&S.pending.cancel?'取消':`净化一格 <small>⚡${RE.PURIFY}</small>`;
- $('bSwap').innerHTML=sel&&sel.t==='swap'?'取消':`换牌 <small>${S.disc?'已用':'1 次'}</small>`;$('bSwap').disabled=S.disc&&!(sel&&sel.t==='swap')}
-function tapCell(r,c){if(busy)return;const x=S.grid[r][c];
- if(S.pending){if(RE.resolve(S,r,c))render();else say('点亮起的格子');return}
- if(sel&&sel.t==='card'){const i=sel.i,id=S.hand[i].id,d=CARDS[id];if(d.type!=='fx'){
-  if(RE.playFish(S,i,r,c)){sel=null;pick=[r,c];render();return}
-  if(x.pol)say('这格还被污染着');else if(x.fish)say('这里已经有鱼了');else if(S.energy<d.cost)say('能量不够');else if(d.need&&RE.fishes(S).length<d.need)say('场上要先有 '+d.need+' 条鱼');
-  else if(x.base)say(d.n+'只能住进'+HAB[d.home].s);
-  else if(S.energy<d.cost+RE.HABCOST)say('连栖息地一起放要 ⚡'+(d.cost+RE.HABCOST));
-  else if(RE.placeBase(S,d.home,r,c)&&RE.playFish(S,i,r,c)){sel=null;pick=[r,c];render()}
-  return}}
- if(sel&&sel.t==='hab'){if(RE.placeBase(S,sel.key,r,c)){sel=null;pick=[r,c];render()}else say(x.pol?'这格还被污染着':x.base?'这里已经有栖息地了':'能量不够');return}
- sel=null;pick=[r,c];render()}
-function tapCard(i){if(busy||S.pending)return;if(sel&&sel.t==='swap'){RE.swap(S,i);sel=null;render();return}
- if(sel&&sel.t==='card'&&sel.i===i)sel=null;else{sel={t:'card',i};pick=null}render()}
-function useFx(){if(!sel||sel.t!=='card')return;if(RE.playFx(S,sel.i)){sel=null;render()}else say(S.energy<CARDS[S.hand[sel.i].id].cost?'能量不够':'现在没有能清除的污染')}
-async function endRound(){if(busy||S.phase!=='play')return;busy=true;sel=null;pick=null;if(S.pending)S.pending=null;render();
- const sc=RE.score(S),cells=[...document.querySelectorAll('.cell')],cellAt=(r,c)=>cells[r*RE.COLS+c];let run=0;
- for(const f of sc.F){run+=f.pts;const el=cellAt(f.r,f.c);el.classList.add('pop');$('prev').innerHTML=`<span><b>${run}</b> 分 × <b>${sc.mult}</b> 倍</span><small>${CARDS[f.id].n} ${f.pts}${f.why.length?'（'+f.why.join('，')+'）':''}</small>`;await sleep(230)}
- $('prev').innerHTML=`<span><b>${sc.chips}</b> 分 × <b>${sc.mult}</b> 倍 = <b class="t">+${sc.total}</b></span><small>倍率：${sc.mw.join('，')||'场上没有鱼'}</small>`;$('prev').classList.add('pulse');await sleep(750);$('prev').classList.remove('pulse');
- const lv=S.level,ev=RE.endRound(S);
- $('sc').textContent=S.score;$('barI').style.width=Math.min(100,S.score/S.target*100)+'%';await sleep(500);
- if(S.phase==='reward'){busy=false;render();reward(true);return}
- if(S.phase==='won'){busy=false;render();finale(true);return}
- if(S.phase==='lost'){busy=false;render();finale(false);return}
- render();const C=[...document.querySelectorAll('.cell')],flash=p=>C[p[0]*RE.COLS+p[1]].classList.add('hit'),msg=[];
- ev.cleared.forEach(flash);ev.spread.forEach(flash);ev.bleach.forEach(flash);if(ev.net)flash(ev.net);
- if(ev.cleared.length)msg.push('刺尾鱼刷掉了 '+ev.cleared.length+' 格污染');
- if(ev.spread.length)msg.push('藻类盖住了 '+ev.spread.length+' 格'+(ev.spread.some(p=>p[2])?'，连栖息地一起':''));else if(RE.frontier(S).length)msg.push('藻类没找到能蔓延的空格');
- if(ev.bleach.length)msg.push(ev.bleach.length+' 丛没鱼住的珊瑚白化了');
- if(ev.net){const x=S.grid[ev.net[0]][ev.net[1]];msg.push(CARDS[x.fish.id].n+'被渔网缠住，下回合不得分')}
- if(msg.length)say(msg.join('；'),ev.spread.length||ev.bleach.length||ev.net?'bad':'good');
- if(S.round===RE.ROUNDS)setTimeout(()=>say('最后一个回合','bad'),2000);
- busy=false}
-function ov(html){const o=$('ov');o.innerHTML=`<div class="sheet">${html}</div>`;o.hidden=false;o.firstChild.scrollTop=0}
-const closeOv=()=>{$('ov').hidden=true};
-function intro(first){const L=LV[S.level];ov(`${first?`<h1>记忆礁</h1><p>博士：“外面的海快被污染吞光了。你潜水扫描回来的鱼，我都刻成了<b>记忆卡</b>。把它们放回各自的家，礁上的生命越多、种类越杂，污染就退得越远。”</p>`:''}
- <h2>第 ${S.level+1} 片水域 · ${L.n}</h2><p class="tag">污染类型：${L.sub}</p><p>${L.rule}</p><p>${RE.ROUNDS} 个回合内，净化值达到 <b style="color:var(--sun)">${L.target}</b> 就过关。${S.level?'每回合基础能量比上一片水域多 1。':''}</p>
- ${first?`<h2>怎么玩</h2><ol><li>点手牌里的鱼，再点亮起的格子。鱼只能住进自己的栖息地：小丑鱼住海葵，花园鳗住沙地。</li><li>没有合适的栖息地时，点绿色虚线格，会连栖息地一起放下。</li><li>点“结束回合”结算：<b>所有鱼的分数之和 × 场上的类群数</b>。种类越杂，倍率越高。</li></ol>`:''}
- <button class="go" data-act="close">开始净化</button>`)}
-function rules(){ov(`<button class="x" data-act="close">关闭</button><h1 style="font-size:20px">规则</h1>
- <ol><li><b>目标</b>：${RE.ROUNDS} 个回合内，净化值达到目标。三片水域全部过关，这个潜点就净化完成。</li>
- <li><b>能量</b>：每回合 3 点（之后每片水域 +1）。每丛住了鱼的珊瑚 +1，每条小丑鱼 +1。能量不留到下回合。</li>
- <li><b>栖息地</b>：7 种，随时可铺，每个 ⚡${RE.HABCOST}，只能铺在干净的空格上。</li>
- <li><b>鱼</b>：花费牌左上角的能量，放进对应的空栖息地。一格住一条。</li>
- <li><b>结算</b>：回合结束时，每条鱼按“基础分 + 技能”得分，全部相加，再乘以倍率。倍率 = 场上不同类群（科）的数量，加上技能给的倍率。</li>
- <li><b>污染</b>：每回合结束，藻类盖住 1 个挨着污染、没有鱼的格子（先盖空格，再盖没鱼住的栖息地）。花 ⚡${RE.PURIFY} 可以净化一格挨着干净格的污染。</li>
- <li><b>手牌</b>：每回合开始补到 5 张。每回合可以换 1 张牌。</li>
- <li><b>过关</b>：从 3 张新记忆卡里选 1 张加入牌组，连选 3 次，然后去下一片水域。</li></ol>
- <h2>三片水域</h2>${LV.map((l,i)=>`<p><b>${i+1}. ${l.n} · ${l.sub}</b>（目标 ${l.target}）：${l.rule}</p>`).join('')}
- <h2>牌表 · 鱼（${Object.keys(CARDS).filter(k=>!CARDS[k].type).length} 种）</h2>${Object.keys(CARDS).filter(k=>!CARDS[k].type).map(k=>bigCard(k)).join('')}
- <h2>牌表 · 效果</h2>${Object.keys(CARDS).filter(k=>CARDS[k].type).map(k=>bigCard(k)).join('')}
- <h2>起始牌组（${RE.START.length} 张）</h2><p>${Object.entries(RE.START.reduce((a,k)=>(a[k]=(a[k]||0)+1,a),{})).map(([k,n])=>CARDS[k].n+' ×'+n).join('，')}</p>
- <button class="go" data-act="close">回到牌局</button>`)}
-function reward(first){ov(`<h1 style="font-size:22px">${LV[S.level].n}净化完成</h1><p>净化值 ${S.score} / ${S.target}。博士带来了新的记忆卡，选 1 张加入牌组（还能选 ${S.picks} 次）。</p>${S.offer.map(k=>bigCard(k,'button')).join('')}`)}
-function finale(win){ov(win?`<h1>潜点净化完成</h1><p>三片水域都恢复了生态平衡。最后一片的净化值是 ${S.score} / ${S.target}。</p><p class="fa" style="color:var(--dim)">牌组里现在有 ${S.cards.length} 张记忆卡。</p><button class="go" data-act="new">再来一局</button>`
- :`<h1>污染没有退去</h1><p>${LV[S.level].n}的净化值停在 ${S.score} / ${S.target}。</p><p>提示：种类越杂倍率越高；裂唇鱼旁边放高分的鱼；别让珊瑚和空格空着被藻类盖回去。</p><button class="go" data-act="new">再来一局</button>`)}
+function say(t,cls){document.querySelectorAll('.toast').forEach(e=>e.remove());const d=document.createElement('div');d.className='toast '+(cls||'');d.textContent=t;document.body.appendChild(d);clearTimeout(toastT);toastT=setTimeout(()=>d.remove(),1700)}
+const LV=()=>ver===1?L1:L2,L=()=>LV()[LI[ver]];
+function load(){document.querySelectorAll('.toast').forEach(e=>e.remove());st=ver===1?v1new(LI[1]):v2new(LI[2]);sel=null;busy=false;$('ov').hidden=true;save();render()}
+function head(total,side){const l=L();$('bV1').className=ver===1?'on':'';$('bV2').className=ver===2?'on':'';
+ $('lvt').textContent=(LI[ver]+1)+' / '+LV().length+'  '+l.t;$('bPrev').disabled=LI[ver]===0;$('bNext').disabled=LI[ver]===LV().length-1;
+ $('tip').innerHTML=`<b>${LI[ver]?'新':'开始'}</b>${l.tip}`;$('tot').textContent=total;$('tot').className=total>=l.target?'done':'';$('tgt').textContent='/ '+l.target;$('side').innerHTML=side||'';$('barI').style.width=Math.min(100,total/l.target*100)+'%'}
+const factHTML=()=>`<div class="fact"><b>过关。</b>${L().fact[1]}</div>`;
+/* ---------- v1 摆鱼 ---------- */
+function r1(){const l=L(),sc=v1score(st),total=v1total(st),[R,C]=v1dim(st),sp=sel!=null?st.hand[sel]:null;
+ head(total,l.turns?`第 ${Math.min(st.turn,l.turns)} / ${l.turns} 回合`:(l.best>l.target?`最高 ${l.best}`:''));
+ let fing=0;let b=`<div class="board" style="grid-template-columns:repeat(${C},1fr);max-width:${C*108}px">`;
+ for(let r=0;r<R;r++)for(let c=0;c<C;c++){const t=v1type(st,r,c),f=st.put[r+','+c],s=f&&sc.F.find(o=>o.r===r&&o.c===c),ok=sp&&st.plays>0&&v1can(st,sp,r,c);
+  b+=`<button class="cell h-${t} ${f?'fishy':''} ${ok?'hl':''}" data-r="${r}" data-c="${c}">${HOME1[t].art?art(HOME1[t].art,'cb'):''}${f?art(SP1[f].art,'cf'):`<span class="bl">${HOME1[t].n}</span>`}${s?`<span class="pt ${s.x2?'x2':''}">${s.pts}</span>`:''}${ok&&LI[1]===0&&!fing++?'<span class="finger">👆</span>':''}</button>`}
+ b+='</div>';
+ const subline=l.mult&&sc.F.length?`<b>${sc.sum}</b> 分 × <b>${sc.kinds}</b> 种 = <b class="t">${sc.total}</b>${l.turns?' <span>（这回合能得）</span>':''}`:(l.turns&&sc.F.length?`这回合能得 <b class="t">+${sc.total}</b>`:'');
+ const first=LI[1]===0&&!Object.keys(st.put).length&&sel==null;
+ const hand=st.hand.map((s,i)=>{const d=SP1[s];return `<button class="card h-${d.home} ${sel===i?'sel':''}" data-i="${i}"><span class="no">${d.pts}</span>${d.sk?'<span class="st">★</span>':''}${art(d.art)}<b>${d.n}</b><span class="hm">${HOME1[d.home].n}</span>${first&&i===0?'<span class="finger">👆</span>':''}</button>`}).join('');
+ const skl=sp&&SP1[sp].sk?`${SP1[sp].n}：${SP1[sp].sk}`:(sp?`${SP1[sp].n}住${HOME1[SP1[sp].home].n}`:(l.turns&&!st.over?`这回合还能放 ${st.plays} 张`:''));
+ const pass=!l.turns&&total>=l.target,last=LI[1]===L1.length-1;
+ $('stage').innerHTML=`<div class="sub" id="sub">${subline}</div>${b}<div class="sk">${skl}</div>${pass?factHTML():''}<div class="hand">${hand}</div>`;
+ $('foot').innerHTML=l.turns?(st.over?'':`<button class="pri" data-act="end">结束回合</button>`):`<button data-act="retry">重摆</button><button class="pri" data-act="next" ${pass?'':'disabled'}>${pass?(last?'完成':'下一关'):'还差 '+(l.target-total)+' 分'}</button>`}
+const cellEl=(r,c)=>document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+function tapCell1(r,c){if(busy||st.over)return;const k=r+','+c;
+ if(sel!=null){const s=st.hand[sel];if(v1place(st,sel,r,c)){sel=null;r1();cellEl(r,c).classList.add('pop');return}
+  const t=v1type(st,r,c);say(st.plays<=0?'这回合放满了，点“结束回合”':st.put[k]?'这里已经有鱼了':t==='X'?'藻类盖住了，鱼住不了':SP1[s].n+'不住'+HOME1[t].n+'，它住'+HOME1[SP1[s].home].n,'bad');cellEl(r,c).classList.add('no');return}
+ if(st.put[k]){if(v1take(st,r,c))r1();else say('已经放下的鱼不能收回')}else say('先点下面的一张牌')}
+async function end1(){if(busy||st.over)return;busy=true;sel=null;const sc=v1score(st);r1();
+ for(const f of sc.F){cellEl(f.r,f.c).classList.add('pop');await sleep(110)}$('sub').classList.add('pulse');await sleep(450);
+ const ev=v1end(st);r1();say('+'+ev.gain,'good');await sleep(700);
+ if(ev.algae){cellEl(...ev.algae).classList.add('hit');say('藻类盖住了一个空着的家','bad');await sleep(600)}
+ busy=false;if(st.over)done(st.over==='win')}
+/* ---------- v2 组牌 ---------- */
+function r2(){const l=L(),e=st.sel.length?v2eval(st,st.sel):null;head(st.total,`放流剩 ${st.plays} 次`);
+ let sub='选牌，然后放流';if(e){const nums=e.ids.map(i=>l.boss&&SP2[i].home===l.boss?1:SP2[i].lv).join(' + ');sub=e.combo.mult>1?`${e.combo.n}　<b>${e.chips}</b> × <b>${e.combo.mult}</b> = <b class="t">${e.gain}</b>`:`${e.ids.length>1?nums+' = ':''}<b class="t">${e.gain}</b>${l.on.length&&e.ids.length>1?' <span>（没凑成牌型）</span>':''}`}
+ const mate=l.on.includes('pair')&&st.sel.length===1?partner(st.hand[st.sel[0]]):null,first=LI[2]===0&&!st.sel.length&&st.plays===l.plays;
+ const hand=st.hand.map((s,i)=>{const d=SP2[s],on=st.sel.includes(i);return `<button class="card h-${d.home} ${on?'sel':''} ${!on&&mate===s?'mate':''}" data-i="${i}"><span class="no">${l.boss===d.home?1:d.lv}</span>${l.on.includes('pair')&&partner(s)?'<span class="st">∞</span>':''}${art(d.art)}<b>${d.n}</b><span class="hm">${HOME2[d.home].n}</span>${first&&i===0?'<span class="finger">👆</span>':''}</button>`}).join('');
+ const chips=l.on.length?`<div class="chips">${l.on.map((k,i)=>`<button data-act="table" class="${i===l.on.length-1&&LI[2]<6?'new':''}">${COMBO[k].n}</button>`).join('')}<button data-act="table">牌型表</button></div>`:'';
+ $('stage').innerHTML=`<div class="sub" id="sub">${sub}</div><div class="hand g4">${hand}</div>${chips}`;
+ $('foot').innerHTML=st.over?'':`${l.swaps?`<button data-act="swap" ${st.sel.length&&st.swaps>0?'':'disabled'}>换牌 ${st.swaps}</button>`:''}<button class="pri" data-act="play" ${st.sel.length?'':'disabled'}>放流</button>`}
+function tapCard2(i){if(busy||st.over)return;const l=L(),k=st.sel.indexOf(i);if(k>=0)st.sel.splice(k,1);else if(st.sel.length>=l.max){say('最多选 '+l.max+' 张');return}else st.sel.push(i);r2()}
+async function play2(){if(busy||!st.sel.length)return;busy=true;document.querySelectorAll('.card.sel').forEach(c=>c.classList.add('fly'));$('sub').classList.add('pulse');await sleep(480);
+ const e=v2play(st);r2();say('+'+e.gain+(e.combo.mult>1?'　'+COMBO[e.combo.key].n:''),'good');await sleep(500);busy=false;if(st.over)done(st.over==='win')}
+function table(){const l=L();ov(`<h1 style="font-size:20px">牌型</h1><p>净化值 = 牌上数字之和 × 牌型倍数。选的牌要全部符合才算。</p><table>${l.on.map(k=>`<tr><td><b>${COMBO[k].n}</b><br>${COMBO[k].d}</td><td>${Object.entries(COMBO[k].m).map(([n,m])=>n+' 张 ×'+m).join('<br>')}</td></tr>`).join('')}</table>${l.on.includes('pair')?`<p>搭档：${PAIRS.map(p=>SP2[p[0]].n+' + '+SP2[p[1]].n).join('，')}。</p>`:''}<button class="go" data-act="close">知道了</button>`)}
+/* ---------- 通用 ---------- */
+const render=()=>ver===1?r1():r2();
+function ov(html){$('ov').innerHTML=`<div class="sheet">${html}</div>`;$('ov').hidden=false}
+function done(win){const l=L(),last=LI[ver]===LV().length-1;
+ ov(win?`<h1>${last?'这片礁净化完成':'过关'}</h1><p class="big">${st.total} / ${l.target}</p><p>${l.fact[1]}</p><button class="go" data-act="${last?'retry':'next'}">${last?'再玩一次这关':'下一关'}</button>`
+ :`<h1>差一点</h1><p class="big">${st.total} / ${l.target}</p><p>${ver===1?'早点放下的鱼每回合都得分；种类越多倍数越高。':'凑牌型比单放高得多。手牌不好就换。'}</p><button class="go" data-act="retry">再试一次</button>`)}
 document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
- if(d.act==='close'){closeOv();return}
- if(d.act==='new'){S=RE.newRun();sel=pick=null;closeOv();render();intro(true);return}
- if(d.pick&&t.closest('#ov')&&S.phase==='reward'){const i=S.offer.indexOf(d.pick);if(i<0)return;RE.pickReward(S,i);if(S.phase==='reward')reward();else{sel=pick=null;render();intro(false)}return}
- if(d.usefx){useFx();return}
- if(d.r!=null){tapCell(+d.r,+d.c);return}
- if(d.i!=null){tapCard(+d.i);return}
- if(d.hab){if(busy||S.pending)return;sel=sel&&sel.t==='hab'&&sel.key===d.hab?null:{t:'hab',key:d.hab};pick=null;render();return}
- if(t.id==='bRules'){rules();return}
+ if(t.id==='bV1'||t.id==='bV2'){ver=t.id==='bV1'?1:2;load();return}
+ if(t.id==='bPrev'){if(LI[ver]>0){LI[ver]--;load()}return}
+ if(t.id==='bNext'){if(LI[ver]<LV().length-1){LI[ver]++;load()}return}
+ if(d.act==='close'){$('ov').hidden=true;return}
+ if(d.act==='retry'){load();return}
+ if(d.act==='next'){if(LI[ver]<LV().length-1){LI[ver]++;load()}else{$('ov').hidden=true;say('这一版的关卡都打完了','good')}return}
+ if(d.act==='table'){table();return}
  if(busy)return;
- if(t.id==='bPur'){if(RE.cancel(S)){render();return}sel=null;if(!RE.purify(S))say(S.energy<RE.PURIFY?'能量不够，需要 ⚡'+RE.PURIFY:'没有能净化的污染');render();return}
- if(t.id==='bSwap'){sel=sel&&sel.t==='swap'?null:{t:'swap'};render();return}
- if(t.id==='bEnd'){endRound();return}});
-function start(data){if(data&&data.S&&data.S.grid){S=data.S;render();if(S.phase==='reward')reward();else if(S.phase!=='play')finale(S.phase==='won')}else{S=RE.newRun();render();intro(true)}}
-const hot=window.claude&&window.claude.hot;
-if(hot&&hot.snapshot)hot.snapshot(()=>({S}));
-if(hot&&hot.ready)hot.ready(start);else start(hot&&hot.data||{});
+ if(d.act==='end'){end1();return}
+ if(d.act==='play'){play2();return}
+ if(d.act==='swap'){if(v2swap(st))r2();return}
+ if(d.r!=null&&ver===1){tapCell1(+d.r,+d.c);return}
+ if(d.i!=null){if(ver===1){if(st.over)return;sel=sel===+d.i?null:+d.i;r1()}else tapCard2(+d.i)}});
+load();
 </script>

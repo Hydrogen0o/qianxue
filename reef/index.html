@@ -1,131 +1,108 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#061d26"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"></head><body style="margin:0"><title>记忆礁</title>
 <style>
-/* 布局：一屏竖版牌桌。上=关卡与净化进度，中=4×3 礁盘，下=栖息地托盘、说明条、手牌、操作。单一深海配色，不随主题切换。 */
+/* 布局：一屏竖版。顶=版本切换与关卡，一句提示，大号进度，玩法区，手牌，一个主按钮。单一深海配色。 */
 :root{color-scheme:dark;
- --sea:#061d26;--deep:#0b2c38;--panel:#103a48;--line:#1f5362;--ink:#e9f5f2;--dim:#8db1b5;
- --sun:#ffc93c;--good:#4fd39a;--bad:#ff7a59;--algae:#5d6b2a;--water:#0f4656;
+ --sea:#061d26;--deep:#0b2c38;--panel:#123f4e;--line:#1f5362;--ink:#e9f5f2;--dim:#8db1b5;
+ --sun:#ffc93c;--good:#4fd39a;--bad:#ff7a59;
  --ui:"PingFang SC","HarmonyOS Sans SC","MiSans","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
  --num:"DIN Alternate","Bahnschrift","Roboto Condensed",ui-monospace,monospace}
 [hidden]{display:none!important}
 html,body{height:100%}
-body{background:var(--sea);color:var(--ink);font:14px/1.45 var(--ui);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+body{background:var(--sea);color:var(--ink);font:15px/1.5 var(--ui);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation}
 button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
-#app{max-width:460px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:8px;padding-inline:16px;padding-block:10px 12px}
-.top{display:flex;align-items:baseline;gap:10px}
-.top .lv{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px}
-.top .lv b{font-size:20px;letter-spacing:.04em}
-.top .lv span{color:var(--bad);font-size:12.5px;font-weight:700}
-.top .rd{font:700 14px var(--num);color:var(--dim);letter-spacing:.04em}
-.top button{border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:12.5px;color:var(--dim)}
-.meter{display:flex;align-items:center;gap:10px}
-.bar{flex:1;height:12px;border-radius:99px;background:#24300f;overflow:hidden;border:1px solid #3c4a1c}
-.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#1fa7b8,#4fd39a);border-radius:99px;transition:width .6s}
-.nums{font:700 15px var(--num);font-variant-numeric:tabular-nums;white-space:nowrap}
-.nums b{color:var(--sun);font-size:19px}
-.prev{min-height:38px;display:flex;flex-direction:column;justify-content:center;font-size:13px;color:var(--dim)}
-.prev b{font:700 17px var(--num);color:var(--ink)}
-.prev b.t{color:var(--sun);font-size:20px}
-.prev small{font-size:11.5px;opacity:.8}
-.prev.pulse b.t{animation:pulse .5s}
-@keyframes pulse{40%{transform:scale(1.5)}}
-.prev b{display:inline-block}
-.board{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;width:100%;max-width:min(100%,calc((100dvh - 494px)*4/3));min-width:240px;margin:0 auto}
-.cell{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--water);border:1.5px dashed var(--line)}
-.cell.has{border:1.5px solid transparent}
-.cell.pol{border:1.5px solid #3c4a1c;background:radial-gradient(circle at 28% 30%,#6b7a2c 0 17%,transparent 18%),radial-gradient(circle at 72% 62%,#56642a 0 21%,transparent 22%),radial-gradient(circle at 40% 82%,#4a5722 0 13%,transparent 14%),#2a3117}
-.cell.pol::after{content:"污染";position:absolute;left:0;right:0;bottom:4px;text-align:center;font-size:10.5px;color:#aab777;letter-spacing:.2em}
-.cell.b-sand{background:linear-gradient(#dcc890,#c3ab71)}
-.cell.b-blue{background:linear-gradient(#1f78b5,#0d4577)}
-.cell.b-coral,.cell.b-anemone,.cell.b-seafan,.cell.b-sponge,.cell.b-seagrass{background:linear-gradient(#14586a,#0d3f4e)}
+#app{max-width:440px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:12px;padding-inline:16px;padding-block:10px 14px}
+.top{display:flex;align-items:center;gap:8px}
+.seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;flex:none}
+.seg button{padding:4px 11px;font-size:12.5px;color:var(--dim);font-weight:700}
+.seg button.on{background:var(--ink);color:var(--sea)}
+.lvl{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:13px;color:var(--dim)}
+.lvl b{color:var(--ink);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvl button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);font-size:16px;line-height:1;color:var(--dim);flex:none}
+.lvl button[disabled]{opacity:.3}
+.tip{margin:0;font-size:15.5px;line-height:1.45;text-wrap:pretty;min-height:46px}
+.tip b{display:inline-block;background:var(--sun);color:#221a00;border-radius:6px;font-size:12px;padding:0 6px;margin-right:6px;vertical-align:2px}
+.goal{display:flex;flex-direction:column;gap:5px}
+.goal .n{display:flex;align-items:baseline;gap:8px;font:700 16px var(--num);font-variant-numeric:tabular-nums;color:var(--dim)}
+.goal .n b{font-size:34px;line-height:1;color:var(--sun)}
+.goal .n b.done{color:var(--good)}
+.goal .n em{font:13px var(--ui);margin-left:auto;font-style:normal;text-align:right}
+.bar{height:10px;border-radius:99px;background:#2a3117;overflow:hidden;border:1px solid #3c4a1c}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#1fa7b8,#4fd39a);border-radius:99px;transition:width .5s}
+.sub{min-height:24px;font-size:13.5px;color:var(--dim);text-align:center}
+.sub b{font:700 17px var(--num);color:var(--ink)}
+.sub b.t{color:var(--sun);font-size:20px}
+.sub.pulse{animation:pulse .5s}
+@keyframes pulse{40%{transform:scale(1.18)}}
+/* 家的颜色：牌底和格子用同一种颜色 */
+.h-A{--h:#ff6fae}.h-C,.h-reef{--h:#ff8a6b}.h-S,.h-sand{--h:#e3cf9a}.h-B,.h-blue{--h:#4aa8ff}.h-grass{--h:#58c27a}.h-X{--h:#6b7a2c}
+.board{display:grid;gap:6px;margin:0 auto;width:100%}
+.cell{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;border:2.5px solid var(--h);background:color-mix(in srgb,var(--h) 22%,#0b2c38)}
+.cell.h-S{background:linear-gradient(#dcc890,#c3ab71)}
+.cell.h-B{background:linear-gradient(#1f78b5,#0d4577)}
+.cell.h-X{background:radial-gradient(circle at 28% 30%,#6b7a2c 0 17%,transparent 18%),radial-gradient(circle at 72% 62%,#56642a 0 21%,transparent 22%),radial-gradient(circle at 40% 82%,#4a5722 0 13%,transparent 14%),#2a3117;border-color:#3c4a1c}
 .cell svg{position:absolute;pointer-events:none}
-.cell .cb{inset:6% 6% 0 6%;width:88%;height:94%;opacity:.95}
-.cell.fishy .cb{opacity:.55}
-.cell .cf{left:12%;top:8%;width:76%;height:76%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
-.cell .bl{position:absolute;left:4px;bottom:3px;font-size:10px;font-weight:700;padding:0 5px;border-radius:99px;background:rgba(0,0,0,.5);color:#fff}
-.cell .pt{position:absolute;right:3px;top:3px;min-width:22px;height:22px;border-radius:99px;background:var(--sun);color:#221a00;font:700 13px/22px var(--num);text-align:center;padding:0 4px}
-.cell .pt.z{background:#59626a;color:#dfe5e8}
-.cell .nt{position:absolute;left:3px;top:3px;font-size:10px;font-weight:700;background:var(--bad);color:#2a0d05;border-radius:5px;padding:0 4px}
-.cell.hl{border:2px solid var(--sun);box-shadow:0 0 0 2px rgba(255,201,60,.25) inset;animation:glow 1.1s infinite alternate}
-.cell.hl2{border:2px dashed var(--good)}
-.cell.hl2::before{content:"+栖息地";position:absolute;inset:0;display:grid;place-items:center;font-size:11px;color:var(--good);font-weight:700}
-.cell.pick{outline:2px solid var(--ink);outline-offset:-2px}
-.cell.pop{animation:pop .28s}
-.cell.hit{animation:hit .7s}
-@keyframes glow{to{box-shadow:0 0 0 4px rgba(255,201,60,.4) inset}}
-@keyframes pop{40%{transform:scale(1.12);filter:brightness(1.5)}}
-@keyframes hit{30%{filter:brightness(2) saturate(0)}}
-.tray{display:flex;align-items:center;gap:8px}
-.en{flex:none;font:700 20px var(--num);color:var(--sun);min-width:52px}
-.en small{display:block;font:11px var(--ui);color:var(--dim);margin-top:-3px}
-.habs{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-block:2px}
-.habs::-webkit-scrollbar{display:none}
-.hab{flex:none;border-radius:99px;padding:5px 11px;font-size:12.5px;font-weight:700;background:var(--panel);border:1.5px solid var(--line);white-space:nowrap}
-.hab.sel{border-color:var(--sun);color:var(--sun)}
-.hab i{font-style:normal;display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
-.h-coral{--h:#ff8a6b}.h-anemone{--h:#ff6fae}.h-seafan{--h:#e85d4a}.h-sponge{--h:#f2b84b}.h-sand{--h:#e3cf9a}.h-seagrass{--h:#58c27a}.h-blue{--h:#4aa8ff}
-.hab i,.home{background:var(--h)}
-.info{height:96px;overflow:auto;background:var(--deep);border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:12.5px}
-.info h3{margin:0;font-size:14px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
-.info h3 em{font:italic 11.5px Georgia,serif;color:var(--dim)}
-.info h3 span{font-size:11.5px;font-weight:400;color:var(--dim)}
-.info p{margin:2px 0 0}
-.info .sk{color:var(--sun)}
-.info .fa{color:var(--dim)}
-.info .warn{color:var(--bad);font-weight:700}
-.info button{margin-top:4px;background:var(--sun);color:#221a00;font-weight:700;border-radius:99px;padding:3px 14px}
-.hand{display:flex;gap:6px;overflow-x:auto;padding-block:8px 2px;scrollbar-width:none;min-height:112px}
-.hand::-webkit-scrollbar{display:none}
-.card{position:relative;flex:1 0 62px;max-width:78px;height:102px;border-radius:9px;background:linear-gradient(#17505f,#0f3c49);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 2px 5px;transition:transform .15s}
-.card svg{position:absolute;left:10%;top:16px;width:80%;height:44px}
-.card b{font-size:12px;line-height:1.1;text-align:center}
-.card .home{margin-top:3px;font-size:10px;font-weight:700;color:#10242b;border-radius:99px;padding:0 6px}
-.card .co{position:absolute;left:-1px;top:-1px;width:21px;height:21px;border-radius:9px 0 9px 0;background:var(--sun);color:#221a00;font:700 13px/21px var(--num);text-align:center}
-.card .pv{position:absolute;right:4px;top:2px;font:700 12px var(--num);color:var(--dim)}
-.card.sel{transform:translateY(-8px);border-color:var(--sun)}
-.card.off{opacity:.45}
-.card.fx{background:linear-gradient(#3a2f5e,#251e42);border-color:#51448a;justify-content:center;gap:4px}
-.card.fx small{font-size:10px;color:#c9c0ee;text-align:center;line-height:1.2;padding:0 2px}
-.foot{display:flex;gap:8px}
-.foot button{flex:1;border-radius:10px;padding:10px 4px;font-weight:700;font-size:13.5px;background:var(--panel);border:1px solid var(--line)}
-.foot button.pri{flex:1.4;background:var(--sun);color:#221a00;border-color:var(--sun)}
-.foot button[disabled]{opacity:.4}
-.foot small{font-weight:400;opacity:.8}
-.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 96px);transform:translateX(-50%);background:rgba(4,18,24,.94);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;z-index:30;max-width:86vw;text-align:center;pointer-events:none}
-.toast.bad{border-color:var(--bad);color:#ffc2b0}
-.toast.good{border-color:var(--good);color:#b8f3d9}
-.ov{position:fixed;inset:0;z-index:40;background:rgba(3,14,19,.9);display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
-.sheet{width:100%;max-width:440px;max-height:100%;overflow:auto;background:var(--deep);border:1px solid var(--line);border-radius:16px;padding:18px 16px}
-.sheet h1{margin:0 0 4px;font-size:26px;letter-spacing:.06em;text-wrap:balance}
-.sheet h2{margin:16px 0 6px;font-size:15px;color:var(--sun)}
-.sheet p{margin:6px 0;color:#cfe3e1}
-.sheet .tag{color:var(--bad);font-weight:700;font-size:13px}
-.sheet .go{display:block;width:100%;margin-top:14px;background:var(--sun);color:#221a00;font-weight:700;font-size:15px;border-radius:10px;padding:11px}
-.sheet .x{float:right;border:1px solid var(--line);border-radius:99px;padding:2px 12px;color:var(--dim);font-size:12.5px}
-.sheet ol{margin:6px 0;padding-left:20px}
-.sheet li{margin:4px 0}
-.big{display:grid;grid-template-columns:64px 1fr;gap:4px 10px;align-items:center;text-align:left;width:100%;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:9px 10px;margin-top:8px}
-.big svg{width:64px;height:54px;grid-row:span 2}
-.big .fxi{width:64px;height:54px;grid-row:span 2;display:grid;place-items:center;border-radius:8px;background:#30285a;font-weight:700;color:#c9c0ee}
-.big h3{margin:0;font-size:15px;display:flex;flex-wrap:wrap;gap:3px 7px;align-items:baseline}
-.big h3 em{font:italic 11px Georgia,serif;color:var(--dim)}
-.big .meta{font-size:11.5px;color:var(--dim)}
-.big .meta .home{color:#10242b;font-weight:700;border-radius:99px;padding:0 6px}
-.big p{grid-column:1/-1;margin:0;font-size:12.5px}
-.big .sk{color:var(--sun)}
-.big .fa{color:var(--dim)}
-button.big:active{border-color:var(--sun)}
+.cell .cb{inset:8% 8% 0 8%;width:84%;height:92%}
+.cell.fishy .cb{opacity:.5}
+.cell .cf{left:10%;top:8%;width:80%;height:78%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
+.cell .bl{position:absolute;left:5px;bottom:4px;font-size:11px;font-weight:700;padding:0 7px;border-radius:99px;background:var(--h);color:#10242b}
+.cell.h-X .bl{background:none;color:#aab777}
+.cell .pt{position:absolute;right:4px;top:4px;min-width:24px;height:24px;border-radius:99px;background:var(--sun);color:#221a00;font:700 14px/24px var(--num);text-align:center;padding:0 5px}
+.cell .pt.x2{background:var(--good)}
+.cell.hl{animation:glow .9s infinite alternate}
+.cell.pop{animation:pop .3s}
+.cell.hit{animation:hit .8s}
+.cell.no{animation:no .3s}
+@keyframes glow{from{box-shadow:0 0 0 0 var(--sun)}to{box-shadow:0 0 0 4px var(--sun)}}
+@keyframes pop{40%{transform:scale(1.1);filter:brightness(1.5)}}
+@keyframes hit{30%{filter:brightness(2.2) saturate(0)}}
+@keyframes no{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.hand{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}
+.hand.g4{display:grid;grid-template-columns:repeat(4,1fr)}
+.card{position:relative;width:74px;height:100px;border-radius:10px;background:linear-gradient(#1a5666,#103e4c);border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;transition:transform .15s}
+.hand.g4 .card{width:auto}
+.card svg{position:absolute;left:12%;top:14px;width:76%;height:46px}
+.card b{font-size:13px;line-height:1.1;margin-bottom:4px}
+.card .hm{width:100%;background:var(--h);color:#10242b;font-size:11.5px;font-weight:700;text-align:center;line-height:18px;border-radius:0 0 7px 7px}
+.card .no{position:absolute;left:0;top:0;min-width:24px;height:24px;border-radius:8px 0 10px 0;background:var(--sun);color:#221a00;font:700 15px/24px var(--num);text-align:center}
+.card .st{position:absolute;right:5px;top:2px;color:var(--sun);font-size:13px}
+.card.sel{transform:translateY(-8px);border-color:var(--sun);box-shadow:0 6px 14px rgba(0,0,0,.4)}
+.card.mate{border-color:var(--good);border-style:dashed;animation:glow2 .8s infinite alternate}
+@keyframes glow2{to{box-shadow:0 0 0 3px var(--good)}}
+.card.fly{animation:fly .45s forwards}
+@keyframes fly{to{transform:translateY(-70px) scale(.7);opacity:0}}
+.cell .finger{right:6px;bottom:2px}
+.finger{position:absolute;right:-4px;bottom:-12px;font-size:26px;animation:tap 1s infinite;pointer-events:none;z-index:3}
+@keyframes tap{50%{transform:translate(-4px,-6px) scale(.9)}}
+.sk{min-height:22px;text-align:center;font-size:13.5px;color:var(--sun)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.chips button{border:1px solid var(--line);border-radius:99px;padding:2px 10px;font-size:12px;color:var(--dim)}
+.chips button.new{border-color:var(--sun);color:var(--sun)}
+.foot{display:flex;gap:8px;margin-top:auto}
+.foot button{flex:1;border-radius:12px;padding:13px 4px;font-weight:700;font-size:16px;background:var(--panel);border:1px solid var(--line)}
+.foot button.pri{flex:1.6;background:var(--sun);color:#221a00;border-color:var(--sun)}
+.foot button[disabled]{opacity:.35}
+.fact{background:var(--deep);border:1px solid var(--good);border-radius:12px;padding:9px 12px;font-size:13.5px;color:#cfe9df}
+.fact b{color:var(--good)}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 150px);transform:translateX(-50%);background:rgba(4,18,24,.95);border:1px solid var(--line);border-radius:12px;padding:9px 16px;font-size:15px;font-weight:700;z-index:30;max-width:86vw;text-align:center;pointer-events:none}
+.toast.bad{border-color:var(--bad);color:#ffc2b0}.toast.good{border-color:var(--good);color:#b8f3d9}
+.ov{position:fixed;inset:0;z-index:40;background:rgba(3,14,19,.88);display:flex;align-items:center;justify-content:center;padding:16px}
+.sheet{width:100%;max-width:400px;max-height:100%;overflow:auto;background:var(--deep);border:1px solid var(--line);border-radius:18px;padding:20px 18px}
+.sheet h1{margin:0 0 6px;font-size:26px;letter-spacing:.05em}
+.sheet p{margin:8px 0;color:#cfe3e1}
+.sheet .big{font:700 30px var(--num);color:var(--sun)}
+.sheet .go{display:block;width:100%;margin-top:14px;background:var(--sun);color:#221a00;font-weight:700;font-size:16px;border-radius:12px;padding:12px}
+.sheet table{width:100%;border-collapse:collapse;font-size:13.5px}
+.sheet td{padding:7px 4px;border-top:1px solid var(--line);vertical-align:top}
+.sheet td:last-child{font:700 13px var(--num);color:var(--sun);white-space:nowrap;text-align:right}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <div id="app">
- <div class="top"><div class="lv"><b id="lvn"></b><span id="lvs"></span></div><div class="rd" id="rd"></div><button id="bRules">规则和牌表</button></div>
- <div class="meter"><div class="bar"><i id="barI"></i></div><div class="nums"><b id="sc">0</b> / <span id="tg"></span></div></div>
- <div class="prev" id="prev"></div>
- <div class="board" id="board"></div>
- <div class="tray"><div class="en" id="en"></div><div class="habs" id="habs"></div></div>
- <div class="info" id="info"></div>
- <div class="hand" id="hand"></div>
- <div class="foot"><button id="bPur"></button><button id="bSwap"></button><button id="bEnd" class="pri">结束回合</button></div>
+ <div class="top"><div class="seg"><button id="bV1">v1 摆鱼</button><button id="bV2">v2 组牌</button></div><div class="lvl"><button id="bPrev" aria-label="上一关">‹</button><b id="lvt"></b><button id="bNext" aria-label="下一关">›</button></div></div>
+ <p class="tip" id="tip"></p>
+ <div class="goal"><div class="n"><b id="tot">0</b><span id="tgt"></span><em id="side"></em></div><div class="bar"><i id="barI"></i></div></div>
+ <div id="stage" style="display:flex;flex-direction:column;gap:12px"></div>
+ <div class="foot" id="foot"></div>
 </div>
 <div class="ov" id="ov" hidden></div>
 <script>let UID=0;const uid=p=>p+(++UID);
@@ -275,218 +252,154 @@ Object.assign(P,{
  sardine:()=>fishBody('#b9c8d6',{d:'M10 50 C24 40 58 39 80 45 C88 47 92 49 92 50 C92 51 88 53 80 55 C58 61 24 60 10 50Z',tail:'M13 50 L2 40 L6 50 L2 60Z',pattern:'<path d="M8 40 C36 38 66 40 94 46 L94 38 L8 36Z" fill="#4d7fa8"/><path d="M20 49 H70" stroke="#e9d27a" stroke-width="1.6"/>',ex:83,ey:48})});
 
 </script>
-<script>/* 记忆礁 v0.1 规则引擎（浏览器与 node 共用，无界面） */
-const HAB={
- coral:{n:'鹿角珊瑚',s:'珊瑚',art:'coral',tip:'住了鱼的珊瑚，每回合多产 1 点能量。'},
- anemone:{n:'海葵',s:'海葵',art:'anemone',tip:'小丑鱼的家。'},
- seafan:{n:'海扇',s:'海扇',art:'seafan',tip:'豆丁海马只住在海扇上。'},
- sponge:{n:'海绵',s:'海绵',art:'sponge',tip:'躄鱼和海蛞蝓待的地方。'},
- sand:{n:'沙地',s:'沙地',art:'',tip:'花园鳗、虾虎鱼、魟和海胆的家。'},
- seagrass:{n:'海草床',s:'海草',art:'seagrass',tip:'绿海龟来这里吃草。'},
- blue:{n:'开阔蓝水',s:'蓝水',art:'',tip:'鲹鱼、沙丁鱼和鲨鱼巡游的地方。'}};
-const HABCOST=1,PURIFY=2,ROUNDS=6,HAND=5,ROWS=3,COLS=4;
-const CARDS={
- clown:{n:'小丑鱼',full:'眼斑双锯鱼',sci:'Amphiprion ocellaris',g:'雀鲷科',home:'anemone',cost:1,pts:2,art:'clown',sk:'共生：每回合 +1 能量。相邻每有 1 个海葵，+2 分。',fact:'小丑鱼赶走来啃海葵的鱼，它的排泄物又是海葵的养料。它其实是雀鲷科的一员。'},
- chromis:{n:'光鳃鱼',full:'蓝绿光鳃鱼',sci:'Chromis viridis',g:'雀鲷科',home:'coral',cost:1,pts:1,art:'chromis',sk:'成群：场上每有 1 条光鳃鱼（含自己），+1 分。',fact:'成群悬在鹿角珊瑚上方吃浮游生物，一有危险就整群缩回枝杈里。'},
- butterfly:{n:'蝴蝶鱼',full:'丝蝴蝶鱼',sci:'Chaetodon auriga',g:'蝴蝶鱼科',home:'coral',cost:2,pts:3,art:'butterfly',sk:'成对：相邻有另一条蝴蝶鱼时，+4 分。',fact:'很多蝴蝶鱼成对生活，一对常常相伴多年，在礁上一前一后地游。'},
- parrot:{n:'鹦嘴鱼',full:'蓝头绿鹦嘴鱼',sci:'Chlorurus sordidus',g:'鹦嘴鱼科',home:'coral',cost:3,pts:3,art:'parrot',sk:'打出时：清除相邻 1 格污染，并把它变成沙地。',fact:'用鸟喙一样的牙刮食礁石上的藻类，咬下的石灰质磨碎后排出来，就是白沙。'},
- cleaner:{n:'裂唇鱼',full:'裂唇鱼',sci:'Labroides dimidiatus',g:'隆头鱼科',home:'coral',cost:2,pts:1,art:'cleaner',sk:'清洁站：相邻的鱼得分 ×2（不叠加）。',fact:'在固定的“清洁站”替别的鱼吃掉寄生虫和死皮，大鱼会排队等它。'},
- surgeon:{n:'刺尾鱼',full:'栉齿刺尾鱼',sci:'Ctenochaetus striatus',g:'刺尾鱼科',home:'coral',cost:3,pts:2,art:'surgeon',sk:'回合结束：清除相邻 1 格污染。',fact:'用刷子一样的牙齿刷走礁石表面的藻膜和碎屑，不让藻类盖住珊瑚。'},
- pygmy:{n:'豆丁海马',full:'巴氏豆丁海马',sci:'Hippocampus bargibanti',g:'海龙科',home:'seafan',cost:2,pts:6,art:'pygmy',sk:'伪装：不会被渔网缠住。',fact:'不到 2 厘米，一辈子只住在特定的海扇上，颜色和疙瘩都长得和海扇一样。'},
- frog:{n:'躄鱼',full:'康氏躄鱼',sci:'Antennarius commerson',g:'躄鱼科',home:'sponge',cost:3,pts:3,art:'frogfish',sk:'伏击：相邻每有 1 条费用 ≤1 的鱼，+3 分。',fact:'装成一块海绵，晃动头上的“钓竿”引小鱼靠近，然后一口吞下。'},
- nudi:{n:'海蛞蝓',full:'安娜多彩海蛞蝓',sci:'Chromodoris annae',g:'多彩海蛞蝓科',home:'sponge',cost:2,pts:2,art:'nudi',sk:'警戒色：倍率 +1。',fact:'以海绵为食。鲜艳的颜色是在警告捕食者：我不好吃。'},
- eel:{n:'花园鳗',full:'哈氏异康吉鳗',sci:'Heteroconger hassi',g:'康吉鳗科',home:'sand',cost:1,pts:1,art:'gardeneel',sk:'群居：相邻每有 1 条花园鳗，+2 分。',fact:'成片住在沙地的洞里，只探出半截身子迎着水流吃浮游生物。'},
- goby:{n:'虾虎鱼',full:'虾虎鱼与枪虾',sci:'Amblyeleotris · Alpheus',g:'虾虎鱼科',home:'sand',cost:2,pts:3,art:'goby',sk:'搭档：打出时抽 1 张牌。',fact:'枪虾视力差，负责挖洞；虾虎鱼在洞口放哨，一摆尾巴两个一起躲进去。'},
- ray:{n:'蓝斑魟',full:'蓝斑条尾魟',sci:'Taeniura lymma',g:'魟科',home:'sand',cost:2,pts:4,art:'ray',sk:'翻沙：打出时 +1 能量。',fact:'白天常躲在礁石下，涨潮时到沙地上翻沙找贝类和虫子吃。'},
- jack:{n:'鲹鱼',full:'六带鲹',sci:'Caranx sexfasciatus',g:'鲹科',home:'blue',cost:2,pts:2,art:'jack',sk:'鱼群：场上每有 1 条其他鲹鱼，+3 分。',fact:'白天聚成缓慢旋转的大鱼群，晚上才分散开去捕食。'},
- sardine:{n:'沙丁鱼',full:'沙丁鱼',sci:'Sardinella',g:'鲱科',home:'blue',cost:1,pts:1,art:'sardine',sk:'饵球：相邻的鲹鱼和鲨鱼各 +3 分。',fact:'成千上万条挤成“饵球”，是鲹鱼、鲨鱼等掠食者的主要食物。'},
- shark:{n:'黑鳍礁鲨',full:'黑鳍礁鲨',sci:'Carcharhinus melanopterus',g:'真鲨科',home:'blue',cost:5,pts:6,art:'shark',need:4,sk:'顶级掠食者：场上已有 4 条鱼才能打出。每有 3 条其他鱼，倍率 +1。',fact:'浅礁的顶级掠食者。有鲨鱼的礁，说明下面整条食物链是健康的。'},
- turtle:{n:'绿海龟',full:'绿海龟',sci:'Chelonia mydas',g:'海龟科',home:'seagrass',cost:4,pts:5,art:'turtle',sk:'旗舰物种：倍率 +1。',fact:'成年后主要吃海草。它像割草机一样啃食，反而让海草床长得更健康。'},
- moray:{n:'海鳝',full:'爪哇裸胸鳝',sci:'Gymnothorax javanicus',g:'海鳝科',home:'coral',cost:3,pts:4,art:'moray',sk:'合作捕猎：场上有石斑鱼时，+5 分。',fact:'石斑鱼会到洞口摇头“邀请”海鳝：海鳝钻缝赶鱼，石斑在外面堵。'},
- grouper:{n:'石斑鱼',full:'豹纹鳃棘鲈',sci:'Plectropomus leopardus',g:'鮨科',home:'coral',cost:3,pts:4,art:'grouper',sk:'合作捕猎：场上有海鳝时，+5 分。',fact:'会用倒立、摇头等动作向海鳝指出猎物藏在哪条缝里。'},
- urchin:{n:'海胆',full:'冠刺棘海胆',sci:'Diadema setosum',g:'冠海胆科',home:'sand',cost:1,pts:1,art:'urchin',sk:'啃藻：相邻的格子不会被藻类盖住。',fact:'夜里出来啃藻。海胆大量死亡的礁区，藻类很快就会盖过珊瑚。'},
- lion:{n:'狮子鱼',full:'魔鬼蓑鲉',sci:'Pterois volitans',g:'鲉科',home:'coral',cost:2,pts:6,art:'lionfish',sk:'贪吃：相邻费用 ≤1 的鱼不得分。',fact:'张开胸鳍把小鱼逼到角落再一口吸入。背鳍的毒刺让它几乎没有天敌。'},
- current:{type:'fx',n:'洋流',cost:0,art:'',sk:'抽 2 张牌。',fact:'洋流带来浮游生物，也带来新的鱼。'},
- cleanup:{type:'fx',n:'净滩',cost:1,art:'',sk:'清除 1 格污染。',fact:'人把垃圾捡走，礁才有机会自己恢复。'},
- spawn:{type:'fx',n:'产卵季',cost:2,art:'',sk:'本回合倍率 +2。',fact:'很多礁鱼在满月前后集体产卵。'}};
-const START=['clown','clown','chromis','chromis','chromis','butterfly','butterfly','eel','eel','eel','jack','jack','sardine','sardine','urchin','parrot','cleaner','ray','current','cleanup'];
-const POOL=['surgeon','pygmy','frog','nudi','goby','shark','turtle','moray','grouper','lion','parrot','cleaner','spawn','cleanup','butterfly','jack','sardine','chromis'];
-const LV=[
- {n:'浅滩',sub:'藻类暴发',target:240,spread:1,rule:'每回合结束，藻类盖住 1 个没有鱼的格子。'},
- {n:'礁坡',sub:'幽灵渔网',target:380,spread:1,net:1,rule:'藻类照常蔓延。另外，每回合得分最高的鱼会被渔网缠住，下回合不得分。'},
- {n:'峭壁',sub:'珊瑚白化',target:650,spread:2,bleach:1,rule:'藻类每回合蔓延 2 格。没有鱼住的珊瑚，回合结束时白化死亡。'}];
-let UIDC=0;const mk=id=>({id,uid:++UIDC});
+<script>/* 记忆礁 v1（摆鱼）/ v2（组牌）规则，无界面，浏览器与 node 共用 */
+const adj4=(r,c,R,C)=>[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].filter(([a,b])=>a>=0&&a<R&&b>=0&&b<C);
 const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-const adj=(r,c)=>[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].filter(([a,b])=>a>=0&&a<ROWS&&b>=0&&b<COLS);
-const each=(S,f)=>{for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)f(S.grid[r][c],r,c)};
-const fishes=S=>{const F=[];each(S,(x,r,c)=>{if(x.fish)F.push({r,c,x,id:x.fish.id,d:CARDS[x.fish.id]})});return F};
-function newRun(){const S={level:0,cards:START.map(mk)};startLevel(S);return S}
-function startLevel(S){const L=LV[S.level];S.round=0;S.score=0;S.target=L.target;S.phase='play';S.pending=null;S.grid=[];
- for(let r=0;r<ROWS;r++){S.grid.push([]);for(let c=0;c<COLS;c++)S.grid[r].push({pol:!(c===0||(c===1&&r===1)),base:null,fish:null})}
- S.deck=shuf(S.cards.map(k=>({id:k.id,uid:k.uid})));S.hand=[];S.discard=[];startRound(S)}
-function income(S){let e=3+S.level;each(S,x=>{if(x.fish&&x.base==='coral')e++;if(x.fish&&x.fish.id==='clown')e++});return e}
-function draw(S,n){for(let i=0;i<n;i++){if(!S.deck.length){if(!S.discard.length)return;S.deck=shuf(S.discard);S.discard=[]}S.hand.push(S.deck.pop())}}
-function startRound(S){S.round++;S.energy=income(S);S.disc=false;S.multBonus=0;draw(S,Math.max(0,HAND-S.hand.length))}
-function score(S){const F=fishes(S),cnt={};F.forEach(f=>{cnt[f.id]=(cnt[f.id]||0)+1;f.pts=f.d.pts;f.why=[]});
- const at=(r,c)=>F.find(f=>f.r===r&&f.c===c),nb=f=>adj(f.r,f.c).map(([r,c])=>at(r,c)).filter(Boolean),add=(f,n,w)=>{if(n){f.pts+=n;f.why.push(w+' +'+n)}};
- F.forEach(f=>{const N=nb(f);
-  if(f.id==='clown')add(f,2*adj(f.r,f.c).filter(([r,c])=>S.grid[r][c].base==='anemone'&&!S.grid[r][c].pol).length,'相邻海葵');
-  if(f.id==='chromis')add(f,cnt.chromis,'成群');
-  if(f.id==='butterfly'&&N.some(o=>o.id==='butterfly'))add(f,4,'成对');
-  if(f.id==='frog')add(f,3*N.filter(o=>o.d.cost<=1).length,'伏击');
-  if(f.id==='eel')add(f,2*N.filter(o=>o.id==='eel').length,'群居');
-  if(f.id==='jack')add(f,3*(cnt.jack-1),'鱼群');
-  if(f.id==='moray'&&cnt.grouper)add(f,5,'合作捕猎');
-  if(f.id==='grouper'&&cnt.moray)add(f,5,'合作捕猎');
-  if(f.id==='sardine')N.forEach(o=>{if(o.id==='jack'||o.id==='shark')add(o,3,'饵球')})});
- F.forEach(f=>{if(f.id==='lion')nb(f).forEach(o=>{if(o.d.cost<=1){o.zero='被狮子鱼盯上'}})});
- F.forEach(f=>{if(f.x.fish.net)f.zero='被渔网缠住'});
- F.forEach(f=>{if(f.zero){f.pts=0;f.why=[f.zero]}else if(nb(f).some(o=>o.id==='cleaner')){f.pts*=2;f.why.push('清洁站 ×2')}});
- const groups=[...new Set(F.map(f=>f.d.g))];let mult=groups.length;const mw=[groups.length+' 个类群'];
- const bump=(n,w)=>{if(n){mult+=n;mw.push(w+' +'+n)}};bump(cnt.nudi||0,'海蛞蝓');bump(cnt.turtle||0,'绿海龟');if(cnt.shark)bump(cnt.shark*Math.floor((F.length-1)/3),'礁鲨');bump(S.multBonus,'产卵季');
- const chips=F.reduce((a,f)=>a+f.pts,0);return {F,chips,mult,mw,groups,total:chips*mult}}
-const frontier=S=>{const o=[];each(S,(x,r,c)=>{if(x.pol&&adj(r,c).some(([a,b])=>!S.grid[a][b].pol))o.push([r,c])});return o};
-const baseCells=S=>{const o=[];each(S,(x,r,c)=>{if(!x.pol&&!x.base)o.push([r,c])});return o};
-function fishCells(S,id){const d=CARDS[id],o=[];if(d.need&&fishes(S).length<d.need)return o;each(S,(x,r,c)=>{if(!x.pol&&x.base===d.home&&!x.fish)o.push([r,c])});return o}
-function placeBase(S,key,r,c){const x=S.grid[r][c];if(S.pending||S.energy<HABCOST||x.pol||x.base)return false;S.energy-=HABCOST;x.base=key;return true}
-function playFish(S,i,r,c){const k=S.hand[i];if(S.pending||!k)return false;const d=CARDS[k.id];if(d.type==='fx'||S.energy<d.cost||!fishCells(S,k.id).some(p=>p[0]===r&&p[1]===c))return false;
- S.energy-=d.cost;S.hand.splice(i,1);S.grid[r][c].fish={id:k.id,uid:k.uid};
- if(k.id==='parrot'){const cs=adj(r,c).filter(([a,b])=>S.grid[a][b].pol);if(cs.length)S.pending={cells:cs,cost:0,conv:'sand',msg:'鹦嘴鱼：选相邻的一格污染啃掉'}}
- if(k.id==='goby')draw(S,1);if(k.id==='ray')S.energy++;return true}
-function playFx(S,i){const k=S.hand[i];if(S.pending||!k)return false;const d=CARDS[k.id];if(d.type!=='fx'||S.energy<d.cost)return false;
- if(k.id==='cleanup'){const cs=frontier(S);if(!cs.length)return false;S.pending={cells:cs,cost:0,msg:'净滩：选一格污染清除'}}
- S.energy-=d.cost;S.discard.push(S.hand.splice(i,1)[0]);if(k.id==='current')draw(S,2);if(k.id==='spawn')S.multBonus+=2;return true}
-function purify(S){if(S.pending||S.energy<PURIFY)return false;const cs=frontier(S);if(!cs.length)return false;S.pending={cells:cs,cost:PURIFY,cancel:1,msg:'选一格污染清除（花 '+PURIFY+' 能量）'};return true}
-function resolve(S,r,c){const p=S.pending;if(!p||!p.cells.some(q=>q[0]===r&&q[1]===c))return false;const x=S.grid[r][c];x.pol=false;if(p.conv)x.base=p.conv;S.energy-=p.cost;S.pending=null;return true}
-function cancel(S){if(S.pending&&S.pending.cancel){S.pending=null;return true}return false}
-function swap(S,i){if(S.pending||S.disc||!S.hand[i])return false;S.discard.push(S.hand.splice(i,1)[0]);draw(S,1);S.disc=true;return true}
-function endRound(S){if(S.pending)S.pending=null;const L=LV[S.level],ev={score:score(S),cleared:[],spread:[],bleach:[],net:null};S.score+=ev.score.total;
- each(S,x=>{if(x.fish)delete x.fish.net});
- fishes(S).filter(f=>f.id==='surgeon').forEach(f=>{const cs=adj(f.r,f.c).filter(([a,b])=>S.grid[a][b].pol);if(cs.length){const p=cs[Math.floor(Math.random()*cs.length)];S.grid[p[0]][p[1]].pol=false;ev.cleared.push(p)}});
- if(S.score>=S.target){S.phase=S.level===LV.length-1?'won':'reward';if(S.phase==='reward'){S.picks=3;rollReward(S)}return ev}
- if(S.round>=ROUNDS){S.phase='lost';return ev}
- for(let n=0;n<L.spread;n++){const guard=(r,c)=>adj(r,c).some(([a,b])=>S.grid[a][b].fish&&S.grid[a][b].fish.id==='urchin'),A=[],B=[];
-  each(S,(x,r,c)=>{if(!x.pol&&!x.fish&&!guard(r,c)&&adj(r,c).some(([a,b])=>S.grid[a][b].pol))(x.base?B:A).push([r,c])});const P=A.length?A:B;
-  if(P.length){const p=P[Math.floor(Math.random()*P.length)],x=S.grid[p[0]][p[1]];ev.spread.push([p[0],p[1],x.base]);x.pol=true;x.base=null}}
- if(L.bleach)each(S,(x,r,c)=>{if(!x.pol&&x.base==='coral'&&!x.fish){x.pol=true;x.base=null;ev.bleach.push([r,c])}});
- if(L.net){const C=ev.score.F.filter(f=>f.id!=='pygmy'&&f.pts>0).sort((a,b)=>b.pts-a.pts)[0];if(C){C.x.fish.net=true;ev.net=[C.r,C.c]}}
- startRound(S);return ev}
-function rollReward(S){S.offer=shuf(POOL.slice()).filter((v,i,a)=>a.indexOf(v)===i).slice(0,3)}
-function pickReward(S,i){if(S.phase!=='reward'||!S.offer[i])return false;S.cards.push(mk(S.offer[i]));S.picks--;if(S.picks>0)rollReward(S);else{S.level++;startLevel(S)}return true}
-const RE={HAB,CARDS,LV,START,POOL,HABCOST,PURIFY,ROUNDS,ROWS,COLS,adj,each,fishes,newRun,startLevel,income,score,frontier,baseCells,fishCells,placeBase,playFish,playFx,purify,resolve,cancel,swap,endRound,pickReward};
+/* ================= v1 摆鱼 ================= */
+const HOME1={A:{n:'海葵',art:'anemone'},C:{n:'珊瑚',art:'coral'},S:{n:'沙地'},B:{n:'蓝水'},X:{n:'藻类'}};
+const SP1={
+ clown:{n:'小丑鱼',home:'A',pts:2,art:'clown'},
+ eel:{n:'花园鳗',home:'S',pts:1,art:'gardeneel',sk:'每挨着一条花园鳗，+2 分'},
+ chromis:{n:'光鳃鱼',home:'C',pts:1,art:'chromis'},
+ butterfly:{n:'蝴蝶鱼',home:'C',pts:3,art:'butterfly'},
+ cleaner:{n:'裂唇鱼',home:'C',pts:1,art:'cleaner',sk:'挨着它的鱼，得分 ×2'},
+ parrot:{n:'鹦嘴鱼',home:'C',pts:2,art:'parrot',sk:'吃掉挨着它的藻类，变成沙地'},
+ jack:{n:'鲹鱼',home:'B',pts:3,art:'jack'},
+ ray:{n:'蓝斑魟',home:'S',pts:4,art:'ray'}};
+const L1=[
+ {t:'放回家',tip:'点一条小丑鱼，再点一个海葵。',grid:['AAA'],hand:['clown','clown','clown'],fact:['clown','小丑鱼一辈子住在海葵里。它帮海葵赶走天敌，海葵的毒触手保护它。']},
+ {t:'各回各家',tip:'每种鱼只住自己的家。牌底的颜色就是它的家。',grid:['ASC','CAS'],hand:['clown','eel','chromis','clown','eel','chromis'],fact:['chromis','光鳃鱼成群悬在鹿角珊瑚上方，一有危险就整群缩回枝杈里。']},
+ {t:'挨在一起',tip:'花园鳗喜欢扎堆：每挨着一条同伴，+2 分。',grid:['SSC','SCS','CSS'],hand:['eel','eel','eel','chromis','chromis','chromis'],fact:['eel','花园鳗成片住在沙洞里，只探出半截身子，迎着水流吃浮游生物。']},
+ {t:'种类越多越好',tip:'新规则：总分 × 场上鱼的种类数。牌比格子多，挑着放。',mult:1,grid:['CAS','BCS'],hand:['chromis','chromis','chromis','clown','eel','eel','jack','butterfly'],fact:['butterfly','健康的礁上鱼的种类很多。蝴蝶鱼多不多，常被用来判断一片礁健不健康。']},
+ {t:'清洁站',tip:'裂唇鱼是清洁工：挨着它的鱼，得分 ×2。',mult:1,grid:['CCC','SCB','ACS'],hand:['cleaner','butterfly','ray','jack','clown','chromis','eel','eel'],fact:['cleaner','裂唇鱼在固定的“清洁站”替别的鱼吃掉寄生虫，大鱼会排队等它。']},
+ {t:'藻类',tip:'绿色是藻类，鱼住不了。鹦嘴鱼会吃掉挨着它的藻类。',mult:1,grid:['CXS','XCX','AXB'],hand:['parrot','eel','eel','eel','ray','clown','jack','chromis'],fact:['parrot','鹦嘴鱼刮食礁石上的藻类，磨碎的石灰质排出来就是白沙。']},
+ {t:'一回合一回合来',tip:'每回合放 2 张。点“结束回合”时，全场的鱼一起得分。共 4 回合。',mult:1,turns:4,plays:2,grid:['CCS','ACB','SCB'],deck:['chromis','chromis','clown','eel','eel','jack','jack','butterfly','butterfly','cleaner','ray','chromis'],fact:['jack','早点放下的鱼，每回合都得分。鲹鱼白天聚成大鱼群，晚上才散开捕食。']},
+ {t:'净化浅滩',tip:'每回合结束，藻类会盖住一个空着的家。鹦嘴鱼身边不长藻。共 5 回合。',mult:1,turns:5,plays:2,algae:1,grid:['CXSB','ACCX','SXCB'],deck:['chromis','chromis','clown','eel','eel','eel','jack','jack','butterfly','butterfly','cleaner','ray','parrot','parrot'],fact:['parrot','没有吃藻的鱼，藻类很快会盖住珊瑚。保护鹦嘴鱼，就是保护整片礁。']}];
+function v1new(li){const L=L1[li],st={li,grid:L.grid.map(s=>s.split('')),put:{},hand:[],deck:[],turn:1,plays:L.plays||99,total:0,over:null};
+ if(L.turns){st.deck=shuf(L.deck.slice());v1draw(st)}else st.hand=L.hand.slice();return st}
+const v1draw=st=>{while(st.hand.length<4&&st.deck.length)st.hand.push(st.deck.pop())};
+const v1dim=st=>[st.grid.length,st.grid[0].length];
+function v1type(st,r,c){const t=st.grid[r][c];if(t!=='X')return t;const[R,C]=v1dim(st);return adj4(r,c,R,C).some(([a,b])=>st.put[a+','+b]==='parrot'&&st.grid[a][b]!=='X')?'S':'X'}
+const v1can=(st,sp,r,c)=>!st.put[r+','+c]&&v1type(st,r,c)===SP1[sp].home;
+function v1score(st){const L=L1[st.li],[R,C]=v1dim(st),F=[];for(const k in st.put){const[r,c]=k.split(',').map(Number);F.push({r,c,sp:st.put[k],pts:SP1[st.put[k]].pts})}
+ const at=(r,c)=>st.put[r+','+c];
+ F.forEach(f=>{const N=adj4(f.r,f.c,R,C).map(([a,b])=>at(a,b)).filter(Boolean);if(f.sp==='eel')f.pts+=2*N.filter(s=>s==='eel').length;if(f.sp!=='cleaner'&&N.includes('cleaner')){f.pts*=2;f.x2=1}});
+ const sum=F.reduce((a,f)=>a+f.pts,0),kinds=new Set(F.map(f=>f.sp)).size;return {F,sum,kinds,total:L.mult?sum*kinds:sum}}
+function v1place(st,i,r,c){const sp=st.hand[i];if(st.over||!sp||st.plays<=0||!v1can(st,sp,r,c))return false;st.put[r+','+c]=sp;st.hand.splice(i,1);st.plays--;return true}
+function v1take(st,r,c){const L=L1[st.li],k=r+','+c;if(L.turns||!st.put[k])return false;st.hand.push(st.put[k]);delete st.put[k];
+ for(let ch=1;ch;){ch=0;for(const q in st.put){const[a,b]=q.split(',').map(Number);if(v1type(st,a,b)!==SP1[st.put[q]].home){st.hand.push(st.put[q]);delete st.put[q];ch=1}}}return true}
+function v1end(st){const L=L1[st.li];if(!L.turns||st.over)return null;const sc=v1score(st),ev={gain:sc.total,algae:null};st.total+=sc.total;
+ if(st.total>=L.target){st.over='win';return ev}if(st.turn>=L.turns){st.over='lose';return ev}
+ if(L.algae){const[R,C]=v1dim(st),P=[];for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(st.grid[r][c]!=='X'&&!st.put[r+','+c]&&!adj4(r,c,R,C).some(([a,b])=>st.put[a+','+b]==='parrot'))P.push([r,c]);
+  if(P.length){const p=P[Math.floor(Math.random()*P.length)];st.grid[p[0]][p[1]]='X';ev.algae=p}}
+ st.turn++;st.plays=L.plays;v1draw(st);return ev}
+const v1total=st=>L1[st.li].turns?st.total:v1score(st).total;
+/* ================= v2 组牌 ================= */
+const HOME2={reef:{n:'珊瑚礁'},sand:{n:'沙地'},blue:{n:'蓝水'},grass:{n:'海草床'}};
+const SP2={
+ seagrass:{n:'海草',home:'grass',lv:1,art:'seagrass'},coral:{n:'鹿角珊瑚',home:'reef',lv:1,art:'coral'},plankton:{n:'浮游动物',home:'blue',lv:1,art:'copepod'},
+ chromis:{n:'光鳃鱼',home:'reef',lv:2,art:'chromis'},parrot:{n:'鹦嘴鱼',home:'reef',lv:2,art:'parrot'},turtle:{n:'绿海龟',home:'grass',lv:2,art:'turtle'},eel:{n:'花园鳗',home:'sand',lv:2,art:'gardeneel'},urchin:{n:'海胆',home:'sand',lv:2,art:'urchin'},sardine:{n:'沙丁鱼',home:'blue',lv:2,art:'sardine'},pistol:{n:'枪虾',home:'sand',lv:2,art:'pistol'},
+ butterfly:{n:'蝴蝶鱼',home:'reef',lv:3,art:'butterfly'},cleaner:{n:'裂唇鱼',home:'reef',lv:3,art:'cleaner'},clown:{n:'小丑鱼',home:'reef',lv:3,art:'clown'},anem:{n:'海葵',home:'reef',lv:3,art:'anemone'},goby:{n:'虾虎鱼',home:'sand',lv:3,art:'goby'},ray:{n:'蓝斑魟',home:'sand',lv:3,art:'ray'},seahorse:{n:'海马',home:'grass',lv:3,art:'seahorse'},
+ jack:{n:'鲹鱼',home:'blue',lv:4,art:'jack'},grouper:{n:'石斑鱼',home:'reef',lv:4,art:'grouper'},moray:{n:'海鳝',home:'reef',lv:4,art:'moray'},lizard:{n:'狗母鱼',home:'sand',lv:4,art:'lizardfish'},
+ shark:{n:'礁鲨',home:'blue',lv:5,art:'shark'}};
+const PAIRS=[['clown','anem','小丑鱼住在海葵里，互相保护'],['goby','pistol','枪虾挖洞，虾虎鱼放哨'],['moray','grouper','石斑鱼会邀请海鳝一起捕猎']];
+const partner=id=>{for(const p of PAIRS){if(p[0]===id)return p[1];if(p[1]===id)return p[0]}return null};
+const rep=(o)=>Object.entries(o).flatMap(([k,n])=>Array(n).fill(k));
+const FULL2=rep({coral:2,chromis:3,parrot:2,butterfly:2,cleaner:1,clown:2,anem:1,grouper:1,moray:1,eel:3,urchin:1,pistol:1,goby:1,ray:1,lizard:1,plankton:2,sardine:3,jack:2,shark:1,seagrass:2,turtle:2,seahorse:2});
+const COMBO={home:{n:'同一个家',d:'选的牌都住同一个家（同颜色）',m:{2:2,3:3,4:3,5:4}},school:{n:'鱼群',d:'选的牌都是同一种',m:{2:3,3:5,4:8,5:12}},chain:{n:'食物链',d:'数字一个接一个连起来，比如 1-2-3',m:{3:4,4:6,5:8}},pair:{n:'搭档',d:'两张互为搭档的牌',m:{2:5}}};
+const L2=[
+ {t:'放流',tip:'选 3 张牌，点“放流”。牌上的数字加起来，就是净化值。',max:3,plays:3,swaps:0,on:[],deck:rep({chromis:3,eel:3,sardine:3,butterfly:2,ray:1,jack:2,coral:2,plankton:2}),fact:['jack','牌上的数字是它在食物链里的位置：1 是被吃的，5 是顶级掠食者。']},
+ {t:'同一个家',tip:'新牌型：同一个家（同颜色）的牌一起放，得分 × 张数。最多选 5 张。',max:5,plays:3,swaps:0,on:['home'],deck:rep({coral:2,chromis:3,parrot:2,butterfly:2,clown:2,eel:3,urchin:1,ray:1,goby:1,sardine:3,jack:2}),fact:['chromis','住在同一个地方的生物互相依靠。珊瑚礁只占海底不到 1%，却养活了约四分之一的海洋鱼类。']},
+ {t:'鱼群',tip:'新牌型：同一种鱼一起放，就是鱼群，倍数更高。',max:5,plays:3,swaps:0,on:['home','school'],deck:rep({chromis:4,eel:4,sardine:4,butterfly:2,jack:2,ray:1,parrot:2,coral:1}),fact:['sardine','沙丁鱼成千上万挤成“饵球”。鱼越多，掠食者越难盯住其中一条。']},
+ {t:'换牌',tip:'手牌不好？选中不要的牌，点“换牌”。可以换 3 次。',max:5,plays:3,swaps:3,on:['home','school'],deck:FULL2,fact:['turtle','海草床里住着绿海龟和海马。绿海龟成年后主要吃海草。']},
+ {t:'食物链',tip:'新牌型：数字连起来（比如 1-2-3）是一条食物链，×4 起。',max:5,plays:3,swaps:3,on:['home','school','chain'],deck:FULL2,fact:['shark','浮游动物被沙丁鱼吃，沙丁鱼被鲹鱼吃，鲹鱼被鲨鱼吃。少了哪一环，整条链都会出问题。']},
+ {t:'搭档',tip:'新牌型：有些动物是搭档。选中一张，它的搭档会亮起来。两张一起放 ×5。',max:5,plays:3,swaps:3,on:['home','school','chain','pair'],deck:FULL2.concat(['anem','pistol','goby','moray','grouper']),fact:['goby','枪虾视力差，负责挖洞；虾虎鱼在洞口放哨，一摆尾巴两个一起躲进去。']},
+ {t:'净化浅滩',tip:'所有牌型都能用了。4 次放流，把污染压下去。',max:5,plays:4,swaps:3,on:['home','school','chain','pair'],deck:FULL2.concat(['anem','pistol']),fact:['parrot','一片礁要恢复，需要住得下、吃得上、种类全。你刚才用的每个牌型，都是真实的生态关系。']},
+ {t:'珊瑚白化',tip:'污染反扑：珊瑚白化了，住珊瑚礁的牌只算 1 分。换别的家来打。',max:5,plays:4,swaps:4,on:['home','school','chain','pair'],boss:'reef',deck:FULL2.concat(['anem','pistol']),fact:['coral','水温过高时，珊瑚会赶走体内的共生藻而变白。时间一长，珊瑚就会饿死。']}];
+function combo(ids,on){const n=ids.length;if(!n)return null;let best={key:null,n:'',mult:1};const tryc=(key,ok,extra)=>{if(on.includes(key)&&ok&&COMBO[key].m[n]&&COMBO[key].m[n]>best.mult)best={key,n:COMBO[key].n+(extra||''),mult:COMBO[key].m[n]}};
+ const sp=ids.map(i=>SP2[i]);tryc('home',n>=2&&sp.every(s=>s.home===sp[0].home),' · '+HOME2[sp[0].home].n);tryc('school',n>=2&&ids.every(i=>i===ids[0]));
+ const lv=sp.map(s=>s.lv).sort((a,b)=>a-b);tryc('chain',n>=3&&lv.every((v,i)=>!i||v===lv[i-1]+1));tryc('pair',n===2&&partner(ids[0])===ids[1]);return best}
+const chips=(ids,L)=>ids.reduce((a,i)=>a+(L.boss&&SP2[i].home===L.boss?1:SP2[i].lv),0);
+function v2new(li){const L=L2[li],st={li,deck:shuf(L.deck.slice()),hand:[],sel:[],plays:L.plays,swaps:L.swaps,total:0,over:null};v2draw(st);return st}
+const v2draw=st=>{while(st.hand.length<8&&st.deck.length)st.hand.push(st.deck.pop())};
+const v2eval=(st,idx)=>{const L=L2[st.li],ids=idx.map(i=>st.hand[i]),c=combo(ids,L.on),ch=chips(ids,L);return {ids,combo:c,chips:ch,gain:c?ch*c.mult:0}};
+function v2play(st){const L=L2[st.li];if(st.over||!st.sel.length||st.plays<=0)return null;const e=v2eval(st,st.sel);st.total+=e.gain;st.hand=st.hand.filter((_,i)=>!st.sel.includes(i));st.sel=[];st.plays--;v2draw(st);
+ if(st.total>=L.target)st.over='win';else if(st.plays<=0||!st.hand.length)st.over='lose';return e}
+function v2swap(st){if(st.over||!st.sel.length||st.swaps<=0)return false;st.hand=st.hand.filter((_,i)=>!st.sel.includes(i));st.sel=[];st.swaps--;v2draw(st);return true}
+const RC={adj4,SP1,HOME1,L1,v1new,v1type,v1can,v1score,v1place,v1take,v1end,v1total,v1dim,SP2,HOME2,L2,PAIRS,COMBO,partner,combo,chips,v2new,v2eval,v2play,v2swap};
+[[6,6],[8,8],[14,14],[60,75],[140,182],[100,138],[240,0],[280,0]].forEach((v,i)=>{L1[i].target=v[0];L1[i].best=v[1]});[20,70,80,95,130,150,200,160].forEach((v,i)=>{L2[i].target=v});
 
 </script>
 <script>
 const $=id=>document.getElementById(id);
-let S,sel=null,pick=null,busy=false,toastT=0;
-const art=a=>a&&P[a]?`<svg viewBox="0 0 100 100" aria-hidden="true">${P[a]()}</svg>`:'';
+let ver=1,LI={1:0,2:0},st,sel=null,busy=false,toastT=0;
+try{const s=JSON.parse(localStorage.getItem('reef')||'{}');if(s.ver)ver=s.ver;if(s.LI)LI=s.LI}catch(e){}
+const save=()=>{try{localStorage.setItem('reef',JSON.stringify({ver,LI}))}catch(e){}};
+const art=(a,cls)=>a&&P[a]?`<svg ${cls?'class="'+cls+'"':''} viewBox="0 0 100 100" aria-hidden="true">${P[a]()}</svg>`:'';
 const sleep=ms=>new Promise(r=>setTimeout(r,window.__fast?0:ms));
-function say(t,cls){document.querySelectorAll('.toast').forEach(e=>e.remove());const d=document.createElement('div');d.className='toast '+(cls||'');d.textContent=t;document.body.appendChild(d);clearTimeout(toastT);toastT=setTimeout(()=>d.remove(),1900)}
-const homeTag=h=>`<span class="home h-${h}">${HAB[h].s}</span>`;
-function bigCard(id,tag){const d=CARDS[id],fx=d.type==='fx';
- return `<${tag||'div'} class="big" data-pick="${id}">${fx?'<span class="fxi">效果</span>':art(d.art)}<h3>${d.full||d.n}${d.sci?`<em>${d.sci}</em>`:''}</h3><div class="meta">${fx?'效果牌':d.g+' · 住 '+homeTag(d.home)} · ⚡${d.cost}${fx?'':' · '+d.pts+' 分'}</div><p class="sk">${d.sk}</p><p class="fa">${d.fact}</p></${tag||'div'}>`}
-function infoHTML(){
- if(S.pending)return `<p class="warn">${S.pending.msg}</p>`;
- if(sel&&sel.t==='swap')return `<p class="warn">点一张手牌，把它换成牌库顶的一张（每回合一次）。</p>`;
- if(sel&&sel.t==='hab'){const h=HAB[sel.key];return `<h3>${h.n}<span>栖息地 · ⚡${RE.HABCOST}</span></h3><p>${h.tip}</p><p class="fa">点一个干净的空格铺下去。</p>`}
- let id=null,extra='';
- if(sel&&sel.t==='card'){id=S.hand[sel.i].id;const d=CARDS[id];
-  if(d.type==='fx')extra=`<button data-usefx="1">使用</button>`;
-  else if(S.energy<d.cost)extra=`<p class="warn">能量不够，需要 ⚡${d.cost}。</p>`;
-  else if(d.need&&RE.fishes(S).length<d.need)extra=`<p class="warn">场上要先有 ${d.need} 条鱼。</p>`;
-  else if(!RE.fishCells(S,id).length)extra=S.energy>=d.cost+RE.HABCOST&&RE.baseCells(S).length?`<p class="fa">没有空的${HAB[d.home].s}。点绿色虚线格，连栖息地一起放（共 ⚡${d.cost+RE.HABCOST}）。</p>`:`<p class="warn">没有空的${HAB[d.home].s}，能量也不够再铺一个。</p>`}
- else if(pick){const x=S.grid[pick[0]][pick[1]];if(x.fish)id=x.fish.id;else if(x.pol)return `<h3>污染<span>藻类盖住的格子</span></h3><p>花 ⚡${RE.PURIFY} 净化，或者用鹦嘴鱼、刺尾鱼、净滩牌清掉。</p>`;else if(x.base)return `<h3>${HAB[x.base].n}<span>栖息地</span></h3><p>${HAB[x.base].tip}</p>`;else return `<h3>干净的空格</h3><p>可以铺栖息地。空着的格子回合结束时可能被藻类盖回去。</p>`}
- if(id){const d=CARDS[id];return `<h3>${d.full||d.n}${d.sci?`<em>${d.sci}</em>`:''}<span>${d.type==='fx'?'效果牌':d.g+' · 住'+HAB[d.home].s} · ⚡${d.cost}${d.type==='fx'?'':' · '+d.pts+' 分'}</span></h3><p class="sk">${d.sk}</p><p class="fa">${d.fact}</p>${extra}`}
- return `<p class="fa">点一张手牌，再点亮起的格子。每种鱼只能住进自己的栖息地。<br>回合结束时结算：所有鱼的分数相加 × 场上的类群数。</p>`}
-function render(){const L=LV[S.level],sc=RE.score(S);
- $('lvn').textContent=L.n;$('lvs').textContent=L.sub;$('rd').textContent='回合 '+S.round+' / '+RE.ROUNDS;$('sc').textContent=S.score;$('tg').textContent=S.target;$('barI').style.width=Math.min(100,S.score/S.target*100)+'%';
- $('prev').innerHTML=sc.F.length?`<span>本回合预计 <b>${sc.chips}</b> 分 × <b>${sc.mult}</b> 倍 = <b class="t">${sc.total}</b></span><small>倍率：${sc.mw.join('，')}</small>`:`<span>场上还没有鱼。放下第一条鱼就开始得分。</span>`;
- const H={},H2={},key=(r,c)=>r+','+c;
- if(S.pending)S.pending.cells.forEach(p=>H[key(...p)]=1);
- else if(sel&&sel.t==='card'){const d=CARDS[S.hand[sel.i].id];if(d.type!=='fx'){if(S.energy>=d.cost)RE.fishCells(S,S.hand[sel.i].id).forEach(p=>H[key(...p)]=1);if(S.energy>=d.cost+RE.HABCOST&&!(d.need&&RE.fishes(S).length<d.need))RE.baseCells(S).forEach(p=>H2[key(...p)]=1)}}
- else if(sel&&sel.t==='hab'&&S.energy>=RE.HABCOST)RE.baseCells(S).forEach(p=>H[key(...p)]=1);
- let b='';RE.each(S,(x,r,c)=>{const k=key(r,c),f=x.fish&&sc.F.find(o=>o.r===r&&o.c===c);
-  b+=`<button class="cell ${x.pol?'pol':''} ${x.base?'has b-'+x.base:''} ${x.fish?'fishy':''} ${H[k]?'hl':''} ${H2[k]?'hl2':''} ${pick&&pick[0]===r&&pick[1]===c&&!sel?'pick':''}" data-r="${r}" data-c="${c}" aria-label="第${r+1}行第${c+1}列">${x.base&&HAB[x.base].art?art(HAB[x.base].art).replace('<svg','<svg class="cb"'):''}${x.fish?art(CARDS[x.fish.id].art).replace('<svg','<svg class="cf"'):''}${x.base&&!x.fish?`<span class="bl">${HAB[x.base].s}</span>`:''}${f?`<span class="pt ${f.pts?'':'z'}">${f.pts}</span>`:''}${x.fish&&x.fish.net?'<span class="nt">渔网</span>':''}</button>`});
- $('board').innerHTML=b;
- $('en').innerHTML='⚡'+S.energy+`<small>牌库 ${S.deck.length}</small>`;
- $('habs').innerHTML=Object.keys(HAB).map(k=>`<button class="hab h-${k} ${sel&&sel.t==='hab'&&sel.key===k?'sel':''}" data-hab="${k}"><i></i>${HAB[k].s}</button>`).join('');
- $('info').innerHTML=infoHTML();
- $('hand').innerHTML=S.hand.map((k,i)=>{const d=CARDS[k.id],on=sel&&sel.t==='card'&&sel.i===i;
-  return d.type==='fx'?`<button class="card fx ${on?'sel':''} ${S.energy<d.cost?'off':''}" data-i="${i}"><span class="co">${d.cost}</span><b>${d.n}</b><small>${d.sk}</small></button>`
-  :`<button class="card ${on?'sel':''} ${S.energy<d.cost?'off':''}" data-i="${i}"><span class="co">${d.cost}</span><span class="pv">${d.pts}分</span>${art(d.art)}<b>${d.n}</b>${homeTag(d.home)}</button>`}).join('')||'<p class="fa" style="margin:auto;color:var(--dim)">手牌打完了</p>';
- $('bPur').innerHTML=S.pending&&S.pending.cancel?'取消':`净化一格 <small>⚡${RE.PURIFY}</small>`;
- $('bSwap').innerHTML=sel&&sel.t==='swap'?'取消':`换牌 <small>${S.disc?'已用':'1 次'}</small>`;$('bSwap').disabled=S.disc&&!(sel&&sel.t==='swap')}
-function tapCell(r,c){if(busy)return;const x=S.grid[r][c];
- if(S.pending){if(RE.resolve(S,r,c))render();else say('点亮起的格子');return}
- if(sel&&sel.t==='card'){const i=sel.i,id=S.hand[i].id,d=CARDS[id];if(d.type!=='fx'){
-  if(RE.playFish(S,i,r,c)){sel=null;pick=[r,c];render();return}
-  if(x.pol)say('这格还被污染着');else if(x.fish)say('这里已经有鱼了');else if(S.energy<d.cost)say('能量不够');else if(d.need&&RE.fishes(S).length<d.need)say('场上要先有 '+d.need+' 条鱼');
-  else if(x.base)say(d.n+'只能住进'+HAB[d.home].s);
-  else if(S.energy<d.cost+RE.HABCOST)say('连栖息地一起放要 ⚡'+(d.cost+RE.HABCOST));
-  else if(RE.placeBase(S,d.home,r,c)&&RE.playFish(S,i,r,c)){sel=null;pick=[r,c];render()}
-  return}}
- if(sel&&sel.t==='hab'){if(RE.placeBase(S,sel.key,r,c)){sel=null;pick=[r,c];render()}else say(x.pol?'这格还被污染着':x.base?'这里已经有栖息地了':'能量不够');return}
- sel=null;pick=[r,c];render()}
-function tapCard(i){if(busy||S.pending)return;if(sel&&sel.t==='swap'){RE.swap(S,i);sel=null;render();return}
- if(sel&&sel.t==='card'&&sel.i===i)sel=null;else{sel={t:'card',i};pick=null}render()}
-function useFx(){if(!sel||sel.t!=='card')return;if(RE.playFx(S,sel.i)){sel=null;render()}else say(S.energy<CARDS[S.hand[sel.i].id].cost?'能量不够':'现在没有能清除的污染')}
-async function endRound(){if(busy||S.phase!=='play')return;busy=true;sel=null;pick=null;if(S.pending)S.pending=null;render();
- const sc=RE.score(S),cells=[...document.querySelectorAll('.cell')],cellAt=(r,c)=>cells[r*RE.COLS+c];let run=0;
- for(const f of sc.F){run+=f.pts;const el=cellAt(f.r,f.c);el.classList.add('pop');$('prev').innerHTML=`<span><b>${run}</b> 分 × <b>${sc.mult}</b> 倍</span><small>${CARDS[f.id].n} ${f.pts}${f.why.length?'（'+f.why.join('，')+'）':''}</small>`;await sleep(230)}
- $('prev').innerHTML=`<span><b>${sc.chips}</b> 分 × <b>${sc.mult}</b> 倍 = <b class="t">+${sc.total}</b></span><small>倍率：${sc.mw.join('，')||'场上没有鱼'}</small>`;$('prev').classList.add('pulse');await sleep(750);$('prev').classList.remove('pulse');
- const lv=S.level,ev=RE.endRound(S);
- $('sc').textContent=S.score;$('barI').style.width=Math.min(100,S.score/S.target*100)+'%';await sleep(500);
- if(S.phase==='reward'){busy=false;render();reward(true);return}
- if(S.phase==='won'){busy=false;render();finale(true);return}
- if(S.phase==='lost'){busy=false;render();finale(false);return}
- render();const C=[...document.querySelectorAll('.cell')],flash=p=>C[p[0]*RE.COLS+p[1]].classList.add('hit'),msg=[];
- ev.cleared.forEach(flash);ev.spread.forEach(flash);ev.bleach.forEach(flash);if(ev.net)flash(ev.net);
- if(ev.cleared.length)msg.push('刺尾鱼刷掉了 '+ev.cleared.length+' 格污染');
- if(ev.spread.length)msg.push('藻类盖住了 '+ev.spread.length+' 格'+(ev.spread.some(p=>p[2])?'，连栖息地一起':''));else if(RE.frontier(S).length)msg.push('藻类没找到能蔓延的空格');
- if(ev.bleach.length)msg.push(ev.bleach.length+' 丛没鱼住的珊瑚白化了');
- if(ev.net){const x=S.grid[ev.net[0]][ev.net[1]];msg.push(CARDS[x.fish.id].n+'被渔网缠住，下回合不得分')}
- if(msg.length)say(msg.join('；'),ev.spread.length||ev.bleach.length||ev.net?'bad':'good');
- if(S.round===RE.ROUNDS)setTimeout(()=>say('最后一个回合','bad'),2000);
- busy=false}
-function ov(html){const o=$('ov');o.innerHTML=`<div class="sheet">${html}</div>`;o.hidden=false;o.firstChild.scrollTop=0}
-const closeOv=()=>{$('ov').hidden=true};
-function intro(first){const L=LV[S.level];ov(`${first?`<h1>记忆礁</h1><p>博士：“外面的海快被污染吞光了。你潜水扫描回来的鱼，我都刻成了<b>记忆卡</b>。把它们放回各自的家，礁上的生命越多、种类越杂，污染就退得越远。”</p>`:''}
- <h2>第 ${S.level+1} 片水域 · ${L.n}</h2><p class="tag">污染类型：${L.sub}</p><p>${L.rule}</p><p>${RE.ROUNDS} 个回合内，净化值达到 <b style="color:var(--sun)">${L.target}</b> 就过关。${S.level?'每回合基础能量比上一片水域多 1。':''}</p>
- ${first?`<h2>怎么玩</h2><ol><li>点手牌里的鱼，再点亮起的格子。鱼只能住进自己的栖息地：小丑鱼住海葵，花园鳗住沙地。</li><li>没有合适的栖息地时，点绿色虚线格，会连栖息地一起放下。</li><li>点“结束回合”结算：<b>所有鱼的分数之和 × 场上的类群数</b>。种类越杂，倍率越高。</li></ol>`:''}
- <button class="go" data-act="close">开始净化</button>`)}
-function rules(){ov(`<button class="x" data-act="close">关闭</button><h1 style="font-size:20px">规则</h1>
- <ol><li><b>目标</b>：${RE.ROUNDS} 个回合内，净化值达到目标。三片水域全部过关，这个潜点就净化完成。</li>
- <li><b>能量</b>：每回合 3 点（之后每片水域 +1）。每丛住了鱼的珊瑚 +1，每条小丑鱼 +1。能量不留到下回合。</li>
- <li><b>栖息地</b>：7 种，随时可铺，每个 ⚡${RE.HABCOST}，只能铺在干净的空格上。</li>
- <li><b>鱼</b>：花费牌左上角的能量，放进对应的空栖息地。一格住一条。</li>
- <li><b>结算</b>：回合结束时，每条鱼按“基础分 + 技能”得分，全部相加，再乘以倍率。倍率 = 场上不同类群（科）的数量，加上技能给的倍率。</li>
- <li><b>污染</b>：每回合结束，藻类盖住 1 个挨着污染、没有鱼的格子（先盖空格，再盖没鱼住的栖息地）。花 ⚡${RE.PURIFY} 可以净化一格挨着干净格的污染。</li>
- <li><b>手牌</b>：每回合开始补到 5 张。每回合可以换 1 张牌。</li>
- <li><b>过关</b>：从 3 张新记忆卡里选 1 张加入牌组，连选 3 次，然后去下一片水域。</li></ol>
- <h2>三片水域</h2>${LV.map((l,i)=>`<p><b>${i+1}. ${l.n} · ${l.sub}</b>（目标 ${l.target}）：${l.rule}</p>`).join('')}
- <h2>牌表 · 鱼（${Object.keys(CARDS).filter(k=>!CARDS[k].type).length} 种）</h2>${Object.keys(CARDS).filter(k=>!CARDS[k].type).map(k=>bigCard(k)).join('')}
- <h2>牌表 · 效果</h2>${Object.keys(CARDS).filter(k=>CARDS[k].type).map(k=>bigCard(k)).join('')}
- <h2>起始牌组（${RE.START.length} 张）</h2><p>${Object.entries(RE.START.reduce((a,k)=>(a[k]=(a[k]||0)+1,a),{})).map(([k,n])=>CARDS[k].n+' ×'+n).join('，')}</p>
- <button class="go" data-act="close">回到牌局</button>`)}
-function reward(first){ov(`<h1 style="font-size:22px">${LV[S.level].n}净化完成</h1><p>净化值 ${S.score} / ${S.target}。博士带来了新的记忆卡，选 1 张加入牌组（还能选 ${S.picks} 次）。</p>${S.offer.map(k=>bigCard(k,'button')).join('')}`)}
-function finale(win){ov(win?`<h1>潜点净化完成</h1><p>三片水域都恢复了生态平衡。最后一片的净化值是 ${S.score} / ${S.target}。</p><p class="fa" style="color:var(--dim)">牌组里现在有 ${S.cards.length} 张记忆卡。</p><button class="go" data-act="new">再来一局</button>`
- :`<h1>污染没有退去</h1><p>${LV[S.level].n}的净化值停在 ${S.score} / ${S.target}。</p><p>提示：种类越杂倍率越高；裂唇鱼旁边放高分的鱼；别让珊瑚和空格空着被藻类盖回去。</p><button class="go" data-act="new">再来一局</button>`)}
+function say(t,cls){document.querySelectorAll('.toast').forEach(e=>e.remove());const d=document.createElement('div');d.className='toast '+(cls||'');d.textContent=t;document.body.appendChild(d);clearTimeout(toastT);toastT=setTimeout(()=>d.remove(),1700)}
+const LV=()=>ver===1?L1:L2,L=()=>LV()[LI[ver]];
+function load(){document.querySelectorAll('.toast').forEach(e=>e.remove());st=ver===1?v1new(LI[1]):v2new(LI[2]);sel=null;busy=false;$('ov').hidden=true;save();render()}
+function head(total,side){const l=L();$('bV1').className=ver===1?'on':'';$('bV2').className=ver===2?'on':'';
+ $('lvt').textContent=(LI[ver]+1)+' / '+LV().length+'  '+l.t;$('bPrev').disabled=LI[ver]===0;$('bNext').disabled=LI[ver]===LV().length-1;
+ $('tip').innerHTML=`<b>${LI[ver]?'新':'开始'}</b>${l.tip}`;$('tot').textContent=total;$('tot').className=total>=l.target?'done':'';$('tgt').textContent='/ '+l.target;$('side').innerHTML=side||'';$('barI').style.width=Math.min(100,total/l.target*100)+'%'}
+const factHTML=()=>`<div class="fact"><b>过关。</b>${L().fact[1]}</div>`;
+/* ---------- v1 摆鱼 ---------- */
+function r1(){const l=L(),sc=v1score(st),total=v1total(st),[R,C]=v1dim(st),sp=sel!=null?st.hand[sel]:null;
+ head(total,l.turns?`第 ${Math.min(st.turn,l.turns)} / ${l.turns} 回合`:(l.best>l.target?`最高 ${l.best}`:''));
+ let fing=0;let b=`<div class="board" style="grid-template-columns:repeat(${C},1fr);max-width:${C*108}px">`;
+ for(let r=0;r<R;r++)for(let c=0;c<C;c++){const t=v1type(st,r,c),f=st.put[r+','+c],s=f&&sc.F.find(o=>o.r===r&&o.c===c),ok=sp&&st.plays>0&&v1can(st,sp,r,c);
+  b+=`<button class="cell h-${t} ${f?'fishy':''} ${ok?'hl':''}" data-r="${r}" data-c="${c}">${HOME1[t].art?art(HOME1[t].art,'cb'):''}${f?art(SP1[f].art,'cf'):`<span class="bl">${HOME1[t].n}</span>`}${s?`<span class="pt ${s.x2?'x2':''}">${s.pts}</span>`:''}${ok&&LI[1]===0&&!fing++?'<span class="finger">👆</span>':''}</button>`}
+ b+='</div>';
+ const subline=l.mult&&sc.F.length?`<b>${sc.sum}</b> 分 × <b>${sc.kinds}</b> 种 = <b class="t">${sc.total}</b>${l.turns?' <span>（这回合能得）</span>':''}`:(l.turns&&sc.F.length?`这回合能得 <b class="t">+${sc.total}</b>`:'');
+ const first=LI[1]===0&&!Object.keys(st.put).length&&sel==null;
+ const hand=st.hand.map((s,i)=>{const d=SP1[s];return `<button class="card h-${d.home} ${sel===i?'sel':''}" data-i="${i}"><span class="no">${d.pts}</span>${d.sk?'<span class="st">★</span>':''}${art(d.art)}<b>${d.n}</b><span class="hm">${HOME1[d.home].n}</span>${first&&i===0?'<span class="finger">👆</span>':''}</button>`}).join('');
+ const skl=sp&&SP1[sp].sk?`${SP1[sp].n}：${SP1[sp].sk}`:(sp?`${SP1[sp].n}住${HOME1[SP1[sp].home].n}`:(l.turns&&!st.over?`这回合还能放 ${st.plays} 张`:''));
+ const pass=!l.turns&&total>=l.target,last=LI[1]===L1.length-1;
+ $('stage').innerHTML=`<div class="sub" id="sub">${subline}</div>${b}<div class="sk">${skl}</div>${pass?factHTML():''}<div class="hand">${hand}</div>`;
+ $('foot').innerHTML=l.turns?(st.over?'':`<button class="pri" data-act="end">结束回合</button>`):`<button data-act="retry">重摆</button><button class="pri" data-act="next" ${pass?'':'disabled'}>${pass?(last?'完成':'下一关'):'还差 '+(l.target-total)+' 分'}</button>`}
+const cellEl=(r,c)=>document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+function tapCell1(r,c){if(busy||st.over)return;const k=r+','+c;
+ if(sel!=null){const s=st.hand[sel];if(v1place(st,sel,r,c)){sel=null;r1();cellEl(r,c).classList.add('pop');return}
+  const t=v1type(st,r,c);say(st.plays<=0?'这回合放满了，点“结束回合”':st.put[k]?'这里已经有鱼了':t==='X'?'藻类盖住了，鱼住不了':SP1[s].n+'不住'+HOME1[t].n+'，它住'+HOME1[SP1[s].home].n,'bad');cellEl(r,c).classList.add('no');return}
+ if(st.put[k]){if(v1take(st,r,c))r1();else say('已经放下的鱼不能收回')}else say('先点下面的一张牌')}
+async function end1(){if(busy||st.over)return;busy=true;sel=null;const sc=v1score(st);r1();
+ for(const f of sc.F){cellEl(f.r,f.c).classList.add('pop');await sleep(110)}$('sub').classList.add('pulse');await sleep(450);
+ const ev=v1end(st);r1();say('+'+ev.gain,'good');await sleep(700);
+ if(ev.algae){cellEl(...ev.algae).classList.add('hit');say('藻类盖住了一个空着的家','bad');await sleep(600)}
+ busy=false;if(st.over)done(st.over==='win')}
+/* ---------- v2 组牌 ---------- */
+function r2(){const l=L(),e=st.sel.length?v2eval(st,st.sel):null;head(st.total,`放流剩 ${st.plays} 次`);
+ let sub='选牌，然后放流';if(e){const nums=e.ids.map(i=>l.boss&&SP2[i].home===l.boss?1:SP2[i].lv).join(' + ');sub=e.combo.mult>1?`${e.combo.n}　<b>${e.chips}</b> × <b>${e.combo.mult}</b> = <b class="t">${e.gain}</b>`:`${e.ids.length>1?nums+' = ':''}<b class="t">${e.gain}</b>${l.on.length&&e.ids.length>1?' <span>（没凑成牌型）</span>':''}`}
+ const mate=l.on.includes('pair')&&st.sel.length===1?partner(st.hand[st.sel[0]]):null,first=LI[2]===0&&!st.sel.length&&st.plays===l.plays;
+ const hand=st.hand.map((s,i)=>{const d=SP2[s],on=st.sel.includes(i);return `<button class="card h-${d.home} ${on?'sel':''} ${!on&&mate===s?'mate':''}" data-i="${i}"><span class="no">${l.boss===d.home?1:d.lv}</span>${l.on.includes('pair')&&partner(s)?'<span class="st">∞</span>':''}${art(d.art)}<b>${d.n}</b><span class="hm">${HOME2[d.home].n}</span>${first&&i===0?'<span class="finger">👆</span>':''}</button>`}).join('');
+ const chips=l.on.length?`<div class="chips">${l.on.map((k,i)=>`<button data-act="table" class="${i===l.on.length-1&&LI[2]<6?'new':''}">${COMBO[k].n}</button>`).join('')}<button data-act="table">牌型表</button></div>`:'';
+ $('stage').innerHTML=`<div class="sub" id="sub">${sub}</div><div class="hand g4">${hand}</div>${chips}`;
+ $('foot').innerHTML=st.over?'':`${l.swaps?`<button data-act="swap" ${st.sel.length&&st.swaps>0?'':'disabled'}>换牌 ${st.swaps}</button>`:''}<button class="pri" data-act="play" ${st.sel.length?'':'disabled'}>放流</button>`}
+function tapCard2(i){if(busy||st.over)return;const l=L(),k=st.sel.indexOf(i);if(k>=0)st.sel.splice(k,1);else if(st.sel.length>=l.max){say('最多选 '+l.max+' 张');return}else st.sel.push(i);r2()}
+async function play2(){if(busy||!st.sel.length)return;busy=true;document.querySelectorAll('.card.sel').forEach(c=>c.classList.add('fly'));$('sub').classList.add('pulse');await sleep(480);
+ const e=v2play(st);r2();say('+'+e.gain+(e.combo.mult>1?'　'+COMBO[e.combo.key].n:''),'good');await sleep(500);busy=false;if(st.over)done(st.over==='win')}
+function table(){const l=L();ov(`<h1 style="font-size:20px">牌型</h1><p>净化值 = 牌上数字之和 × 牌型倍数。选的牌要全部符合才算。</p><table>${l.on.map(k=>`<tr><td><b>${COMBO[k].n}</b><br>${COMBO[k].d}</td><td>${Object.entries(COMBO[k].m).map(([n,m])=>n+' 张 ×'+m).join('<br>')}</td></tr>`).join('')}</table>${l.on.includes('pair')?`<p>搭档：${PAIRS.map(p=>SP2[p[0]].n+' + '+SP2[p[1]].n).join('，')}。</p>`:''}<button class="go" data-act="close">知道了</button>`)}
+/* ---------- 通用 ---------- */
+const render=()=>ver===1?r1():r2();
+function ov(html){$('ov').innerHTML=`<div class="sheet">${html}</div>`;$('ov').hidden=false}
+function done(win){const l=L(),last=LI[ver]===LV().length-1;
+ ov(win?`<h1>${last?'这片礁净化完成':'过关'}</h1><p class="big">${st.total} / ${l.target}</p><p>${l.fact[1]}</p><button class="go" data-act="${last?'retry':'next'}">${last?'再玩一次这关':'下一关'}</button>`
+ :`<h1>差一点</h1><p class="big">${st.total} / ${l.target}</p><p>${ver===1?'早点放下的鱼每回合都得分；种类越多倍数越高。':'凑牌型比单放高得多。手牌不好就换。'}</p><button class="go" data-act="retry">再试一次</button>`)}
 document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
- if(d.act==='close'){closeOv();return}
- if(d.act==='new'){S=RE.newRun();sel=pick=null;closeOv();render();intro(true);return}
- if(d.pick&&t.closest('#ov')&&S.phase==='reward'){const i=S.offer.indexOf(d.pick);if(i<0)return;RE.pickReward(S,i);if(S.phase==='reward')reward();else{sel=pick=null;render();intro(false)}return}
- if(d.usefx){useFx();return}
- if(d.r!=null){tapCell(+d.r,+d.c);return}
- if(d.i!=null){tapCard(+d.i);return}
- if(d.hab){if(busy||S.pending)return;sel=sel&&sel.t==='hab'&&sel.key===d.hab?null:{t:'hab',key:d.hab};pick=null;render();return}
- if(t.id==='bRules'){rules();return}
+ if(t.id==='bV1'||t.id==='bV2'){ver=t.id==='bV1'?1:2;load();return}
+ if(t.id==='bPrev'){if(LI[ver]>0){LI[ver]--;load()}return}
+ if(t.id==='bNext'){if(LI[ver]<LV().length-1){LI[ver]++;load()}return}
+ if(d.act==='close'){$('ov').hidden=true;return}
+ if(d.act==='retry'){load();return}
+ if(d.act==='next'){if(LI[ver]<LV().length-1){LI[ver]++;load()}else{$('ov').hidden=true;say('这一版的关卡都打完了','good')}return}
+ if(d.act==='table'){table();return}
  if(busy)return;
- if(t.id==='bPur'){if(RE.cancel(S)){render();return}sel=null;if(!RE.purify(S))say(S.energy<RE.PURIFY?'能量不够，需要 ⚡'+RE.PURIFY:'没有能净化的污染');render();return}
- if(t.id==='bSwap'){sel=sel&&sel.t==='swap'?null:{t:'swap'};render();return}
- if(t.id==='bEnd'){endRound();return}});
-function start(data){if(data&&data.S&&data.S.grid){S=data.S;render();if(S.phase==='reward')reward();else if(S.phase!=='play')finale(S.phase==='won')}else{S=RE.newRun();render();intro(true)}}
-const hot=window.claude&&window.claude.hot;
-if(hot&&hot.snapshot)hot.snapshot(()=>({S}));
-if(hot&&hot.ready)hot.ready(start);else start(hot&&hot.data||{});
+ if(d.act==='end'){end1();return}
+ if(d.act==='play'){play2();return}
+ if(d.act==='swap'){if(v2swap(st))r2();return}
+ if(d.r!=null&&ver===1){tapCell1(+d.r,+d.c);return}
+ if(d.i!=null){if(ver===1){if(st.over)return;sel=sel===+d.i?null:+d.i;r1()}else tapCard2(+d.i)}});
+load();
 </script>
 </body></html>
