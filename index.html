@@ -1283,6 +1283,52 @@ html:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidde
 .ezend{padding:30px 20px 10px;display:flex;flex-direction:column;gap:14px;align-items:center}
 .ezend .cta2{align-self:center;font-size:18px;padding:13px 24px;border-radius:14px}
 .lvtag.in{white-space:nowrap;flex-shrink:0;border-radius:99px;line-height:1.4}
+.play{padding:8px 18px 30px;display:flex;flex-direction:column;gap:22px}
+.play>*{opacity:0;transform:translateY(22px);transition:opacity .45s,transform .45s}
+.play>.in{opacity:1;transform:none}
+.ph{font-size:30px;font-family:var(--f-body,inherit);font-weight:800;color:#4fd39a;margin-top:34px;display:flex;flex-direction:column;gap:4px}
+.ph i{font-style:normal;font-size:13px;letter-spacing:.14em;color:var(--muted)}
+.pp{font-size:21px;line-height:1.75}
+.pimg{display:block;aspect-ratio:4/3;background:var(--line);overflow:hidden}
+.pimg img{width:100%;height:100%;object-fit:cover;display:block}
+.pshow{margin:0;border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line)}
+.pshow figcaption{padding:12px 16px 14px;font-size:19px;line-height:1.5;display:flex;flex-direction:column;gap:2px}
+.pshow figcaption b{font-size:14px;color:var(--deep)}
+.pflip{position:relative;display:block;width:100%;padding:0;border:2px dashed #4fd39a;border-radius:20px;overflow:hidden;background:var(--surface);color:var(--ink);text-align:left}
+.pflip .pq{display:block;text-align:center;padding:14px;font-size:19px;font-weight:800;color:#4fd39a}
+.pflip .pa{display:none;flex-direction:column;gap:8px;padding:14px 16px 16px}
+.pflip .pa b{font-size:26px}
+.pflip .pa em{font-style:normal;font-size:17px;line-height:1.55;color:var(--muted)}
+.pflip .qktags i{font-size:14.5px;padding:3px 10px}
+.pflip.open{border-style:solid}
+.pflip.open .pq{display:none}
+.pflip.open .pa{display:flex;animation:ppop .35s ease-out}
+@keyframes ppop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.pgame{border:2px solid #f5c542;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:14px;background:var(--surface);opacity:0}
+.pgame .pimg{border-radius:14px}
+.pgt{align-self:flex-start;font-size:12.5px;font-weight:800;letter-spacing:.1em;background:#f5c542;color:#2a2000;border-radius:99px;padding:3px 12px}
+.pgame h3,.pstmt{font-size:23px;line-height:1.5;font-weight:800;font-family:var(--f-body,inherit);margin:0}
+.popts{display:flex;flex-direction:column;gap:10px}
+.popts.two{flex-direction:row}
+.popts button{flex:1;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:14px;font-size:20px;font-weight:700}
+.ppics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ppics button{border:3px solid var(--line);border-radius:14px;overflow:hidden;padding:0;background:var(--bg)}
+.pgame button.ok{border-color:#4fd39a;background:#123826}
+.pgame button.no{border-color:var(--bad);opacity:.45;animation:pshake .3s}
+@keyframes pshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.pfb{font-size:18px;line-height:1.6;margin:0;font-weight:700}
+.pfb.ok{color:#4fd39a}.pfb.no{color:var(--bad)}
+.pgame.done{border-color:#4fd39a}
+.pstar{font-size:15px;font-weight:700;color:#f5c542;white-space:nowrap}
+.pstar.pop{animation:pstar .4s}
+@keyframes pstar{40%{transform:scale(1.5)}}
+.pend{margin-top:40px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:26px 16px;border-radius:22px;border:1px solid var(--line)}
+.pendstar{font-size:54px;filter:grayscale(1);opacity:.4}
+.pend.win .pendstar{filter:none;opacity:1;animation:pstar .6s}
+.pend h2{font-size:28px;font-family:var(--f-body,inherit);font-weight:800}
+.pend p{font-size:18px;color:var(--muted)}
+.pend .cta2{align-self:center;font-size:18px;padding:13px 24px;border-radius:14px}
+@media (prefers-reduced-motion:reduce){.play>*{opacity:1;transform:none;transition:none}}
 </style>
 <style>html,body{background:#071a20}</style>
 </head>
@@ -2953,7 +2999,7 @@ function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTim
 
 /* ============ page chrome ============ */
 const short=(t,n=7)=>t.length>n?t.slice(0,n)+'…':t;
-function titleOf(m){if(!m)return '';if(typeof DVT!=='undefined'&&DVT[m.kind])return DVT[m.kind](m);if(m.kind==='home')return '课程';if(m.kind==='taxo')return '系统学习';if(m.kind==='quick')return '看图识生物';if(m.kind==='regs')return '海域特色';if(m.kind==='qk'||m.kind==='easy')return qkSec(m.id).n;if(m.kind==='quiz')return '小测';if(m.kind==='start')return '首页';if(m.kind==='course')return courseById(m.id).name;if(m.kind==='art')return A[m.id].title;if(m.kind==='tree')return (m.path&&m.path.length)?treeNode(m.path).n:'分类树';if(m.kind==='credits')return '图片来源';if(m.kind==='gloss')return '百科';return ''}
+function titleOf(m){if(!m)return '';if(typeof DVT!=='undefined'&&DVT[m.kind])return DVT[m.kind](m);if(m.kind==='home')return '课程';if(m.kind==='taxo')return '系统学习';if(m.kind==='quick')return '看图识生物';if(m.kind==='regs')return '海域特色';if(m.kind==='easy')return m.id==='basic'?'认生物基础':qkSec(m.id).n;if(m.kind==='qk')return qkSec(m.id).n;if(m.kind==='quiz')return '小测';if(m.kind==='start')return '首页';if(m.kind==='course')return courseById(m.id).name;if(m.kind==='art')return A[m.id].title;if(m.kind==='tree')return (m.path&&m.path.length)?treeNode(m.path).n:'分类树';if(m.kind==='credits')return '图片来源';if(m.kind==='gloss')return '百科';return ''}
 const bar=(title,meta,right='')=>`<div class="bar"><div class="in">${meta&&meta.backLabel?`<button class="back" data-back="1" aria-label="返回${esc(meta.backLabel)}"><span class="chev">‹</span><span class="bl">${esc(short(meta.backLabel))}</span></button>`:''}<span class="t">${title}</span>${right}</div><div class="prog"></div></div>`;
 const progress=(n,t)=>`<span class="pbar"><i style="width:${t?n/t*100:0}%"></i></span><span class="mono pnum">${n}/${t}</span>`;
 const crumbs=items=>`<nav class="crumbs" aria-label="位置">${items.map((it,i)=>`${i?'<span class="sep">›</span>':''}${it.act?`<button class="crumb" ${it.act}>${esc(it.t)}</button>`:`<span class="crumb cur">${esc(it.t)}</span>`}`).join('')}</nav>`;
@@ -3084,14 +3130,43 @@ const QKS=[
 ];
 const QKART={nemo:'A11',bfly:'A11',wrasse:'F2',camo:'F5',eel:'F4',school:'F6',fish:'F4',shark:'F3',turtle:'R1',whale:'K1',ceph:'M2',nudi:'M1',crust:'X2',star:'E1',coral:'C1'};
 const QKEASY={"nemo":["小丑鱼住在海葵里，海葵就是它的家。雀鲷是它的亲戚，喜欢成群待在珊瑚旁边。",["个子小，和手掌差不多大，或者更小","小丑鱼是橙色的，身上有白色条纹","总在同一个地方游来游去，不走远"],"找到海葵，往里面看，常常就有小丑鱼。"],"bfly":["蝴蝶鱼和神仙鱼是珊瑚礁上最漂亮的鱼，颜色很鲜艳。",["身体扁扁的，像一个盘子","蝴蝶鱼嘴巴尖尖的，常常两条一起游","神仙鱼个子大一些，花纹更华丽"],"在珊瑚多的地方慢慢游，很容易看到。"],"wrasse":["隆头鱼用身体两边的小鳍划水，像在水里飞。鹦嘴鱼的嘴像鹦鹉的嘴，会啃珊瑚上的藻。",["鹦嘴鱼的嘴又硬又大，像鸟嘴","游的时候，两边的鳍一扇一扇","颜色常常是蓝色、绿色，很鲜艳"],"白天在珊瑚礁上到处都是。仔细听，能听到鹦嘴鱼啃东西的咔咔声。"],"camo":["有些鱼不爱游泳。它们装成石头、海绵或海草，一动不动。",["看起来像石头或海绵，其实有眼睛","海马的头像马，尾巴会卷起来","它们几乎不动，要慢慢找"],"盯着礁石和海扇慢慢看。有的背上有毒刺，只看，不要摸。"],"eel":["海鳝身体长长的，像蛇，白天躲在洞里只露出头。河鲀圆滚滚的，受到惊吓会鼓成一个球。",["海鳝：洞里伸出一个头，嘴一张一合","它张嘴是在呼吸，不是要咬人","河鲀：圆圆胖胖，游得慢"],"看礁石的洞和缝。不要把手伸进洞里。"],"school":["有些鱼喜欢成百上千条一起游，像一团会动的云。",["很多条鱼挤在一起，朝同一个方向","身体多半是银色的，会反光","一起转弯，像一个整体"],"在礁石外面的蓝色水里，抬头往远处看。"],"fish":["珊瑚礁上还有很多别的鱼，比如石斑鱼、刺尾鱼和虾虎鱼。",["石斑鱼：大嘴巴，胖身体，爱待在礁石旁","刺尾鱼：身体扁，尾巴前面有一根小刺","虾虎鱼：很小，趴在沙地或珊瑚上"],"游慢一点，礁石上上下下都看一看。"],"shark":["鲨鱼和魟鱼的骨头是软的，和我们耳朵里的软骨一样。大多数鲨鱼怕人，不会主动靠近。",["鲨鱼：背上有尖尖的鳍，尾巴左右摆","魟鱼：身体扁扁的像一张饼，有长尾巴","蝠鲼：像一只大鸟在水里飞"],"魟鱼常趴在沙地上，鲨鱼多在礁石外面游。远远地看，不要追。"],"turtle":["海龟和海蛇都是爬行动物。它们不能在水里呼吸，要游到水面换气。",["海龟：背上有硬壳，四只脚像船桨","绿海龟的头圆圆的，玳瑁的嘴尖尖的像鹰","海蛇：身上一圈黑一圈白，尾巴扁扁的"],"海龟常在海草和珊瑚旁边吃东西。海蛇有毒，但很少咬人，不要碰它。"],"whale":["鲸和海豚不是鱼。它们和我们一样用肺呼吸，生小宝宝，小宝宝喝妈妈的奶。",["尾巴是横的，上下摆动；鱼的尾巴是竖的","头顶有呼吸孔，会喷气","海豚常常一群一起跳出水面"],"多半坐在船上看。水面有喷气或背鳍，就是它们。"],"ceph":["章鱼、乌贼和鱿鱼没有骨头。它们很聪明，还会变颜色。",["章鱼：八条手臂，圆圆的头，爱躲在洞里","乌贼：身体宽宽的，周围有一圈裙边","鱿鱼：身体细长，常常几只排成一排"],"章鱼藏在礁石洞里，洞口常有一堆小贝壳。"],"nudi":["海蛞蝓是没有壳的海螺。它们个子很小，颜色特别鲜艳。",["像一条彩色的小虫子，慢慢爬","头上有两根小触角","背上常有一朵像花一样的鳃"],"贴近礁石慢慢找。它们常常只有一根手指那么长。"],"crust":["虾和蟹穿着硬硬的壳，像盔甲。长大的时候，要把旧壳脱掉。",["虾：身体长，有长长的触须","蟹：身体扁圆，横着走，有两只大钳子","寄居蟹：背着别人的螺壳当房子"],"看礁石的缝，还有海葵和海参旁边。晚上它们出来得更多。"],"star":["海星、海胆和海参是一家人。它们的身体像花一样，从中间向四周长。",["海星：多半有五条手臂","海胆：一个圆球，全身是刺","海参：像一根软软的黄瓜，趴在沙上"],"沙地和礁石上都有。海胆的刺会扎人，不要踩，也不要摸。"],"coral":["珊瑚看起来像石头或植物，其实是很多很小的动物住在一起。",["硬珊瑚：硬硬的，像树枝、像桌子、像大脑","软珊瑚：软软的，会随着水摆动","水母：透明的，像一把小伞在水里漂"],"珊瑚到处都是。它们很脆弱，碰一下就可能受伤，所以不要摸，也不要踩。"]};
-function easyPage(meta){const x=qkSec(meta.id),E=QKEASY[x.id],L=qkList(x.id).slice(0,6),X=typeof BIOX!=='undefined'?BIOX:{},more=QKART[x.id];
- return bar(x.n,meta,'<span class="lvtag in lv1">初级</span>')+`
- <div class="ezhero">${L[0]?qkPic(L[0]):''}</div>
- <section class="ez"><h2>它们是谁</h2><p>${E[0]}</p></section>
- <section class="ez"><h2>怎么认</h2><ol>${E[1].map(t=>`<li>${t}</li>`).join('')}</ol></section>
- <section class="ez"><h2>去哪里找</h2><p>${E[2]}</p></section>
- <section class="ez"><h2>认识几位</h2>${L.map(k=>`<button class="ezsp" data-wkbio="${esc(k)}"><span class="ezph">${qkPic(k)}</span><b>${esc(BIO[k][0])}</b></button>`).join('')}</section>
- <div class="ezend"><button class="cta2" data-back="1">看完了，回去看照片</button>${more&&A[more]?`<button class="mini" data-open="${more}">想学更多：${A[more].title} ›</button>`:''}</div>`}
+const QKTF={"nemo":[["小丑鱼住在海葵里。",1,"海葵是它的家，也保护它。"],["小丑鱼会游到很远的地方去玩。",0,"它总待在自己的海葵旁边。"]],"bfly":[["蝴蝶鱼的身体扁扁的，像盘子。",1,"所以它能钻进珊瑚的缝里。"],["蝴蝶鱼的嘴又大又宽。",0,"它的嘴是小小的、尖尖的。"]],"wrasse":[["鹦嘴鱼的嘴像鹦鹉的嘴。",1,"它用这张硬嘴啃珊瑚上的藻。"],["隆头鱼主要靠尾巴游泳。",0,"它主要用身体两边的小鳍划水。"]],"camo":[["有的鱼会装成石头。",1,"这样别人就看不见它。"],["会伪装的鱼喜欢游来游去。",0,"它们几乎不动，这样才不会被发现。"]],"eel":[["海鳝张嘴是为了呼吸。",1,"它不是在吓人。"],["可以把手伸进礁石的洞里摸一摸。",0,"洞里可能有海鳝，不要伸手。"]],"school":[["成群的鱼会一起转弯。",1,"它们像一个整体。"],["成群的鱼多半是黑色的。",0,"它们多半是银色的，会反光。"]],"fish":[["石斑鱼有一张大嘴巴。",1,"它一口就能吞下小鱼。"],["虾虎鱼是很大的鱼。",0,"它很小，常趴在沙地上。"]],"shark":[["魟鱼的身体扁扁的。",1,"像一张饼，常趴在沙上。"],["看到鲨鱼要追上去看。",0,"远远地看，不要追。"]],"turtle":[["海龟要到水面上换气。",1,"它不能在水里呼吸。"],["海蛇可以摸一摸。",0,"海蛇有毒，不要碰。"]],"whale":[["海豚不是鱼。",1,"它和我们一样用肺呼吸。"],["鲸的尾巴是左右摆的。",0,"鲸的尾巴是横的，上下摆。"]],"ceph":[["章鱼有八条手臂。",1,"每条手臂上都有吸盘。"],["章鱼有很硬的骨头。",0,"章鱼没有骨头，身体很软。"]],"nudi":[["海蛞蝓是没有壳的海螺。",1,"它是海螺的亲戚。"],["海蛞蝓游得很快。",0,"它慢慢地爬。"]],"crust":[["寄居蟹住在别人的螺壳里。",1,"长大了还要换更大的壳。"],["螃蟹是直着往前走的。",0,"大多数螃蟹横着走。"]],"star":[["海星多半有五条手臂。",1,"数一数就知道。"],["海胆可以用手抓。",0,"它全身是刺，会扎人。"]],"coral":[["珊瑚是动物。",1,"它是很多很小的动物住在一起。"],["珊瑚很结实，可以踩。",0,"珊瑚很脆弱，不要踩，也不要摸。"]]};
+const PBASIC=[["h","先看外形"],["p","认生物的第一步，先不看颜色，看它长什么样子。"],["show","Chaetodon auriga","扁扁的，像一个盘子"],["show","Rhinomuraena quaesita","长长的，像一条带子"],["show","Taeniura lymma","平平的，像一张饼"],["show","Arothron nigropunctatus","圆滚滚的，像一个球"],["pick","哪一个平平的，像一张饼？","Taeniura lymma",["Chaetodon auriga","Arothron nigropunctatus","Amphiprion ocellaris"]],["pick","哪一个扁扁的，像一个盘子？","Chaetodon auriga",["Rhinomuraena quaesita","Taeniura lymma","Rhincodon typus"]],["tf","认生物，第一步先看外形。",1,"外形最不容易变，颜色会骗人。"],["h","再看颜色和花纹"],["p","外形看好了，再看它身上有什么：条纹，还是斑点？"],["show","Amphiprion ocellaris","橙色身体，三条白色条纹"],["show","Rhincodon typus","深色身体，满身白点"],["show","Laticauda colubrina","一圈黑，一圈白"],["pick","谁的身上满是白点？","Rhincodon typus",["Amphiprion ocellaris","Chelonia mydas","Laticauda colubrina"]],["p","小心：有些鱼小时候和长大以后，颜色完全不一样。"],["tf","颜色一样的鱼，一定是同一种鱼。",0,"很多鱼小时候和长大后颜色不同，不同的鱼也可能颜色很像。"],["h","看它住在哪里"],["p","每种生物都有自己喜欢待的地方。知道它住哪里，就更容易找到它。"],["show","Amphiprion ocellaris","住在海葵里"],["show","Hippocampus bargibanti","住在海扇上，和海扇长得一样"],["show","Heteroconger hassi","住在沙地的洞里，只露出半截"],["show","Caranx sexfasciatus","住在礁石外面的蓝水里"],["pick","谁住在海葵里？","Amphiprion ocellaris",["Caranx sexfasciatus","Heteroconger hassi","Rhincodon typus"]],["pick","谁住在沙地的洞里？","Heteroconger hassi",["Amphiprion ocellaris","Chelonia mydas","Hippocampus bargibanti"]],["h","看它在做什么"],["p","最后看动作。它是一个人，还是一大群？在游，还是一动不动？"],["show","Caranx sexfasciatus","很多条一起游，像一团云"],["show","Antennarius commerson","一动不动，装成一块海绵"],["show","Labroides dimidiatus","给别的鱼“洗澡”，吃掉它们身上的小虫"],["show","Chelonia mydas","游到水面上去换气"],["pick","谁一动不动，装成海绵？","Antennarius commerson",["Caranx sexfasciatus","Labroides dimidiatus","Chelonia mydas"]],["tf","海龟可以一直待在水下，不用上来。",0,"海龟用肺呼吸，要到水面换气。"],["h","水下三件事"],["p","看海里的生物，记住三件事：不摸，不追，不喂。"],["p","不摸：有的生物很脆弱，有的有毒。"],["tf","看到漂亮的珊瑚，可以摸一下。",0,"珊瑚很脆弱，碰一下就可能受伤。"],["p","不追：你一追，它就害怕，游走了。"],["tf","慢慢地、安静地看，能看到更多。",1,"你不动，它们才会放心地做自己的事。"],["p","不喂：它们自己会找吃的。"],["h","考考你"],["p","四步记住了吗？外形，颜色，住哪里，做什么。"],["name","Amphiprion ocellaris"],["name","Rhincodon typus"],["name","Chelonia mydas"],["name","Taeniura lymma"]];
+/* ---------- 初级：一直往下滑的互动课（翻卡片、认名字、找照片、对或错） ---------- */
+function playBlocks(id){const X=typeof BIOX!=='undefined'?BIOX:{},ok=k=>BIO[k]&&hasPh('sp-'+slotKey(k)),sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+ if(id==='basic'){const pool=Object.keys(BIO).filter(k=>BIO[k][1]==='种'&&ok(k)&&(typeof DSP!=='undefined'&&DSP[k]));
+  return PBASIC.map(b=>{if(b[0]==='show')return ok(b[1])?b:null;if(b[0]==='pick'){const o=b[3].filter(ok);return ok(b[2])&&o.length>=2?['pick',b[1],b[2],o]:null}
+   if(b[0]==='name')return ok(b[1])?['name',b[1],sh(pool.filter(k=>k!==b[1]&&BIO[k][0]!==BIO[b[1]][0])).slice(0,2)]:null;return b}).filter(Boolean)}
+ const E=QKEASY[id],T=QKTF[id]||[],L=qkList(id).slice(0,8),B=[];
+ B.push(['h','它们是谁'],['p',E[0]]);if(T[0])B.push(['tf',...T[0]]);
+ B.push(['h','怎么认']);E[1].forEach(t=>B.push(['p',t]));if(T[1])B.push(['tf',...T[1]]);
+ B.push(['h','一个一个认识'],['p','点一下照片，看看它叫什么。']);
+ L.forEach((k,i)=>{B.push(['flip',k]);if(i%2===1&&i>0){const q=L[i-Math.floor(Math.random()*2)];B.push(['name',q,sh(L.filter(x=>x!==q&&BIO[x][0]!==BIO[q][0])).slice(0,2)])}});
+ B.push(['h','去哪里找'],['p',E[2]]);
+ if(L.length>=4){B.push(['h','考考你'],['p','从照片里把它找出来。']);sh(L).slice(0,3).forEach(q=>B.push(['pick','哪一张是'+BIO[q][0].replace(/／.*/,'')+'？',q,sh(L.filter(x=>x!==q)).slice(0,3)]))}
+ return B}
+function playPage(meta){const id=meta.id,B=playBlocks(id),X=typeof BIOX!=='undefined'?BIOX:{},title=id==='basic'?'认生物基础':qkSec(id).n,sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+ const N=B.filter(b=>['flip','name','pick','tf'].includes(b[0])).length,pic=k=>`<span class="pimg">${qkPic(k)}</span>`,nm=k=>esc(BIO[k][0].replace(/／.*/,''));let ch=0;
+ const html=B.map(b=>{const t=b[0];
+  if(t==='h')return `<h2 class="ph"><i>第 ${++ch} 关</i>${b[1]}</h2>`;
+  if(t==='p')return `<p class="pp">${b[1]}</p>`;
+  if(t==='show')return `<figure class="pshow">${pic(b[1])}<figcaption><b>${nm(b[1])}</b>${b[2]}</figcaption></figure>`;
+  if(t==='flip'){const k=b[1],c=(X[k]&&X[k].c)||[],q=(X[k]&&X[k].q)||BIO[k][7];return `<button class="pflip gm" data-pflip="1">${pic(k)}<span class="pq">它叫什么？点一下</span><span class="pa"><b>${nm(k)}</b>${c.length?`<span class="qktags">${c.slice(0,3).map(x=>`<i>${esc(x)}</i>`).join('')}</span>`:''}${q?`<em>${esc(q)}</em>`:''}</span></button>`}
+  if(t==='name'){const k=b[1];return `<div class="pgame gm"><span class="pgt">小游戏</span>${pic(k)}<h3>这是谁？</h3><div class="popts">${sh([k,...b[2]]).map(o=>`<button data-popt="${o===k?1:0}">${nm(o)}</button>`).join('')}</div><p class="pfb" hidden data-why="它是${nm(k)}。"></p></div>`}
+  if(t==='pick'){const k=b[2];return `<div class="pgame gm"><span class="pgt">小游戏</span><h3>${b[1]}</h3><div class="ppics">${sh([k,...b[3]]).map(o=>`<button data-popt="${o===k?1:0}">${pic(o)}</button>`).join('')}</div><p class="pfb" hidden data-why=""></p></div>`}
+  if(t==='tf')return `<div class="pgame gm"><span class="pgt">对还是错</span><p class="pstmt">${b[1]}</p><div class="popts two"><button data-popt="${b[2]?1:0}">对</button><button data-popt="${b[2]?0:1}">错</button></div><p class="pfb" hidden data-why="${esc(b[3]||'')}"></p></div>`;
+  return''}).join('');
+ return bar(title,meta,`<span class="pstar mono">⭐ <b>0</b>/${N}</span>`)+`<div class="play" data-n="${N}" data-id="${id}">${html}<section class="pend"><span class="pendstar">⭐</span><h2>还差一点</h2><p>往上找找，还有没做的小游戏。</p><button class="cta2" data-back="1">回去看照片</button>${id!=='basic'&&QKART[id]&&A[QKART[id]]?`<button class="mini" data-open="${QKART[id]}">想学更多：${A[QKART[id]].title} ›</button>`:''}</section></div>`}
+function playWin(g){if(g.dataset.done)return;g.dataset.done=1;g.classList.add('done');const root=g.closest('.play'),pg=root.closest('.page'),n=root.querySelectorAll('.gm[data-done]').length,N=+root.dataset.n;
+ const s2=pg.querySelector('.pstar b');if(s2){s2.textContent=n;const w=s2.parentNode;w.classList.remove('pop');void w.offsetWidth;w.classList.add('pop')}
+ if(n>=N){const e=root.querySelector('.pend');e.classList.add('win');e.querySelector('h2').textContent='全部完成！';e.querySelector('p').textContent='你拿到了 '+N+' 颗星。';st.play=st.play||{};st.play[root.dataset.id]=1;save()}}
+function playClick(t,d){if(d.pflip){t.classList.add('open');playWin(t);return 1}
+ if(d.popt!=null){const g=t.closest('.gm');if(!g||g.dataset.done)return 1;const fb=g.querySelector('.pfb');fb.hidden=false;
+  if(d.popt==='1'){t.classList.add('ok');g.querySelectorAll('[data-popt]').forEach(x=>{x.disabled=true});fb.className='pfb ok';fb.textContent='答对了！'+(fb.dataset.why||'');playWin(g)}
+  else{t.classList.add('no');t.disabled=true;fb.className='pfb no';fb.textContent='不是这个，再试一次。'}return 1}}
+function bindPlay(el){const L=el.querySelectorAll('.play>*');if(!('IntersectionObserver' in window)||PG_REDUCED){L.forEach(x=>x.classList.add('in'));return}
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});L.forEach(x=>io.observe(x))}
+const easyPage=playPage;
 const qkSec=id=>QKS.find(x=>x.id===id)||rgSecs().find(x=>x.id===id);
 const qkList=id=>qkBuild()[id]||rgBuild()[id]||[];
 let _qk=null;
@@ -3109,6 +3184,7 @@ const qkTags=k=>(typeof BIOX!=='undefined'&&BIOX[k]&&BIOX[k].c||[]).slice(0,3);
 function qkPic(k){const key='sp-'+slotKey(k);return `<img class="uphoto" src="${phURL(key)}" data-k="${key}" alt="${esc(BIO[k][0])}" loading="lazy">`}
 function quickPage(meta){const Q=qkBuild();
  return bar('看图识生物',meta)+`
+ <div class="learnrow"><button class="learnb" data-easy="basic">学习认生物基础${st.play&&st.play.basic?' ✓':''}</button></div>
 
  <div class="qklist">${QKS.filter(x=>Q[x.id].length).map(x=>{const L=Q[x.id],best=st.qk&&st.qk[x.id];return `<button class="qkrow" data-qk="${x.id}"><span class="qkth">${L.slice(0,3).map(qkPic).join('')}</span><span class="qktx"><b>${x.n}</b><em class="mono">${L.length} 种</em></span><span class="chev2">›</span></button>`}).join('')}</div>`}
 function qkPage(meta){const x=qkSec(meta.id),L=qkList(x.id);
@@ -3352,7 +3428,7 @@ const stacks={start:[],learn:[],dive:[],tree:[],gloss:[]};let tab='start';
 const root=t=>$('#tab-'+t);
 function renderPage(m){if(m.kind==='start')return startPage(m);if(m.kind==='tree')return treeOutline(m);if(typeof DVK!=='undefined'&&DVK[m.kind])return DVK[m.kind](m);if(m.kind==='home')return homePage(m);if(m.kind==='taxo')return taxoPage(m);if(m.kind==='quick')return quickPage(m);if(m.kind==='easy')return easyPage(m);if(m.kind==='regs')return regsPage(m);if(m.kind==='qk')return qkPage(m);if(m.kind==='quiz')return quizPage(m);if(m.kind==='course')return coursePage(m.id,m);if(m.kind==='art')return articlePage(m.id,m.course,m);if(m.kind==='tree')return treePage(m.path,m);if(m.kind==='credits')return creditsPage(m);return wikiPage(m)}
 function mount(t,meta){const el=document.createElement('div');el.className='page';el.innerHTML=renderPage(meta);root(t).appendChild(el);
- el.querySelectorAll('[data-ill]').forEach(x=>{try{ILL[x.dataset.ill](x)}catch(e){x.innerHTML='<p class="cap">图示加载失败</p>';console.error(e)}});upgrade(el);const r=Object.assign(meta,{el,y:meta.y||0});if(meta.kind==='dive'&&typeof dvMountMap==='function')dvMountMap(el);if(meta.kind==='start'){bindGSearch(el);bindHero(el)}if(meta.kind==='tree')bindOlSearch(el);if(meta.kind==='gloss'&&typeof bindWiki==='function')bindWiki(el);return r}
+ el.querySelectorAll('[data-ill]').forEach(x=>{try{ILL[x.dataset.ill](x)}catch(e){x.innerHTML='<p class="cap">图示加载失败</p>';console.error(e)}});upgrade(el);const r=Object.assign(meta,{el,y:meta.y||0});if(meta.kind==='dive'&&typeof dvMountMap==='function')dvMountMap(el);if(meta.kind==='start'){bindGSearch(el);bindHero(el)}if(meta.kind==='easy')bindPlay(el);if(meta.kind==='tree')bindOlSearch(el);if(meta.kind==='gloss'&&typeof bindWiki==='function')bindWiki(el);return r}
 function topPage(t=tab){const s=stacks[t];return s[s.length-1]}
 /* 页面切换动画：往下一层从右滑入，返回时从左滑回 */
 const PG_REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -3429,6 +3505,7 @@ document.addEventListener('click',e=>{const gt=e.target.closest('.gtile.tap');if
  if(d.taxo){goTaxo();return}
  if(d.qk){push({kind:'qk',id:d.qk});return}
  if(d.easy){push({kind:'easy',id:d.easy});return}
+ if((d.pflip||d.popt!=null)&&playClick(t,d))return;
  if(d.quiz){push({kind:'quiz',id:d.quiz});return}
  if(d.qza){const p=topPage();if(p.kind==='quiz'&&p.pick==null){p.pick=d.qza;if(d.qza===p.qs[p.i].k)p.score++;qzRender()}return}
  if(d.qznext){const p=topPage();p.i++;p.pick=null;qzRender();return}
