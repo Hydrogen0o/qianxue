@@ -3565,7 +3565,7 @@ function wkClick(t,d){
  function androidUI(){render('把潜学装到手机上','<p>装好后像普通 App 一样全屏打开，没网也能看。</p>',[{t:'安装',f:function(b){if(dp){dp.prompt();dp.userChoice.then(function(r){if(r&&r.outcome==='accepted')el.hidden=true})}else{box.querySelector('p').innerHTML='点浏览器右上角的菜单 ⋮ ，选“安装应用”或“添加到主屏幕”。';b.remove()}}},later])}
  addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e});
  addEventListener('appinstalled',function(){el.hidden=true;try{localStorage.setItem(K,9)}catch(e){}});
- if(inapp)render('请先用浏览器打开','<p>这里装不了。点右上角“…”，选“在浏览器中打开”'+(ios?'（iPhone 请选 Safari）':'')+'。</p>',[{t:'复制网址',f:copy},later]);
+ if(inapp)render(ios?'用 Safari 打开，装到主屏幕':'用浏览器打开，装到手机上','<p>这里装不了，要换到'+(ios?' Safari':'浏览器')+'。<br>如果下面的按钮没反应：点右上角“…”，选“在浏览器中打开”。</p>',[{t:ios?'用 Safari 打开':'用浏览器打开',href:ios?'x-safari-'+URL0:'intent://hydrogen0o.github.io/qianxue/#Intent;scheme=https;action=android.intent.action.VIEW;end'},{t:'复制网址',f:copy},later]);
  else if(other)render('用 Safari 打开，装到主屏幕','<p>iPhone 上用 Safari 安装最稳妥，装好后全屏、没网也能看。</p>',[{t:'用 Safari 打开',href:'x-safari-'+URL0},{t:'复制网址',f:copy},{t:'就在这个浏览器里装',ghost:1,f:function(){render('把潜学装到主屏幕',steps('地址栏旁边'),[{t:'知道了',f:close}])}},later]);
  else if(ios)render('把潜学装到主屏幕',steps('下方工具栏')+'<p>装好后全屏打开，没网也能看。</p>',[{t:'知道了',f:close}]);
  else androidUI();
