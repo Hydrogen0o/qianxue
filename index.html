@@ -1241,6 +1241,11 @@ body:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidde
 .hc-fq .hcname{font-style:normal;font-size:14px;color:var(--deep);font-weight:700}
 .hero.full{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 10px);bottom:calc(var(--navh,70px) + 10px);height:auto;margin:0}
 html:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidden}
+#fullhint{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 84px);z-index:70;display:flex;align-items:center;gap:10px;padding:12px 10px 12px 14px;border-radius:16px;background:#f5c542;color:#2a2000;box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:14px;line-height:1.5}
+#fullhint span{flex:1;min-width:0;overflow-wrap:anywhere}
+#fullhint b{display:block;font-size:15px}
+#fullhint .fhgo{flex-shrink:0;border-radius:10px;font-weight:700;padding:8px 14px;background:#2a2000;color:#f5c542;text-decoration:none}
+#fullhint .fhx{border:none;background:none;color:#2a2000;font-size:18px;padding:4px 6px}
 </style>
 <style>html,body{background:#071a20}</style>
 </head>
@@ -3353,6 +3358,16 @@ document.addEventListener('click',e=>{const gt=e.target.closest('.gtile.tap');if
 /* boot */
 stacks.start.push(mount('start',{kind:'start'}));
 
+/* 在 claude.ai 里打开时，提示可以换到全屏版（GitHub Pages 上那一份，能添加到主屏幕、离线使用） */
+(function(){const FULL='https://hydrogen0o.github.io/qianxue/';if(/github\.io$/.test(location.hostname)||location.hostname==='localhost')return;
+ let n=0;try{n=+localStorage.getItem('qx-full')||0}catch(e){}if(n>=3)return;
+ setTimeout(()=>{const el=document.createElement('div');el.id='fullhint';el.setAttribute('role','dialog');
+  const ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),and=/Android/.test(ua);
+  el.innerHTML=`<span><b>${and?'安装成手机应用':'想全屏使用？'}</b>${and?'打开全屏版，点“安装”就能装到桌面。':ios?'用 Safari 打开全屏版，再按提示添加到主屏幕。':'打开全屏版，可以装到桌面、离线使用。'}</span><a class="fhgo" href="${FULL}" target="_blank" rel="noopener">打开</a><button class="fhx" aria-label="关闭">✕</button>`;
+  document.body.appendChild(el);const close=()=>{el.remove();try{localStorage.setItem('qx-full',n+1)}catch(e){}};
+  el.querySelector('.fhx').addEventListener('click',close);
+  el.querySelector('.fhgo').addEventListener('click',()=>{try{navigator.clipboard&&navigator.clipboard.writeText(FULL)}catch(e){}setTimeout(()=>{if(el.isConnected)el.querySelector('span').innerHTML='<b>没有跳转？</b>网址已复制，粘贴到浏览器打开：hydrogen0o.github.io/qianxue'},1200)})},4000)})();
+
 </script>
 <script>
 /* ============ 海洋百科：生物 · 类群 · 现象 · 概念 ============ */
@@ -3527,7 +3542,7 @@ function wkClick(t,d){
  var el=document.getElementById('a2hs'),tx=el.querySelector('span'),K='qx-a2hs';
  var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone;
  var seen=0;try{seen=+localStorage.getItem(K)||0}catch(e){}
- if(standalone||seen>=2)return;
+ if(standalone||seen>=5)return;
  var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),android=/Android/.test(ua);
  var inapp=/MicroMessenger|QQ\/|Weibo|AlipayClient|DingTalk|Line\/|FBAN|FBAV|Instagram/i.test(ua),shown=0;
  function close(){el.hidden=true;try{localStorage.setItem(K,seen+1)}catch(e){}}
@@ -3539,7 +3554,7 @@ function wkClick(t,d){
  addEventListener('appinstalled',function(){el.hidden=true;try{localStorage.setItem(K,9)}catch(e){}});
  setTimeout(function(){
   if(inapp)show('<b>请用浏览器打开</b>点右上角“…”，选“在浏览器中打开”，再添加到主屏幕。');
-  else if(ios)show('<b>装到主屏幕，全屏使用</b>点下方工具栏的 '+share+' 分享，再选“添加到主屏幕”。');
+  else if(ios)show(/CriOS|FxiOS|EdgiOS/.test(ua)?'<b>装到主屏幕，全屏使用</b>点地址栏旁的 '+share+' 分享，再选“添加到主屏幕”。':'<b>装到主屏幕，全屏使用</b>点下方工具栏的 '+share+' 分享，再选“添加到主屏幕”。');
   else if(android&&!dp)setTimeout(function(){if(!dp)show('<b>装到桌面，全屏使用</b>点浏览器右上角菜单，选“添加到主屏幕”或“安装应用”。')},3000);
  },3500);
 })();
