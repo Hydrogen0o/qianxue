@@ -1265,6 +1265,24 @@ html:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidde
 .learnrow{display:flex;justify-content:center;padding:16px 18px 2px}
 .learnrow .learnb{font-size:20px;padding:15px 30px;border-radius:18px;letter-spacing:.06em;max-width:100%;box-shadow:0 6px 18px rgba(255,120,90,.35)}
 .learnrow+.subrow{display:flex;justify-content:center}
+.lvtag{position:absolute;right:14px;top:14px;z-index:3;font-size:14px;font-weight:800;letter-spacing:.1em;border-radius:99px;padding:5px 14px;color:#06231c}
+.lvtag.in{position:static;font-size:12px;padding:3px 10px}
+.lv1{background:#4fd39a}.lv2{background:#f5c542;color:#2a2000}.lv3{background:var(--coral);color:#fff}
+.ezhero{margin:14px 18px 0;border-radius:20px;overflow:hidden;aspect-ratio:4/3;background:var(--line)}
+.ezhero img,.ezph img{width:100%;height:100%;object-fit:cover;display:block}
+.ez{padding:26px 20px 0;display:flex;flex-direction:column;gap:12px}
+.ez h2{font-size:26px;font-family:var(--f-body,inherit);font-weight:800;color:#4fd39a}
+.ez p,.ez li{font-size:20px;line-height:1.75}
+.ez ol{margin:0;padding:0;list-style:none;counter-reset:ez;display:flex;flex-direction:column;gap:12px}
+.ez li{counter-increment:ez;display:flex;gap:12px}
+.ez li::before{content:counter(ez);flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#4fd39a;color:#06231c;font:800 17px/32px var(--f-mono);text-align:center;margin-top:2px}
+.ezsp{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:18px;overflow:hidden;padding:0 0 14px;text-align:left;color:var(--ink);width:100%}
+.ezph{display:block;aspect-ratio:16/10;background:var(--line)}
+.ezsp b{font-size:22px;padding:8px 16px 0}
+.ezsp span:not(.ezph){font-size:17px;line-height:1.5;color:var(--muted);padding:0 16px}
+.ezend{padding:30px 20px 10px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.ezend .cta2{align-self:center;font-size:18px;padding:13px 24px;border-radius:14px}
+.lvtag.in{white-space:nowrap;flex-shrink:0;border-radius:99px;line-height:1.4}
 </style>
 <style>html,body{background:#071a20}</style>
 </head>
@@ -2935,7 +2953,7 @@ function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTim
 
 /* ============ page chrome ============ */
 const short=(t,n=7)=>t.length>n?t.slice(0,n)+'…':t;
-function titleOf(m){if(!m)return '';if(typeof DVT!=='undefined'&&DVT[m.kind])return DVT[m.kind](m);if(m.kind==='home')return '课程';if(m.kind==='taxo')return '系统学习';if(m.kind==='quick')return '看图识生物';if(m.kind==='regs')return '海域特色';if(m.kind==='qk')return qkSec(m.id).n;if(m.kind==='quiz')return '小测';if(m.kind==='start')return '首页';if(m.kind==='course')return courseById(m.id).name;if(m.kind==='art')return A[m.id].title;if(m.kind==='tree')return (m.path&&m.path.length)?treeNode(m.path).n:'分类树';if(m.kind==='credits')return '图片来源';if(m.kind==='gloss')return '百科';return ''}
+function titleOf(m){if(!m)return '';if(typeof DVT!=='undefined'&&DVT[m.kind])return DVT[m.kind](m);if(m.kind==='home')return '课程';if(m.kind==='taxo')return '系统学习';if(m.kind==='quick')return '看图识生物';if(m.kind==='regs')return '海域特色';if(m.kind==='qk'||m.kind==='easy')return qkSec(m.id).n;if(m.kind==='quiz')return '小测';if(m.kind==='start')return '首页';if(m.kind==='course')return courseById(m.id).name;if(m.kind==='art')return A[m.id].title;if(m.kind==='tree')return (m.path&&m.path.length)?treeNode(m.path).n:'分类树';if(m.kind==='credits')return '图片来源';if(m.kind==='gloss')return '百科';return ''}
 const bar=(title,meta,right='')=>`<div class="bar"><div class="in">${meta&&meta.backLabel?`<button class="back" data-back="1" aria-label="返回${esc(meta.backLabel)}"><span class="chev">‹</span><span class="bl">${esc(short(meta.backLabel))}</span></button>`:''}<span class="t">${title}</span>${right}</div><div class="prog"></div></div>`;
 const progress=(n,t)=>`<span class="pbar"><i style="width:${t?n/t*100:0}%"></i></span><span class="mono pnum">${n}/${t}</span>`;
 const crumbs=items=>`<nav class="crumbs" aria-label="位置">${items.map((it,i)=>`${i?'<span class="sep">›</span>':''}${it.act?`<button class="crumb" ${it.act}>${esc(it.t)}</button>`:`<span class="crumb cur">${esc(it.t)}</span>`}`).join('')}</nav>`;
@@ -3036,19 +3054,19 @@ function taxoPage(meta){
 }
 function homePage(meta){
  const total=TAXA.length,done=readN(TAXA),Q=qkAll(),seen=Q.filter(k=>st.seen&&st.seen[k]).length;
- const card=(act,img,fb,title,stat)=>`<button class="htile wide" ${act}><span class="htbg">${slotHTML(img,fb,'thumb')}</span><span class="httx"><b>${title}</b><em class="mono">${stat}</em></span></button>`;
+ const card=(act,img,fb,title,stat,lv)=>`<button class="htile wide" ${act}><span class="htbg">${slotHTML(img,fb,'thumb')}</span><span class="lvtag lv${lv}">${['','初级','中级','高级'][lv]}</span><span class="httx"><b>${title}</b><em class="mono">${stat}</em></span></button>`;
  return `
  <section class="chome"><h1 class="bigh">学习课程</h1></section>
  <div class="biglist">
- ${card('data-quick="1"','cover-A11',portrait('butterfly',10),'看图识生物',`${Q.length} 种${seen?' · 见过 '+seen:''}`)}
- ${typeof DSITES!=='undefined'?card('data-regs="1"','cover-L1',portrait('turtle',10),'海域特色',REGA.length?`${readN(REGA)}/${REGA.length} 篇`:`${rgSecs().length} 片海`):''}
- ${card('data-taxo="1"','cover-A1',courseScene(CORE[0]),'系统学习',`${done}/${total} 篇`)}
+ ${card('data-quick="1"','cover-A11',portrait('butterfly',10),'看图识生物',`${Q.length} 种${seen?' · 见过 '+seen:''}`,1)}
+ ${typeof DSITES!=='undefined'?card('data-regs="1"','cover-L1',portrait('turtle',10),'海域特色',REGA.length?`${readN(REGA)}/${REGA.length} 篇`:`${rgSecs().length} 片海`,2):''}
+ ${card('data-taxo="1"','cover-A1',courseScene(CORE[0]),'系统学习',`${done}/${total} 篇`,3)}
  </div>
  <p class="foot"><button class="go" data-page="credits">图片来源与授权</button></p>`;
 }
 /* ---------- 看图认生物：按日常叫法分组，不讲分类 ---------- */
 const QKS=[
- {id:'nemo',n:'小丑鱼与雀鲷',d:'海葵里的小丑鱼，和礁上成群的小雀鲷。',g:'f',re:/双锯鱼|小丑|雀鲷|豆娘鱼|光鳃|宅泥鱼|海葵鱼/,fam:['雀鲷科']},
+ {id:'nemo',n:'小丑鱼与雀鲷',d:'海葵里的小丑鱼，和礁上成群的小雀鲷。',g:'f',re:/双锯鱼|小丑鱼|雀鲷|豆娘鱼|光鳃|宅泥鱼|海葵鱼/,fam:['雀鲷科']},
  {id:'bfly',n:'蝴蝶鱼与神仙鱼',d:'礁上最鲜艳的一群：扁身体、小尖嘴。',g:'f',re:/蝴蝶鱼|刺盖鱼|神仙|镰鱼|马夫鱼|刺尻鱼|盖刺鱼|角蝶/,fam:['蝴蝶鱼科','神仙鱼科','镰鱼科']},
  {id:'wrasse',n:'隆头鱼与鹦嘴鱼',d:'用胸鳍划水的隆头鱼，和啃珊瑚的鹦嘴鱼。',g:'f',re:/隆头鱼|鹦嘴鱼|濑|唇鱼|苏眉|鹦哥|盔鱼|猪齿鱼|裂唇鱼/,fam:['隆头鱼科','鹦嘴鱼类']},
  {id:'camo',n:'伪装高手',d:'躄鱼、鲉、海马和海龙：先学会“看见”它们。',g:'f',re:/躄鱼|鲉|海马|海龙|剃刀鱼|狮子鱼|石头鱼|蛙鱼|叶鱼|鬼鱼|鳄鱼鱼|牛尾鱼|比目|鲆|鲽|䲢/,fam:['躄鱼科','鲉科','毒鲉科','海龙科']},
@@ -3065,6 +3083,15 @@ const QKS=[
  {id:'coral',n:'珊瑚、水母与其他',d:'珊瑚、海葵、水母、海绵和海草。',g:'cwpz'}
 ];
 const QKART={nemo:'A11',bfly:'A11',wrasse:'F2',camo:'F5',eel:'F4',school:'F6',fish:'F4',shark:'F3',turtle:'R1',whale:'K1',ceph:'M2',nudi:'M1',crust:'X2',star:'E1',coral:'C1'};
+const QKEASY={"nemo":["小丑鱼住在海葵里，海葵就是它的家。雀鲷是它的亲戚，喜欢成群待在珊瑚旁边。",["个子小，和手掌差不多大，或者更小","小丑鱼是橙色的，身上有白色条纹","总在同一个地方游来游去，不走远"],"找到海葵，往里面看，常常就有小丑鱼。"],"bfly":["蝴蝶鱼和神仙鱼是珊瑚礁上最漂亮的鱼，颜色很鲜艳。",["身体扁扁的，像一个盘子","蝴蝶鱼嘴巴尖尖的，常常两条一起游","神仙鱼个子大一些，花纹更华丽"],"在珊瑚多的地方慢慢游，很容易看到。"],"wrasse":["隆头鱼用身体两边的小鳍划水，像在水里飞。鹦嘴鱼的嘴像鹦鹉的嘴，会啃珊瑚上的藻。",["鹦嘴鱼的嘴又硬又大，像鸟嘴","游的时候，两边的鳍一扇一扇","颜色常常是蓝色、绿色，很鲜艳"],"白天在珊瑚礁上到处都是。仔细听，能听到鹦嘴鱼啃东西的咔咔声。"],"camo":["有些鱼不爱游泳。它们装成石头、海绵或海草，一动不动。",["看起来像石头或海绵，其实有眼睛","海马的头像马，尾巴会卷起来","它们几乎不动，要慢慢找"],"盯着礁石和海扇慢慢看。有的背上有毒刺，只看，不要摸。"],"eel":["海鳝身体长长的，像蛇，白天躲在洞里只露出头。河鲀圆滚滚的，受到惊吓会鼓成一个球。",["海鳝：洞里伸出一个头，嘴一张一合","它张嘴是在呼吸，不是要咬人","河鲀：圆圆胖胖，游得慢"],"看礁石的洞和缝。不要把手伸进洞里。"],"school":["有些鱼喜欢成百上千条一起游，像一团会动的云。",["很多条鱼挤在一起，朝同一个方向","身体多半是银色的，会反光","一起转弯，像一个整体"],"在礁石外面的蓝色水里，抬头往远处看。"],"fish":["珊瑚礁上还有很多别的鱼，比如石斑鱼、刺尾鱼和虾虎鱼。",["石斑鱼：大嘴巴，胖身体，爱待在礁石旁","刺尾鱼：身体扁，尾巴前面有一根小刺","虾虎鱼：很小，趴在沙地或珊瑚上"],"游慢一点，礁石上上下下都看一看。"],"shark":["鲨鱼和魟鱼的骨头是软的，和我们耳朵里的软骨一样。大多数鲨鱼怕人，不会主动靠近。",["鲨鱼：背上有尖尖的鳍，尾巴左右摆","魟鱼：身体扁扁的像一张饼，有长尾巴","蝠鲼：像一只大鸟在水里飞"],"魟鱼常趴在沙地上，鲨鱼多在礁石外面游。远远地看，不要追。"],"turtle":["海龟和海蛇都是爬行动物。它们不能在水里呼吸，要游到水面换气。",["海龟：背上有硬壳，四只脚像船桨","绿海龟的头圆圆的，玳瑁的嘴尖尖的像鹰","海蛇：身上一圈黑一圈白，尾巴扁扁的"],"海龟常在海草和珊瑚旁边吃东西。海蛇有毒，但很少咬人，不要碰它。"],"whale":["鲸和海豚不是鱼。它们和我们一样用肺呼吸，生小宝宝，小宝宝喝妈妈的奶。",["尾巴是横的，上下摆动；鱼的尾巴是竖的","头顶有呼吸孔，会喷气","海豚常常一群一起跳出水面"],"多半坐在船上看。水面有喷气或背鳍，就是它们。"],"ceph":["章鱼、乌贼和鱿鱼没有骨头。它们很聪明，还会变颜色。",["章鱼：八条手臂，圆圆的头，爱躲在洞里","乌贼：身体宽宽的，周围有一圈裙边","鱿鱼：身体细长，常常几只排成一排"],"章鱼藏在礁石洞里，洞口常有一堆小贝壳。"],"nudi":["海蛞蝓是没有壳的海螺。它们个子很小，颜色特别鲜艳。",["像一条彩色的小虫子，慢慢爬","头上有两根小触角","背上常有一朵像花一样的鳃"],"贴近礁石慢慢找。它们常常只有一根手指那么长。"],"crust":["虾和蟹穿着硬硬的壳，像盔甲。长大的时候，要把旧壳脱掉。",["虾：身体长，有长长的触须","蟹：身体扁圆，横着走，有两只大钳子","寄居蟹：背着别人的螺壳当房子"],"看礁石的缝，还有海葵和海参旁边。晚上它们出来得更多。"],"star":["海星、海胆和海参是一家人。它们的身体像花一样，从中间向四周长。",["海星：多半有五条手臂","海胆：一个圆球，全身是刺","海参：像一根软软的黄瓜，趴在沙上"],"沙地和礁石上都有。海胆的刺会扎人，不要踩，也不要摸。"],"coral":["珊瑚看起来像石头或植物，其实是很多很小的动物住在一起。",["硬珊瑚：硬硬的，像树枝、像桌子、像大脑","软珊瑚：软软的，会随着水摆动","水母：透明的，像一把小伞在水里漂"],"珊瑚到处都是。它们很脆弱，碰一下就可能受伤，所以不要摸，也不要踩。"]};
+function easyPage(meta){const x=qkSec(meta.id),E=QKEASY[x.id],L=qkList(x.id).slice(0,6),X=typeof BIOX!=='undefined'?BIOX:{},more=QKART[x.id];
+ return bar(x.n,meta,'<span class="lvtag in lv1">初级</span>')+`
+ <div class="ezhero">${L[0]?qkPic(L[0]):''}</div>
+ <section class="ez"><h2>它们是谁</h2><p>${E[0]}</p></section>
+ <section class="ez"><h2>怎么认</h2><ol>${E[1].map(t=>`<li>${t}</li>`).join('')}</ol></section>
+ <section class="ez"><h2>去哪里找</h2><p>${E[2]}</p></section>
+ <section class="ez"><h2>认识几位</h2>${L.map(k=>`<button class="ezsp" data-wkbio="${esc(k)}"><span class="ezph">${qkPic(k)}</span><b>${esc(BIO[k][0])}</b></button>`).join('')}</section>
+ <div class="ezend"><button class="cta2" data-back="1">看完了，回去看照片</button>${more&&A[more]?`<button class="mini" data-open="${more}">想学更多：${A[more].title} ›</button>`:''}</div>`}
 const qkSec=id=>QKS.find(x=>x.id===id)||rgSecs().find(x=>x.id===id);
 const qkList=id=>qkBuild()[id]||rgBuild()[id]||[];
 let _qk=null;
@@ -3086,7 +3113,7 @@ function quickPage(meta){const Q=qkBuild();
  <div class="qklist">${QKS.filter(x=>Q[x.id].length).map(x=>{const L=Q[x.id],best=st.qk&&st.qk[x.id];return `<button class="qkrow" data-qk="${x.id}"><span class="qkth">${L.slice(0,3).map(qkPic).join('')}</span><span class="qktx"><b>${x.n}</b><em class="mono">${L.length} 种</em></span><span class="chev2">›</span></button>`}).join('')}</div>`}
 function qkPage(meta){const x=qkSec(meta.id),L=qkList(x.id);
  return bar(x.n,meta)+`
- ${(a=>a&&A[a]?`<div class="learnrow"><button class="learnb" data-open="${a}">学习${esc(x.n)}${x.rg?'海域':''}</button></div>`:'')(x.rg?x.art:QKART[x.id])}
+ ${x.rg?(x.art&&A[x.art]?`<div class="learnrow"><button class="learnb" data-open="${x.art}">学习${esc(x.n)}海域</button></div>`:''):(QKEASY[x.id]?`<div class="learnrow"><button class="learnb" data-easy="${x.id}">学习${esc(x.n)}</button></div>`:'')}
  ${x.rg&&x.reg?`<div class="subrow"><button class="mini" data-dvgoreg="${x.reg}">看这里的潜点 ›</button></div>`:''}
  <div class="ggrid qkgrid">${L.map(k=>`<div class="gtile tap" data-wkbio="${esc(k)}" role="button" tabindex="0" aria-label="${esc(BIO[k][0])} 详情">${st.seen&&st.seen[k]?'<span class="seenb">✓ 见过</span>':''}<div class="qkph">${qkPic(k)}</div><div class="gmeta"><b>${esc(BIO[k][0])}</b></div></div>`).join('')}</div>`}
 function qzNew(meta){const L=qkList(meta.id).slice(),sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -3240,7 +3267,7 @@ function treePage(path,meta){
  <section class="kids"><div class="kidshead"><span class="eyebrow">${t.c.length} 个下级</span>${countLeaves(t)?`<span class="eyebrow">含 ${countLeaves(t)} 个示例物种</span>`:''}</div>${kids||'<p class="cap">这一类在本 App 里没有继续细分。</p>'}</section>`;
 }
 /* ============ 生物树：展开式大纲（一页内展开/收起） ============ */
-let OPEN=Array.isArray(st.treeOpen)?st.treeOpen.slice():[0];
+let OPEN=[];
 function tvalid(){let n=TREE;const o=[];for(const i of OPEN){if(!n.c||!n.c[i]||n.c[i].sp)break;o.push(i);n=n.c[i]}OPEN=o}
 const RKC=r=>'r'+(rankIdx(r)+1);
 const olSci=t=>t.l.replace(' cf. solaris','');
@@ -3323,7 +3350,7 @@ function glossPage(meta){const src={};ALLA.forEach(id=>{(A[id].body.match(/data-
 /* ============ navigation: one stack per tab, pages stay alive ============ */
 const stacks={start:[],learn:[],dive:[],tree:[],gloss:[]};let tab='start';
 const root=t=>$('#tab-'+t);
-function renderPage(m){if(m.kind==='start')return startPage(m);if(m.kind==='tree')return treeOutline(m);if(typeof DVK!=='undefined'&&DVK[m.kind])return DVK[m.kind](m);if(m.kind==='home')return homePage(m);if(m.kind==='taxo')return taxoPage(m);if(m.kind==='quick')return quickPage(m);if(m.kind==='regs')return regsPage(m);if(m.kind==='qk')return qkPage(m);if(m.kind==='quiz')return quizPage(m);if(m.kind==='course')return coursePage(m.id,m);if(m.kind==='art')return articlePage(m.id,m.course,m);if(m.kind==='tree')return treePage(m.path,m);if(m.kind==='credits')return creditsPage(m);return wikiPage(m)}
+function renderPage(m){if(m.kind==='start')return startPage(m);if(m.kind==='tree')return treeOutline(m);if(typeof DVK!=='undefined'&&DVK[m.kind])return DVK[m.kind](m);if(m.kind==='home')return homePage(m);if(m.kind==='taxo')return taxoPage(m);if(m.kind==='quick')return quickPage(m);if(m.kind==='easy')return easyPage(m);if(m.kind==='regs')return regsPage(m);if(m.kind==='qk')return qkPage(m);if(m.kind==='quiz')return quizPage(m);if(m.kind==='course')return coursePage(m.id,m);if(m.kind==='art')return articlePage(m.id,m.course,m);if(m.kind==='tree')return treePage(m.path,m);if(m.kind==='credits')return creditsPage(m);return wikiPage(m)}
 function mount(t,meta){const el=document.createElement('div');el.className='page';el.innerHTML=renderPage(meta);root(t).appendChild(el);
  el.querySelectorAll('[data-ill]').forEach(x=>{try{ILL[x.dataset.ill](x)}catch(e){x.innerHTML='<p class="cap">图示加载失败</p>';console.error(e)}});upgrade(el);const r=Object.assign(meta,{el,y:meta.y||0});if(meta.kind==='dive'&&typeof dvMountMap==='function')dvMountMap(el);if(meta.kind==='start'){bindGSearch(el);bindHero(el)}if(meta.kind==='tree')bindOlSearch(el);if(meta.kind==='gloss'&&typeof bindWiki==='function')bindWiki(el);return r}
 function topPage(t=tab){const s=stacks[t];return s[s.length-1]}
@@ -3401,6 +3428,7 @@ document.addEventListener('click',e=>{const gt=e.target.closest('.gtile.tap');if
  if(d.regs){if(tab!=='learn')switchTab('learn');popTo(1);push({kind:'regs'});return}
  if(d.taxo){goTaxo();return}
  if(d.qk){push({kind:'qk',id:d.qk});return}
+ if(d.easy){push({kind:'easy',id:d.easy});return}
  if(d.quiz){push({kind:'quiz',id:d.quiz});return}
  if(d.qza){const p=topPage();if(p.kind==='quiz'&&p.pick==null){p.pick=d.qza;if(d.qza===p.qs[p.i].k)p.score++;qzRender()}return}
  if(d.qznext){const p=topPage();p.i++;p.pick=null;qzRender();return}
