@@ -265,6 +265,7 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .cc.h-hab .art{background:linear-gradient(#7d8a90,#56646b)}
 .cc.h-fx{background:linear-gradient(#efe6ff,#cfc2f3);--hc:#b9a6f0}
 .cc.h-fx .art{background:radial-gradient(circle,#fff 0 12%,#c9b8f5 13% 40%,#8f7bd6)}
+.chand .cc+.cc{margin-left:calc(-1px - var(--ov,0%))}
 .chand .cc.sel{transform:translateY(-16px) scale(1.08);z-index:5;border-color:var(--sun);box-shadow:0 0 0 2px var(--sun),0 8px 16px rgba(0,0,0,.5)}
 .cc.dead{filter:saturate(.25) brightness(.62)}
 .cc.lift{opacity:.2}
@@ -439,25 +440,40 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 #cScene .sp{touch-action:none}
 
 /* ===== v6 战斗场景 ===== */
+.sludge{position:absolute;top:0;bottom:0;right:0;z-index:4;pointer-events:none;transition:left .3s;background:linear-gradient(90deg,rgba(40,48,14,0),rgba(40,48,14,.78) 22px,rgba(28,34,10,.9));border-left:0}
+.sludge::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(120,140,40,.5) 0 7px,transparent 8px),radial-gradient(circle at 70% 70%,rgba(90,110,30,.5) 0 9px,transparent 10px);background-size:46px 40px}
+.zone+.zone{box-shadow:0 -1px 0 rgba(255,255,255,.16)}
+.inc{position:absolute;right:2px;top:2px;z-index:7;display:flex;align-items:center;gap:1px;background:rgba(20,26,10,.8);border:1px solid #8fa33a;border-radius:99px;padding:0 5px 0 2px;pointer-events:none}
+.inc span{width:18px;height:18px;display:block}.inc svg{width:100%;height:100%}.inc b{font:800 11px var(--num);color:#d5e58a}
+.foe .it.i-move{border-color:#c5d95a;color:#e3f08f;background:#1c240c;padding:2px 4px}
+.foe .it.i-heart{border-color:#ff5a5a;color:#ff8a8a;background:#3a0808;animation:wn .5s infinite alternate}
+.foe.inr .fa{filter:drop-shadow(0 0 5px #5fe3d0)}
+.cc .zp{position:absolute;right:4px;top:5px;display:flex;flex-direction:column;gap:2px;z-index:2}
+.cc .zp i{display:block;width:12px;height:5px;border-radius:2px;background:rgba(0,0,0,.22)}
+.cc .zp i.on.z0{background:#49b2dc}.cc .zp i.on.z1{background:#ff8a6b}.cc .zp i.on.z2{background:#e2c36f}
+.cc .zp i.on{box-shadow:0 0 0 1px rgba(255,255,255,.7)}
+#cScene .heartb{top:50%}
+#cScene .cr.rdy::before{display:none}
+
 #cScene{position:relative;overflow:hidden}
 #cScene.shake{animation:tshake .3s}
 .zone{position:relative}
-.z-top{height:60px;background:linear-gradient(#49b2dc,#2a86bd)}
-.z-reef{height:156px;background:linear-gradient(#2a86bd 0,#2f6f95 62%,#3c5568 63%,#33485a)}
+.z-top{height:92px;background:linear-gradient(#49b2dc,#2a86bd)}
+.z-reef{height:104px;background:linear-gradient(#2a86bd 0,#2f6f95 62%,#3c5568 63%,#33485a)}
 .z-reef::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;background:radial-gradient(circle at 7% 100%,#51697b 0 15px,transparent 16px),radial-gradient(circle at 28% 100%,#465d70 0 19px,transparent 20px),radial-gradient(circle at 52% 100%,#566f82 0 13px,transparent 14px),radial-gradient(circle at 76% 100%,#465d70 0 18px,transparent 19px),#3a5062;pointer-events:none}
-.z-sand{height:46px;background:linear-gradient(#33485a 0,#56899a 40%,#d8c38d 41%,#c9b27a)}
+.z-sand{height:92px;background:linear-gradient(#33485a 0,#4f7f92 55%,#d8c38d 72%,#c9b27a)}
 .heartb{position:absolute;left:3px;top:50%;margin-top:-26px;width:34px;display:flex;flex-direction:column;align-items:center;z-index:6;color:#ff8a6b}
 .heartb svg{width:28px;height:28px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
 .heartb b{font:800 15px var(--num);color:#fff;margin-top:-22px;z-index:1;text-shadow:0 1px 2px #000}
 .heartb.shake{animation:tshake .3s}
-.slot{position:absolute;top:18px;bottom:8px;width:15%;border-radius:10px;border:1.5px dashed rgba(255,255,255,.16);z-index:3}
-.slot .cor{position:absolute;left:4%;right:4%;bottom:0;height:54%;pointer-events:none}
+.slot{position:absolute;top:6px;bottom:6px;width:14%;border-radius:10px;border:1.5px dashed rgba(255,255,255,.16);z-index:3}
+.slot .cor{position:absolute;left:-4%;right:-4%;top:16px;height:54px;pointer-events:none;opacity:.92}
 .slot .cor svg{width:100%;height:100%}
 .slot .cor.lush{filter:drop-shadow(0 0 5px #ffe27a) saturate(1.6) brightness(1.15);transform:scale(1.18);transform-origin:50% 100%}
 .slot .cor.eaten{transition:opacity .3s,transform .3s;opacity:0;transform:scale(.3)}
 .slot.tgt{border:2.5px solid var(--sun);background:rgba(255,201,60,.2);animation:tg2 .8s infinite alternate}
 .slot.ally{border:2.5px solid #ff9aa9;background:rgba(255,154,169,.18)}
-.cr{position:absolute;left:50%;top:14px;width:48px;height:48px;margin-left:-24px;display:block}
+.cr{position:absolute;left:50%;top:12px;width:44px;height:44px;margin-left:-22px;display:block}
 .cr .sw{display:block;width:100%;height:100%;--dx:3px;--dy:2px;animation:wander 4s ease-in-out infinite alternate;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
 .cr svg{width:100%;height:100%;display:block;overflow:visible}
 .cr .sa{position:absolute;left:-1px;bottom:-12px;z-index:2}.cr .sh{position:absolute;right:-1px;bottom:-12px;z-index:2}
@@ -475,11 +491,11 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .cr .nt svg{width:100%;height:100%}
 .cr .fr{position:absolute;left:50%;top:-13px;width:0;height:0;margin-left:-6px;border:6px solid transparent;border-top-color:#fff;opacity:.85}
 .slot.drop .cor,.cr.drop{animation:dropc .35s cubic-bezier(.3,1.6,.5,1)}
-.foe{position:absolute;right:5%;width:74px;height:74px;margin-top:-37px;z-index:5;display:block;transition:top .3s}
+.foe{position:absolute;width:58px;height:58px;margin-top:-33px;z-index:5;display:block;transition:left .3s}
 .foe .fa{display:block;width:100%;height:100%;animation:fbob 2.4s ease-in-out infinite alternate;filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
 .foe .fa svg{width:100%;height:100%}
 @keyframes fbob{to{transform:translate(-5px,4px) rotate(-3deg)}}
-.foe .it{position:absolute;left:-30px;top:50%;margin-top:-15px;display:flex;align-items:center;gap:1px;background:#2a0d05;border:2px solid var(--bad);color:#ffb39f;border-radius:99px;padding:2px 6px;z-index:2}
+.foe .it{position:absolute;left:-12px;top:-8px;display:flex;align-items:center;gap:1px;background:#2a0d05;border:2px solid var(--bad);color:#ffb39f;border-radius:99px;padding:2px 6px;z-index:2}
 .foe .it svg{width:16px;height:16px}
 .foe .it b{font:800 15px var(--num);color:#fff}
 .foe .it.i-net{border-color:#c9d3d6;color:#dfe7ea;background:#22303a}
