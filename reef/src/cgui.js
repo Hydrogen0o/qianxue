@@ -18,7 +18,7 @@ function csay(t,bad){document.querySelectorAll('.ctoast').forEach(e=>e.remove())
 let LAND=false,ROT=false;const RS=()=>ROT?' rotate(90deg)':'',upPt=(x,y,d)=>ROT?[x+d,y]:[x,y-d];
 function applyLand(){const on=mode==='cg',vw=innerWidth,vh=innerHeight,H=document.documentElement;LAND=on;ROT=on&&vh>vw;H.classList.toggle('land',on);H.classList.toggle('rot',ROT);if(on){const W=Math.min(ROT?vh:vw,940),Hh=Math.min(ROT?vw:vh,480);H.style.setProperty('--W',W+'px');H.style.setProperty('--H',Hh+'px');H.style.setProperty('--L',ROT?'0px':(vw-W)/2+'px');H.style.setProperty('--T',ROT?'0px':(vh-Hh)/2+'px')}}
 addEventListener('resize',()=>{applyLand();if(mode==='cg'&&S&&!cbusy)crender()});
-const LT=[18.7,53.2,84.5],LORD=[0,1,2],ZC=['z-r0','z-r1','z-r2'],fx=p=>9.5+p*14.6;
+const LT=[18.75,54.2,85.4],LORD=[0,1,2],ZC=['z-r0','z-r1','z-r2'],fx=p=>8.93+p*14.286;
 /* 一格里几条鱼时各自的位置：[左%, 上%] 与大小 */
 const CPOS_OLD={1:[[50,34]],2:[[27,36],[73,36]],3:[[27,24],[73,24],[50,66]],4:[[26,22],[74,24],[28,64],[72,66]],5:[[22,20],[76,22],[50,44],[24,70],[76,68]],6:[[18,22],[50,18],[82,24],[20,66],[50,70],[80,64]]},CSZ={1:46,2:40,3:36,4:32,5:30,6:28},
  FPOS={2:[[28,40],[72,40]],3:[[18,42],[50,42],[82,42]],4:[[20,26],[62,24],[38,68],[80,70]],5:[[16,24],[50,22],[84,26],[32,70],[68,72]],6:[[16,24],[50,22],[84,24],[18,70],[50,72],[82,70]]},FSZ={2:36,3:28,4:26,5:25,6:24};
@@ -30,7 +30,7 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  $('mInfo').innerHTML=`<button id="cLvB" class="lvb">${S.lv+1}/${LV.length} ${st.n}</button><span class="prog2" role="img" aria-label="这一关的污染源：已净化 ${S.done} 个，共 ${S.total} 个">${Array.from({length:S.total},(_,i)=>`<i class="${i<S.done?'d':i<S.done+act?'a':''}"></i>`).join('')}</span>`;
  let h=`<div class="heartb" id="cHeart"><span>${II.heart}</span><b>${S.heart}</b></div>`;
  for(const l of LORD){const f=foeIn(S,l),fc=frontCell(S,l),nx=nextIn(S,l),reach=inReach(S,l),cl=fc>=0?calcLane(S,l):{tot:0,steps:[]},tot=cl.tot,ge=cl.steps.filter(q=>q.op==='e').length,gc=cl.steps.filter(q=>q.op==='c').length;h+=`<div class="zone ${ZC[l]}">`;
-  for(let col=0;col<NC;col++)h+=`<button class="slot" data-cell="${ci(l,col)}" style="left:${fx(col)}%;width:14.6%" aria-label="${ZN[l]}第${col+1}段" tabindex="-1"></button>`;
+  for(let col=0;col<NC;col++)h+=`<button class="slot" data-cell="${ci(l,col)}" style="left:${fx(col)}%;width:14.286%" aria-label="${ZN[l]}第${col+1}段" tabindex="-1"></button>`;
   if(fc>=0)h+=`<div class="lt ${reach?(f.arm&&tot<=f.arm?'weak':''):'off'} ${cl.kinds>=3?'eco':''}" data-lt="${l}">${II.atk}<b>${tot}</b>${cl.kinds>=3?'<em>×2</em>':`<s>${'●'.repeat(cl.kinds||0)}${'○'.repeat(Math.max(0,3-(cl.kinds||0)))}</s>`}</div>`;
   if(ge||gc)h+=`<div class="lg2" style="left:${fc>=0?92:2}px">${ge?`<span class="ge">+${ge}<i></i></span>`:''}${gc?`<span class="gc">+${gc}<i></i></span>`:''}</div>`;
   if(f)h+=`<div class="sludge" data-su="${f.u}" style="left:${fx(f.p)}%"></div>`;
