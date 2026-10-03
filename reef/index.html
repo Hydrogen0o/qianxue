@@ -548,15 +548,47 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.sp .sw,.cell.tgt{animation:none}}
 @media (prefers-reduced-motion:reduce){.tgt,.home.warn,.table.shake{animation:none}}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
+
+/* ===== 横版牌局 ===== */
+html.land,html.land body{height:100%;overflow:hidden}
+html.land #stage{position:fixed;left:var(--L,0);top:var(--T,0);width:var(--W,100vw);height:var(--H,100vh);overflow:hidden}
+html.land.rot #stage{left:0;top:0;transform-origin:0 0;transform:rotate(90deg) translateY(-100%)}
+html.land #app{max-width:none;height:100%;min-height:0;padding:6px 8px 0 max(8px,env(safe-area-inset-left,0px));display:block;position:relative;box-sizing:border-box}
+html.land #mCG{display:flex;flex-direction:row;gap:8px;height:100%}
+html.land .lmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+html.land #cScene{flex:1;min-height:0;margin:0;display:flex;flex-direction:column}
+html.land #cScene .zone{height:auto;flex:1}html.land #cScene .z-reef{flex:1.45}
+html.land #cHand{flex:none;height:92px;min-height:0;padding:4px 8px 0;justify-content:center;gap:5px}
+html.land .chand .cc{flex:0 0 62px;max-width:62px;height:84px;transform:none}
+html.land .chand .cc .art{height:34px}
+html.land .chand .cc+.cc{margin-left:0}
+html.land .chand .cc.sel{transform:translateY(-10px) scale(1.08)}
+html.land .lside{flex:0 0 138px;display:flex;flex-direction:column;gap:6px;padding:62px 0 8px;min-height:0;box-sizing:border-box}
+html.land .modes{position:absolute;right:8px;top:6px;width:138px;z-index:5;flex-wrap:wrap;gap:5px;justify-content:space-between}
+html.land .modes span{margin-left:0;width:100%}html.land .modes .lvb{display:block;width:100%;text-align:center}
+html.land .ctext{flex:1;min-height:0;overflow:auto;font-size:12px;line-height:1.4}
+html.land .ctext b{display:block;font-size:14px}
+html.land .coach{font-size:13px;border-radius:12px;padding:6px 10px;line-height:1.35}
+html.land .hbar{flex-wrap:wrap;gap:6px;margin:0}
+html.land .foot{flex-direction:column;gap:6px}
+html.land #mCG .foot .icb.drawb{flex:none;padding:8px 4px}
+html.land #mCG .foot .pri{flex:none;padding:14px 4px;font-size:16px}
+html.land .ctoast{position:absolute;top:10px;max-width:60%}
+html.land .sheet{max-width:560px}
+html.land .slot .cor{top:auto;bottom:3px;left:8%;right:8%}
+html.land .slot .cor.l1{top:auto;height:42%;left:22%;right:22%}html.land .slot .cor.l2{top:auto;height:64%;left:10%;right:10%}html.land .slot .cor.l3{top:auto;height:88%;left:-4%;right:-4%}
+html.land .slot .cor.side{top:auto;height:30%;left:30%;right:30%}
+html.land #cScene .foe{width:64px;height:64px;margin-top:-36px}
+html.rot .pop,html.rot .bt{rotate:90deg}
 </style>
+<div id="stage">
 <div id="app">
  <div class="modes"><div class="seg"><button id="mA" class="on">牌局</button><button id="mB">守礁</button></div><span id="mInfo"></span></div>
  <div id="mCG" class="mode">
-  <div class="scene3" id="cScene"></div>
-  <div class="ctext" id="cText"></div>
-  <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="piles"><span class="pile" aria-label="牌库"><i id="cDeck">0</i></span><span class="pile dis" aria-label="弃牌"><i id="cDisP">0</i></span></span></div>
-  <div class="chand" id="cHand"></div>
-  <div class="foot"><button id="cUndo" aria-label="撤销" class="icb"></button><button id="cDis" aria-label="花 1 点能量抽 2 张牌" class="icb drawb"></button><button class="pri" id="cEnd">结束回合</button></div>
+  <div class="lmain"><div class="scene3" id="cScene"></div><div class="chand" id="cHand"></div></div>
+  <div class="lside"><div class="ctext" id="cText"></div>
+   <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="piles"><span class="pile" aria-label="牌库"><i id="cDeck">0</i></span><span class="pile dis" aria-label="弃牌"><i id="cDisP">0</i></span></span></div>
+   <div class="foot"><button id="cUndo" aria-label="撤销" class="icb"></button><button id="cDis" aria-label="花 1 点能量抽 2 张牌" class="icb drawb"></button><button class="pri" id="cEnd">结束回合</button></div></div>
  </div>
  <div id="mTD" class="mode" hidden>
  <div class="hud"><div class="en" id="enBox"><i></i><b id="en">0</b></div><div class="prog"><i id="pg"></i><s id="pgf"></s></div><span class="lv" id="lv"></span><button class="sm" id="bPrev" aria-label="上一关">‹</button><button class="sm" id="bNext" aria-label="下一关">›</button><button class="sm" id="bSnd" aria-label="声音">声</button></div>
@@ -566,6 +598,7 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
  </div>
 </div>
 <div class="ov" id="ov" hidden></div>
+</div>
 <script>let UID=0;const uid=p=>p+(++UID);
 function star(cx,cy,n,rIn,rOut,rot=0){let p=[];for(let k=0;k<n*2;k++){const a=rot-Math.PI/2+k*Math.PI/n,r=k%2?rIn:rOut;p.push((cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1))}return p.join(' ')}
 const EYE=(x,y,r=1.8)=>`<circle cx="${x}" cy="${y}" r="${r+1}" fill="#fff"/><circle cx="${x}" cy="${y}" r="${r}" fill="#111"/>`;
@@ -952,16 +985,20 @@ const II={atk:'<svg viewBox="0 0 24 24"><path d="M4 20 L14 10 M12 6 L18 12 M16 4
  move:'<svg viewBox="0 0 24 24"><path d="M20 12 H5 M11 5 L4 12 L11 19" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  heart:'<svg viewBox="0 0 24 24"><path d="M12 21 C4 15 2 11 2 7.5 A5 5 0 0 1 12 6 A5 5 0 0 1 22 7.5 C22 11 20 15 12 21Z" fill="currentColor"/></svg>'};
 const handCard=(k,attr,extra)=>{const id=k.id||k,d=CD[id];return `<button class="cc ${d.fx?'h-fx':d.terr?'h-terr':d.home?'h-reef':'h-free'} ${extra||''}" ${attr||''}><span class="orb">${d.e}</span>${d.z?`<span class="zp">${[0,1,2].map(z=>`<i class="z${z} ${d.z.includes(z)?'on':''}"></i>`).join('')}</span>`:''}<span class="art">${svg(d.fx?FXART[d.fx]:P[d.art]())}</span>${d.play?'<span class="pl">⚡</span>':''}${d.pair||d.algae?'<span class="tag">×2</span>':d.clean?'<span class="tag">↺</span>':d.school?'<span class="tag">+1</span>':''}<b>${d.n}</b>${d.a!=null?`<span class="st"><i class="sa">${d.clean?'↺':d.a}</i><i class="sh">${d.h}</i></span>`:'<span class="st"></span>'}</button>`};
-function csay(t,bad){document.querySelectorAll('.ctoast').forEach(e=>e.remove());const d=document.createElement('div');d.className='ctoast'+(bad?' bad':'');d.textContent=t;document.body.appendChild(d);clearTimeout(ctT);ctT=setTimeout(()=>d.remove(),2000)}
-const LT=[13.9,50,86.1],ZC=['z-top','z-reef','z-sand'],fx=p=>9.5+p*14.6;
-const CPOS={1:[[null,12]],2:[[-1,10],[17,60]],3:[[-2,4],[21,40],[-2,76]]},CSZ={1:44,2:34,3:28};
+function csay(t,bad){document.querySelectorAll('.ctoast').forEach(e=>e.remove());const d=document.createElement('div');d.className='ctoast'+(bad?' bad':'');d.textContent=t;($('stage')||document.body).appendChild(d);clearTimeout(ctT);ctT=setTimeout(()=>d.remove(),2000)}
+let LAND=false,ROT=false;const RS=()=>ROT?' rotate(90deg)':'',upPt=(x,y,d)=>ROT?[x+d,y]:[x,y-d];
+function applyLand(){const on=mode==='cg',vw=innerWidth,vh=innerHeight,H=document.documentElement;LAND=on;ROT=on&&vh>vw;H.classList.toggle('land',on);H.classList.toggle('rot',ROT);if(on){const W=Math.min(ROT?vh:vw,940),Hh=Math.min(ROT?vw:vh,480);H.style.setProperty('--W',W+'px');H.style.setProperty('--H',Hh+'px');H.style.setProperty('--L',ROT?'0px':(vw-W)/2+'px');H.style.setProperty('--T',ROT?'0px':(vh-Hh)/2+'px')}}
+addEventListener('resize',()=>{applyLand();if(mode==='cg'&&S&&!cbusy)crender()});
+const LT=[16.5,50,85],ZC=['z-top','z-reef','z-sand'],fx=p=>9.5+p*14.6;
+/* 一格里几条鱼时各自的位置：[左%, 上%] 与大小 */
+const CPOS={1:[[50,34]],2:[[27,36],[73,36]],3:[[27,24],[73,24],[50,66]]},CSZ={1:46,2:40,3:36};
 function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.moved?S.hand[cdrag.i]:null),T=k&&S.energy>=CD[k.id].e?cgTargets(S,k.id):[],okc=new Set(T.filter(t=>t.cell!=null).map(t=>t.cell)),okf=new Set(T.filter(t=>t.foe!=null).map(t=>t.foe)),any=T.some(t=>t.any);
  $('mInfo').innerHTML=`<button id="cLvB" class="lvb">${S.lv+1}/${LV.length} ${st.n}</button>`;
  let h=`<div class="heartb" id="cHeart"><span>${II.heart}</span><b>${S.heart}</b></div>`;
  for(let l=0;l<NL;l++){const f=foeIn(S,l),fc=frontCell(S,l),nx=nextIn(S,l),reach=inReach(S,l),tot=fc>=0?calcLane(S,l).tot:0;h+=`<div class="zone ${ZC[l]}">`;
   for(let col=0;col<NC;col++){const c=ci(l,col),x=S.cells[c],n=x.cs.length,cap=capOf(S,c),side=!x.coral&&inCoral(S,c);
    h+=`<button class="slot ${okc.has(c)?'tgt':''}" data-cell="${c}" style="left:${fx(col)}%" aria-label="${ZN[l]}第${col+1}格">${x.coral||side?`<span class="cor l${x.coral} ${side?'side':''} ${x.lush?'lush':''}">${cart('coral')}</span>`:''}`;
-   x.cs.forEach((u,i)=>{const d=CD[u.id],a=valOf(S,c,u),ps=(n===1&&l===1?[null,30]:CPOS[Math.min(3,n)][i])||[0,0],sz=CSZ[Math.min(3,n)];h+=`<span class="cr ${n>1?'sm':''} ${reach&&!u.net?'rdy':''} ${u.net?'netted':''} ${d.home&&!inCoral(S,c)?'dry':''} ${cinfo==='u'+u.u?'on':''}" data-u="${u.u}" style="width:${sz}px;height:${sz}px;top:${ps[1]}px;${ps[0]==null?`left:50%;margin-left:${-sz/2}px`:`left:${ps[0]}px;margin-left:0`}"><span class="sw" style="animation-duration:${2.6+(u.u%7)*.45}s;animation-delay:-${(u.u%9)*.5}s">${cart(u.id)}</span>${u.net?`<span class="nt">${II.net}</span>`:''}<i class="sa ${a>d.a?'up':''}">${d.clean?'↺':a}</i><i class="sh ${u.hp<d.h?'hurt':''}">${u.hp}</i></span>`});
+   x.cs.forEach((u,i)=>{const d=CD[u.id],a=valOf(S,c,u),ps=CPOS[Math.min(3,n)][i]||[50,50],sz=CSZ[Math.min(3,n)];h+=`<span class="cr ${n>1?'sm':''} ${reach&&!u.net?'rdy':''} ${u.net?'netted':''} ${d.home&&!inCoral(S,c)?'dry':''} ${cinfo==='u'+u.u?'on':''}" data-u="${u.u}" style="width:${sz}px;height:${sz}px;left:${ps[0]}%;top:${ps[1]}%;margin:${-sz/2}px 0 0 ${-sz/2}px"><span class="sw" style="animation-duration:${2.6+(u.u%7)*.45}s;animation-delay:-${(u.u%9)*.5}s">${cart(u.id)}</span>${u.net?`<span class="nt">${II.net}</span>`:''}<i class="sa ${a>d.a?'up':''}">${d.clean?'↺':a}</i><i class="sh ${u.hp<d.h?'hurt':''}">${u.hp}</i></span>`});
    if(cap>1)h+=`<span class="cap">${Array.from({length:cap},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
    if(c===fc&&f)h+='<i class="fr"></i>';
    h+='</button>'}
@@ -992,13 +1029,13 @@ const crEl=u=>document.querySelector(`#cScene .cr[data-u="${u}"]`),foeEl=u=>docu
 function pop(at,txt,cls){const f=document.createElement('span');f.className='pop '+(cls||'');f.textContent=txt;f.style.left=at[0]+'px';f.style.top=at[1]+'px';document.body.appendChild(f);setTimeout(()=>f.remove(),window.__fast?0:800)}
 function burst(at,n,cls){for(let i=0;i<(n||8);i++){const b=document.createElement('i');b.className='bt '+(cls||'');b.style.left=at[0]+'px';b.style.top=at[1]+'px';const a=Math.random()*6.28,r=24+Math.random()*30;b.style.setProperty('--dx',Math.cos(a)*r+'px');b.style.setProperty('--dy',Math.sin(a)*r+'px');document.body.appendChild(b);setTimeout(()=>b.remove(),600)}}
 function flyTo(from,toEl,cls){const to=rectOf(toEl),f=document.createElement('i');f.className='drop2 '+cls;f.style.transform=`translate(${from[0]}px,${from[1]}px)`;document.body.appendChild(f);requestAnimationFrame(()=>requestAnimationFrame(()=>{f.style.transform=`translate(${to[0]}px,${to[1]}px) scale(.7)`}));setTimeout(()=>{f.remove();toEl.classList.remove('bump');void toEl.offsetWidth;toEl.classList.add('bump')},window.__fast?0:520)}
-function lunge(el,to,ms){if(!el||!el.animate||window.__fast)return;const a=rectOf(el);el.animate([{transform:'translate(0,0)'},{transform:`translate(${(to[0]-a[0])*.8}px,${(to[1]-a[1])*.8}px) scale(1.15)`,offset:.45},{transform:'translate(0,0)'}],{duration:ms||380,easing:'ease-in-out'})}
+function lunge(el,to,ms){if(!el||!el.animate||window.__fast)return;const a=rectOf(el);let dx=(to[0]-a[0])*.8,dy=(to[1]-a[1])*.8;if(ROT)[dx,dy]=[dy,-dx];el.animate([{transform:'translate(0,0)'},{transform:`translate(${dx}px,${dy}px) scale(1.15)`,offset:.45},{transform:'translate(0,0)'}],{duration:ms||380,easing:'ease-in-out'})}
 function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
 /* 敌人的回合：一个个演 */
 /* 结算：一条道一条道来，从左到右每条鱼把净化叠进计数器，最后一击 */
 async function csettle(){const R=cgSettle(S),slide=(u,p)=>{const fe=foeEl(u),sl=document.querySelector(`#cScene .sludge[data-su="${u}"]`);if(fe)fe.style.left=`calc(${fx(p)+7}% - 29px)`;if(sl)sl.style.left=fx(p)+'%'};
  for(const r of R){const fe=foeEl(r.u);if(!fe)continue;const fr=rectOf(fe),cnt=document.createElement('div');cnt.className='run';cnt.textContent='0';document.body.appendChild(cnt);let i=0,first=true;
-  const at=el=>{const q=rectOf(el);cnt.style.transform=`translate(${q[0]}px,${q[1]-34}px) translate(-50%,-50%) scale(${Math.min(2,1+r.steps.length*0+Math.log2(1+(+cnt.textContent||0))*.12)})`};
+  const at=el=>{const q=rectOf(el);cnt.style.transform=`translate(${q[0]}px,${q[1]}px) translate(-50%,-50%)${RS()} translateY(-34px) scale(${Math.min(2,1+r.steps.length*0+Math.log2(1+(+cnt.textContent||0))*.12)})`};
   for(const st of r.steps){const ce=crEl(st.u);if(!ce)continue;if(first){cnt.style.transition='none';at(ce);void cnt.offsetWidth;cnt.style.transition='';first=false}
    if(st.op==='net'){shake(ce);await cwait(140);continue}
    if(st.op==='re'){const te=crEl(st.tu);at(ce);if(ce.animate&&!window.__fast)ce.animate([{transform:'scale(1)'},{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:220});pop(rectOf(ce),'↺','x2');if(te){pop(rectOf(te),'+2♥','heal');te.classList.remove('netted')}tone(990,.12,'triangle',.07);await cwait(230);continue}
@@ -1007,7 +1044,7 @@ async function csettle(){const R=cgSettle(S),slide=(u,p)=>{const fe=foeEl(u),sl=
    else{pop(rectOf(ce),'×'+st.v,'mul');cnt.textContent=st.tot;cnt.classList.remove('tick','mulf');void cnt.offsetWidth;cnt.classList.add('mulf');tone(523,.2,'square',.07);tone(784,.25,'square',.06);shake($('cScene'));await cwait(360)}
    at(ce);i++}
   if(!r.tot){cnt.remove();continue}
-  await cwait(140);cnt.style.transition='transform .22s cubic-bezier(.5,0,.9,.4)';cnt.style.transform=`translate(${fr[0]}px,${fr[1]}px) translate(-50%,-50%) scale(1.2)`;await cwait(230);cnt.remove();
+  await cwait(140);cnt.style.transition='transform .22s cubic-bezier(.5,0,.9,.4)';cnt.style.transform=`translate(${fr[0]}px,${fr[1]}px) translate(-50%,-50%)${RS()} scale(1.2)`;await cwait(230);cnt.remove();
   const big=r.tot>=10;fe.classList.add('hit');pop(fr,'−'+r.tot,big?'dmg crit':'dmg');burst(fr,big?16:7,'g');tone(big?110:200,big?.3:.14,'square',.08);if(big){shake($('cScene'));tone(70,.35,'sawtooth',.07)}
   const hb=fe.querySelector('.hpb');if(hb&&!r.dead){const f=S.foes.find(x=>x.u===r.u);if(f){hb.querySelector('i').style.width=f.hp/f.max*100+'%';hb.querySelector('b').textContent=f.hp}}
   if(r.dead){await cwait(130);fe.classList.add('dying');burst(fr,14,'g');SFX.die();const sl=document.querySelector(`#cScene .sludge[data-su="${r.u}"]`);if(sl)sl.style.left='100%';for(const d of S.drops.filter(d=>d.u===r.u)){await cwait(90);flyTo(fr,d.drop==='energy'?$('cOrbs'):$('cDeck'),d.drop==='energy'?'en':'cd');tone(d.drop==='energy'?880:660,.12,'sine',.08)}await cwait(320)}
@@ -1048,17 +1085,17 @@ const targetAt=(x,y)=>{for(const n of document.elementsFromPoint(x,y)){if(!n.clo
 document.addEventListener('pointerdown',e=>{if(mode!=='cg'||cbusy||!S||S.over)return;const c=e.target.closest('#cHand .cc');if(!c)return;cdrag={i:+c.dataset.h,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,pid:e.pointerId};try{c.setPointerCapture(e.pointerId)}catch(_){}
  clearTimeout(lpT);const i=cdrag.i;lpT=setTimeout(()=>{if(cdrag&&!cdrag.moved&&cdrag.i===i){const id=S.hand[i].id;cdrag=null;showCard(id)}},480)});
 document.addEventListener('pointermove',e=>{if(!cdrag||e.pointerId!==cdrag.pid)return;if(!cdrag.moved){if(Math.hypot(e.clientX-cdrag.x0,e.clientY-cdrag.y0)<9)return;cdrag.moved=true;clearTimeout(lpT);csel=null;cact=null;cinfo=null;const src=document.querySelector(`#cHand .cc[data-h="${cdrag.i}"]`),g=src.cloneNode(true);g.classList.add('ghost');g.classList.remove('sel','dead');g.removeAttribute('data-h');g.style.cssText='';document.body.appendChild(g);cdrag.ghost=g;crender();const s2=document.querySelector(`#cHand .cc[data-h="${cdrag.i}"]`);if(s2)s2.classList.add('lift')}
- cdrag.ghost.style.transform=`translate(${e.clientX-37}px,${e.clientY-100}px) rotate(${Math.max(-8,Math.min(8,(e.clientX-cdrag.x0)*.05))}deg) scale(.85)`;e.preventDefault()},{passive:false});
+ cdrag.ghost.style.transform=`translate(${e.clientX}px,${e.clientY}px) translate(-50%,-50%)${RS()} translateY(-46px) rotate(${Math.max(-8,Math.min(8,((ROT?e.clientY-cdrag.y0:e.clientX-cdrag.x0))*.05))}deg) scale(.85)`;e.preventDefault()},{passive:false});
 function cdrop(e){clearTimeout(lpT);if(!cdrag||e.pointerId!==cdrag.pid)return;const d=cdrag;cdrag=null;if(d.ghost)d.ghost.remove();
  if(!d.moved){csel=csel===d.i?null:d.i;cact=null;cinfo=null;crender();return}
- const k=S.hand[d.i],t=targetAt(e.clientX,e.clientY-56);if(!t){crender();return}
+ const k=S.hand[d.i],t=targetAt(...upPt(e.clientX,e.clientY,56));if(!t){crender();return}
  if(CD[k.id].fx==='plankton'){if(!cplay(d.i,{any:1})){csay('能量不够',1);crender()}return}
  if(cplay(d.i,t))return;csay(cwhy(k,t),1);tone(140,.12,'square',.04);csel=d.i;crender()}
 document.addEventListener('pointerup',cdrop);document.addEventListener('pointercancel',e=>{clearTimeout(lpT);if(cdrag&&e.pointerId===cdrag.pid){if(cdrag.ghost)cdrag.ghost.remove();cdrag=null;crender()}});
 document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('#cHand'))e.preventDefault()});
 function cstart(lv){cwarnT=-1;cLv=lv;if(lv===0)cExtra=[];csave();S=cgInit(lv,cExtra);csel=cact=cinfo=null;$('ov').hidden=true;crender();intro()}
 document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
- if(t.id==='mA'||t.id==='mB'){mode=t.id==='mA'?'cg':'td';$('mA').className=mode==='cg'?'on':'';$('mB').className=mode==='td'?'on':'';$('mCG').hidden=mode!=='cg';$('mTD').hidden=mode!=='td';$('ov').hidden=true;try{localStorage.setItem('reefMode',mode)}catch(e){}
+ if(t.id==='mA'||t.id==='mB'){mode=t.id==='mA'?'cg':'td';$('mA').className=mode==='cg'?'on':'';$('mB').className=mode==='td'?'on':'';$('mCG').hidden=mode!=='cg';$('mTD').hidden=mode!=='td';$('ov').hidden=true;applyLand();try{localStorage.setItem('reefMode',mode)}catch(e){}
   if(mode==='td'){$('mInfo').textContent='';if(!tdStarted){tdStarted=true;start()}}else crender();return}
  if(mode!=='cg')return;
  if(d.cact==='close'){$('ov').hidden=true;return}
@@ -1074,7 +1111,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)r
   const key='f'+S.foes[fi].u;cinfo=cinfo===key?null:key;crender();return}
  if(d.cell!=null){const c=+d.cell,x=S.cells[c];if(csel!=null){if(cplay(csel,{cell:c}))return;csay(cwhy(S.hand[csel],{cell:c}),1);tone(140,.12,'square',.04);return}
   const cr=e.target.closest('.cr');if(cr){const key='u'+cr.dataset.u;cinfo=cinfo===key?null:key;crender()}else if(x.cs.length){const key='u'+x.cs[0].u;cinfo=cinfo===key?null:key;crender()}return}});
-cstart(cLv);
+applyLand();cstart(cLv);
 try{if(localStorage.getItem('reefMode')==='td')$('mB').click()}catch(e){}
 </script>
 </body></html>

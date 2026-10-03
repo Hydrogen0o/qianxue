@@ -548,15 +548,47 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.sp .sw,.cell.tgt{animation:none}}
 @media (prefers-reduced-motion:reduce){.tgt,.home.warn,.table.shake{animation:none}}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
+
+/* ===== 横版牌局 ===== */
+html.land,html.land body{height:100%;overflow:hidden}
+html.land #stage{position:fixed;left:var(--L,0);top:var(--T,0);width:var(--W,100vw);height:var(--H,100vh);overflow:hidden}
+html.land.rot #stage{left:0;top:0;transform-origin:0 0;transform:rotate(90deg) translateY(-100%)}
+html.land #app{max-width:none;height:100%;min-height:0;padding:6px 8px 0 max(8px,env(safe-area-inset-left,0px));display:block;position:relative;box-sizing:border-box}
+html.land #mCG{display:flex;flex-direction:row;gap:8px;height:100%}
+html.land .lmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+html.land #cScene{flex:1;min-height:0;margin:0;display:flex;flex-direction:column}
+html.land #cScene .zone{height:auto;flex:1}html.land #cScene .z-reef{flex:1.45}
+html.land #cHand{flex:none;height:92px;min-height:0;padding:4px 8px 0;justify-content:center;gap:5px}
+html.land .chand .cc{flex:0 0 62px;max-width:62px;height:84px;transform:none}
+html.land .chand .cc .art{height:34px}
+html.land .chand .cc+.cc{margin-left:0}
+html.land .chand .cc.sel{transform:translateY(-10px) scale(1.08)}
+html.land .lside{flex:0 0 138px;display:flex;flex-direction:column;gap:6px;padding:62px 0 8px;min-height:0;box-sizing:border-box}
+html.land .modes{position:absolute;right:8px;top:6px;width:138px;z-index:5;flex-wrap:wrap;gap:5px;justify-content:space-between}
+html.land .modes span{margin-left:0;width:100%}html.land .modes .lvb{display:block;width:100%;text-align:center}
+html.land .ctext{flex:1;min-height:0;overflow:auto;font-size:12px;line-height:1.4}
+html.land .ctext b{display:block;font-size:14px}
+html.land .coach{font-size:13px;border-radius:12px;padding:6px 10px;line-height:1.35}
+html.land .hbar{flex-wrap:wrap;gap:6px;margin:0}
+html.land .foot{flex-direction:column;gap:6px}
+html.land #mCG .foot .icb.drawb{flex:none;padding:8px 4px}
+html.land #mCG .foot .pri{flex:none;padding:14px 4px;font-size:16px}
+html.land .ctoast{position:absolute;top:10px;max-width:60%}
+html.land .sheet{max-width:560px}
+html.land .slot .cor{top:auto;bottom:3px;left:8%;right:8%}
+html.land .slot .cor.l1{top:auto;height:42%;left:22%;right:22%}html.land .slot .cor.l2{top:auto;height:64%;left:10%;right:10%}html.land .slot .cor.l3{top:auto;height:88%;left:-4%;right:-4%}
+html.land .slot .cor.side{top:auto;height:30%;left:30%;right:30%}
+html.land #cScene .foe{width:64px;height:64px;margin-top:-36px}
+html.rot .pop,html.rot .bt{rotate:90deg}
 </style>
+<div id="stage">
 <div id="app">
  <div class="modes"><div class="seg"><button id="mA" class="on">牌局</button><button id="mB">守礁</button></div><span id="mInfo"></span></div>
  <div id="mCG" class="mode">
-  <div class="scene3" id="cScene"></div>
-  <div class="ctext" id="cText"></div>
-  <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="piles"><span class="pile" aria-label="牌库"><i id="cDeck">0</i></span><span class="pile dis" aria-label="弃牌"><i id="cDisP">0</i></span></span></div>
-  <div class="chand" id="cHand"></div>
-  <div class="foot"><button id="cUndo" aria-label="撤销" class="icb"></button><button id="cDis" aria-label="花 1 点能量抽 2 张牌" class="icb drawb"></button><button class="pri" id="cEnd">结束回合</button></div>
+  <div class="lmain"><div class="scene3" id="cScene"></div><div class="chand" id="cHand"></div></div>
+  <div class="lside"><div class="ctext" id="cText"></div>
+   <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="piles"><span class="pile" aria-label="牌库"><i id="cDeck">0</i></span><span class="pile dis" aria-label="弃牌"><i id="cDisP">0</i></span></span></div>
+   <div class="foot"><button id="cUndo" aria-label="撤销" class="icb"></button><button id="cDis" aria-label="花 1 点能量抽 2 张牌" class="icb drawb"></button><button class="pri" id="cEnd">结束回合</button></div></div>
  </div>
  <div id="mTD" class="mode" hidden>
  <div class="hud"><div class="en" id="enBox"><i></i><b id="en">0</b></div><div class="prog"><i id="pg"></i><s id="pgf"></s></div><span class="lv" id="lv"></span><button class="sm" id="bPrev" aria-label="上一关">‹</button><button class="sm" id="bNext" aria-label="下一关">›</button><button class="sm" id="bSnd" aria-label="声音">声</button></div>
@@ -566,6 +598,7 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
  </div>
 </div>
 <div class="ov" id="ov" hidden></div>
+</div>
 <script>/*ART*/</script>
 <script>/*CORE*/</script>
 <script>/*CG*/</script>
