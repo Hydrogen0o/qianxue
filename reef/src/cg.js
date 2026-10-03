@@ -71,6 +71,10 @@ function cgPlay(S,i,l,c){const k=S.hand[i];if(S.over||!k)return false;const d=CD
  else if(d.fx==='flow'){const us=[];for(let q=0;q<L.front;q++)if(L.cells[q].c){us.push(L.cells[q].c);L.cells[q].c=null}us.reverse().forEach((u,n)=>{L.cells[L.front-1-n].c=u})}
  else x.c={id:k.id,u:k.u,hp:d.h};
  S.energy-=d.e;S.hand.splice(i,1);if(d.terr||d.fx)S.dis.push(k);return true}
+/* 花 1 点能量让场上的生物游到另一格；目标格有生物就互换位置 */
+const MOVECOST=1;
+function cgCanMove(S,l,c,l2,c2){const A=S.lanes[l],B=S.lanes[l2];if(S.over||!A||!B||S.energy<MOVECOST||(l===l2&&c===c2)||c>=A.front||c2>=B.front)return false;const k=A.cells[c].c,o=B.cells[c2].c;if(!k||!laneOk(CD[k.id],l2))return false;return !o||laneOk(CD[o.id],l)}
+function cgMove(S,l,c,l2,c2){if(!cgCanMove(S,l,c,l2,c2))return false;const a=S.lanes[l].cells[c],b=S.lanes[l2].cells[c2],t=a.c;a.c=b.c;b.c=t;S.energy-=MOVECOST;return true}
 function cgEnd(S){if(S.over)return null;const cf=LV[S.lv],sc=cgScore(S),ev={sc,lanes:[]};
  S.lanes.forEach((L,l)=>{const r=sc[l],e={move:0,hit:null,dead:[],heal:[],wither:[]};ev.lanes.push(e);if(r.done)return;
   if(r.win){L.front++;L.P+=cf.up;e.move=1}else{if(r.front){r.front.k.hp-=r.short;e.hit=[r.front.col,r.short];if(r.front.k.hp<=0){L.cells[r.front.col].c=null;S.dis.push({id:r.front.k.id,u:r.front.k.u});e.dead.push(r.front.col)}}
@@ -81,5 +85,5 @@ function cgEnd(S){if(S.over)return null;const cf=LV[S.lv],sc=cgScore(S),ev={sc,l
  if(S.lanes.some(L=>L.front<=0)){S.over='lose';return ev}
  if(S.lanes.every(L=>L.front>=NC)){S.over='win';return ev}
  if(S.turn>=cf.turns){S.over='lose';ev.timeout=1;return ev}cgTurn(S);return ev}
-const CG={NC,CD,LANEN,LTYPE,laneOk,cgInit,cgStage,cgTargets,cgCan,cgLane,cgScore,cgPlay,cgDrawAct,cgEnd,cgEnergy,getLV:()=>LV};
+const CG={NC,CD,LANEN,LTYPE,laneOk,cgInit,cgStage,cgTargets,cgCan,cgLane,cgScore,cgPlay,cgDrawAct,cgMove,cgCanMove,cgEnd,cgEnergy,getLV:()=>LV};
 if(typeof module!=='undefined')module.exports=CG;

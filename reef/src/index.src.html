@@ -433,6 +433,10 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .den{position:absolute;left:6px;bottom:4px;display:flex;gap:3px;z-index:8}
 .den i{width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6c8,#ffc93c 60%)}
 .demo.ln-1::after{height:12px}
+
+.sghost{position:fixed;left:0;top:0;width:48px;height:48px;z-index:60;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))}
+.sghost svg{width:100%;height:100%}
+#cScene .sp{touch-action:none}
 @media (prefers-reduced-motion:reduce){.sp .sw,.cell.tgt{animation:none}}
 @media (prefers-reduced-motion:reduce){.tgt,.home.warn,.table.shake{animation:none}}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
