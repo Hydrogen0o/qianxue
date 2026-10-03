@@ -6,7 +6,8 @@
    · 生态循环：一条道上有 3 种以上不同的生物一起结算，总数最后 ×2。
    · 你的回合：花能量放牌 / 抽牌（1 点抽 2 张）。有些牌放下时立刻有效果。
    · 结束回合：有污染源、也有生物的道就结算——从左到右每条鱼把自己的净化加进去（有的会翻倍、有的让左边的鱼再算一次），总数一击打在污染源上。
-   · 污染源每回合往前推一格，盖到珊瑚珊瑚就死；有生物挡着就打那一格里的每一个，打空了就顺势压上来；推到头撞礁心。 */
+   · 开局时每一层的污染已经盖住右边一半。污染源不是每回合都推进：歇、放毒气、推进轮着来（三回合推一次）。
+   · 污染源往前推一格，盖到珊瑚珊瑚就死；有生物挡着就打那一格里的每一个，打空了就顺势压上来；推到头撞礁心。 */
 const AMAX=6,RNG=99,NL=3,NC=5,NS=NL*NC,ENERGY=3,HAND0=4,HANDMAX=7,DRAWCOST=1,DRAWN=2,CAPS=[1,2,3,3];
 const ZN=['上层','中层','下层'],TN={water:'开阔水域',reef:'礁石',sand:'沙地'};
 /* a 净化 h 血；home 珊瑚鱼（在珊瑚里 +hb、每回合回 1 血，不在珊瑚里每回合掉 1 血）；school 左边每有一条同类 +1；
@@ -33,18 +34,19 @@ const CD={
  zoox:{n:'虫黄藻',e:1,fx:'zoox',art:'',lg:'选一格海葵或珊瑚，让它变茂盛：这一格里的每条鱼净化 +1，每回合回 2 血。',fact:'珊瑚和海葵体内都住着虫黄藻，它们晒太阳制造养分，珊瑚九成的能量来自它们。'},
  cleanup:{n:'净滩',e:1,fx:'cleanup',art:'',lg:'选一个污染源，直接清掉它 4 点。',fact:'人把垃圾和渔网清走，礁才有机会自己恢复。'}};
 /* 污染源。plan 轮流：adv=往前推（有生物挡着就打它，到头就打礁心）；net=缠住本道最强的生物；eat=把本道最靠前的珊瑚啃掉一级 */
+const START=3;
 const FOE={
- algae:{n:'藻团',h:8,atk:2,plan:['adv'],lg:'每回合往前推一格，盖住的海葵和珊瑚会死。有生物挡着就打那一格里的每一个，打空了就顺势压上来；推到头就撞上礁心，礁心掉血，它也散掉。'},
- net:{n:'幽灵渔网',h:8,atk:2,plan:['net','adv'],lg:'一回合缠住这条道上最强的生物（它下回合动不了），一回合往前推。'},
- cots:{n:'长棘海星',h:12,atk:3,plan:['eat','adv'],lg:'只在礁石上。一回合把最靠前的珊瑚啃掉一级，一回合往前推。'}};
+ algae:{n:'藻团',h:8,atk:2,plan:['rest','gas','adv'],lg:'三回合一个循环：歇一回合；放一回合毒气（它面前两片区域里的生物各掉 1 血）；再往前推一片，盖住的海葵和珊瑚会死。推的时候有生物挡着就打那一片里的每一个，打空了顺势压上来；推到头就撞上礁心。'},
+ net:{n:'幽灵渔网',h:8,atk:2,plan:['net','rest','adv'],lg:'三回合一个循环：缠住这一层最强的生物（它下回合不结算）；歇一回合；往前推一片。'},
+ cots:{n:'长棘海星',h:12,atk:3,plan:['eat','gas','adv'],lg:'三回合一个循环：把最靠前的珊瑚啃掉一级；放毒气；往前推一片。'}};
 /* waves：[第几回合出现, 哪种, 哪条道, 血量] */
 /* waves：[第几回合出现, 哪种, 哪条道, 血量, 厚度]；厚度=每次结算的那一击先被挡掉这么多；第 6 项可以单独给攻击力；hand 开局手牌；top 牌堆顶（按抽到的先后） */
 let LV=[
  {n:'浅礁',heart:10,hand:['anem','clown'],top:['clown','anem','urchin','eel','clown','cucumber','parrot','fusilier','eel','fusilier','anem','clown'],deck:{anem:4,clown:6,urchin:3,parrot:2,eel:3,cucumber:2,fusilier:4,upwelling:1},
-  waves:[[1,'algae',2,4],[2,'algae',2,11],[4,'algae',1,6],[5,'algae',2,20,2],[6,'algae',0,5],[7,'algae',1,10],[8,'algae',2,34,4,3],[9,'algae',0,8],[10,'algae',1,14,1],[11,'algae',2,66,6,3],[12,'algae',0,11]],fresh:['anem','clown','urchin','eel','cucumber','parrot','fusilier','upwelling'],foes:['algae']},
+  waves:[[1,'algae',2,4],[2,'algae',2,11],[4,'algae',1,8],[5,'algae',2,26,2],[6,'algae',0,6],[7,'algae',1,13],[8,'algae',2,44,4,3],[9,'algae',0,10],[10,'algae',1,18,1],[11,'algae',2,86,6,3],[12,'algae',0,14]],fresh:['anem','clown','urchin','eel','cucumber','parrot','fusilier','upwelling'],foes:['algae']},
  {n:'幽灵渔网',heart:12,hand:['anem','clown','urchin','eel'],deck:{anem:4,clown:5,urchin:3,parrot:2,eel:4,cucumber:2,fusilier:4,seagrass:2,sargassum:2,jack:2,upwelling:2,plankton:2,turtle:1},
-  waves:[[1,'algae',2,16,2],[2,'algae',1,13],[3,'net',0,10],[4,'algae',2,22,3],[5,'algae',1,16],[6,'net',0,13],[7,'algae',2,29,5],[8,'algae',1,21,1],[9,'net',0,16,1],[10,'algae',2,37,7],[11,'algae',1,22,1],[12,'net',0,18,1]],fresh:['seagrass','sargassum','upwelling','jack','plankton','turtle'],foes:['net']},
- {n:'长棘海星',heart:12,hand:['anem','clown','urchin','eel'],deck:{anem:3,clown:4,urchin:3,parrot:1,coral:3,butterfly:3,cleaner:1,eel:3,cucumber:2,seagrass:2,fusilier:4,sargassum:2,manta:1,turtle:2,upwelling:2,plankton:2},waves:[[1,'algae',2,24,2],[2,'net',0,19],[3,'algae',1,19],[4,'cots',2,34,4],[5,'net',0,24],[6,'algae',1,24],[7,'algae',2,41,6],[8,'net',0,29,1],[9,'algae',1,29,1],[10,'cots',2,53,8],[11,'net',0,34,1],[12,'algae',1,34,1]],fresh:['coral','butterfly','cleaner','manta'],foes:['net','cots']}];
+  waves:[[1,'algae',2,30,2],[2,'algae',1,25],[3,'net',0,19],[4,'algae',2,42,3],[5,'algae',1,30],[6,'net',0,25],[7,'algae',2,55,5],[8,'algae',1,40,1],[9,'net',0,30,1],[10,'algae',2,70,7],[11,'algae',1,42,1],[12,'net',0,34,1]],fresh:['seagrass','sargassum','upwelling','jack','plankton','turtle'],foes:['net']},
+ {n:'长棘海星',heart:12,hand:['anem','clown','urchin','eel'],deck:{anem:3,clown:4,urchin:3,parrot:1,coral:3,butterfly:3,cleaner:1,eel:3,cucumber:2,seagrass:2,fusilier:4,sargassum:2,manta:1,turtle:2,upwelling:2,plankton:2},waves:[[1,'algae',2,55,2],[2,'net',0,44],[3,'algae',1,44],[4,'cots',2,78,4],[5,'net',0,55],[6,'algae',1,55],[7,'algae',2,94,6],[8,'net',0,67,1],[9,'algae',1,67,1],[10,'cots',2,122,8],[11,'net',0,78,1],[12,'algae',1,78,1]],fresh:['coral','butterfly','cleaner','manta'],foes:['net','cots']}];
 const POOL=['parrot','butterfly','turtle','zoox','cleanup','plankton','cleaner','chromis','coral','jack','urchin','clown','anem','seagrass','sargassum','upwelling','manta'];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const mkc=id=>({id,u:++CUID});
@@ -75,7 +77,8 @@ const room=(S,c,id)=>Math.max(0,Math.min(limitOf(S,c,id)-countOf(S,c,id),AMAX-S.
 function cgInit(lv,extra){const S={lv:lv||0,extra:extra||[]};cgStage(S);return S}
 function cgStage(S){const L=LV[S.lv];S.turn=1;S.over=null;S.heart=S.heartMax=L.heart;S.energy=ENERGY;S.bonus=0;S.auto=false;S.cells=Array.from({length:NS},()=>({coral:0,kind:null,lush:false,cs:[]}));S.total=L.waves.length;S.done=0;S.foes=[];S.queue=L.waves.map(w=>({t:w[0],id:w[1],lane:w[2],h:w[3]||FOE[w[1]].h,arm:w[4]||0,atk:w[5]||FOE[w[1]].atk}));S.drops=[];S.pfx=null;S.gift=0;S.moves=1;
  const d=[];for(const k in L.deck)for(let i=0;i<L.deck[k];i++)d.push(mkc(k));S.extra.forEach(k=>d.push(mkc(k)));S.deck=cshuf(d);S.hand=[];S.dis=[];
- const take=id=>{const i=S.deck.findIndex(k=>k.id===id);return i>=0?S.deck.splice(i,1)[0]:null};(L.hand||[]).forEach(id=>{const k=take(id);if(k)S.hand.push(k)});const top=(L.top||[]).map(take).filter(Boolean);S.deck.push(...top.reverse());cgSpawn(S)}
+ const take=id=>{const i=S.deck.findIndex(k=>k.id===id);return i>=0?S.deck.splice(i,1)[0]:null};(L.hand||[]).forEach(id=>{const k=take(id);if(k)S.hand.push(k)});const top=(L.top||[]).map(take).filter(Boolean);S.deck.push(...top.reverse());
+ for(let l=0;l<NL;l++){const i=S.queue.findIndex(q=>q.lane===l);if(i<0)continue;const q=S.queue.splice(i,1)[0];S.foes.push({id:q.id,u:++CUID,hp:q.h,max:q.h,atk:q.atk,arm:q.arm,n:1,step:0,lane:l,p:START})}cgSpawn(S)}
 function cgDraw(S,n){for(let i=0;i<n;i++){if(S.hand.length>=HANDMAX)return;if(!S.deck.length){if(!S.dis.length)return;S.deck=cshuf(S.dis);S.dis=[]}S.hand.push(S.deck.pop())}}
 function cgSpawn(S){const out=[];for(let i=0;i<S.queue.length;i++){const q=S.queue[i];if(q.t>S.turn)continue;const o=foeIn(S,q.lane);if(o){o.hp+=q.h;o.max=Math.max(o.max,o.hp);o.atk=Math.max(o.atk,q.atk)+1;o.n++;o.arm=Math.max(o.arm,q.arm);out.push({u:o.u,grow:q.h})}else{const f={id:q.id,u:++CUID,hp:q.h,max:q.h,atk:q.atk,arm:q.arm,n:1,step:0,lane:q.lane,p:NC};S.foes.push(f);out.push({u:f.u})}S.queue.splice(i,1);i--}return out}
 const nextIn=(S,l)=>{const q=S.queue.find(q=>q.lane===l);return q?{id:q.id,n:Math.max(1,q.t-S.turn),h:q.h,arm:q.arm}:null};
@@ -85,8 +88,10 @@ const inReach=(S,l)=>{const f=foeIn(S,l),fc=frontCell(S,l);return !!f&&fc>=0&&f.
 function valOf(S,c,k){const d=CD[k.id],x=S.cells[c];if(d.clean)return 0;let n=0;if(d.school){const l=laneOf(c);outer:for(let col=0;col<NC;col++)for(const o of S.cells[ci(l,col)].cs){if(o===k)break outer;if(o.id===k.id)n++}}return d.a+(d.home&&inHome(S,c,d.home)?d.hb:0)+(x.lush?1:0)+n}
 /* 污染源这回合实际要做什么：['move'] ['atk',n,cell] ['heart',n] ['net',cell,u] ['eat',cell] */
 function intent(S,f){const F=FOE[f.id],k=F.plan[f.step%F.plan.length],l=f.lane;
- if(k==='net'){let b=null,bv=-1,bc=-1;for(let col=0;col<NC;col++){const c=ci(l,col);for(const o of S.cells[c].cs)if(!o.net&&S.cells[c].kind!=='sargassum'){const v=valOf(S,c,o);if(v>bv){bv=v;b=o;bc=c}}}if(b)return ['net',bc,b.u]}
- if(k==='eat'){for(let col=Math.min(NC,f.p)-1;col>=0;col--)if(S.cells[ci(l,col)].coral>0&&S.cells[ci(l,col)].kind==='coral')return ['eat',ci(l,col)]}
+ if(k==='net'){let b=null,bv=-1,bc=-1;for(let col=0;col<NC;col++){const c=ci(l,col);for(const o of S.cells[c].cs)if(!o.net&&S.cells[c].kind!=='sargassum'){const v=valOf(S,c,o);if(v>bv){bv=v;b=o;bc=c}}}return b?['net',bc,b.u]:['rest']}
+ if(k==='eat'){for(let col=Math.min(NC,f.p)-1;col>=0;col--)if(S.cells[ci(l,col)].coral>0&&S.cells[ci(l,col)].kind==='coral')return ['eat',ci(l,col)];return ['rest']}
+ if(k==='gas'){const cs=[f.p-1,f.p-2].filter(q=>q>=0&&q<NC).map(q=>ci(l,q)).filter(c=>S.cells[c].cs.length);return cs.length?['gas',1,cs]:['rest']}
+ if(k==='rest')return ['rest'];
  if(f.p===0)return ['heart',f.atk+2];const c=ci(l,f.p-1);return S.cells[c].cs.length?['atk',f.atk,c]:['move']}
 /* 一条道的结算（不改局面）：从左到右，每条鱼一步。返回 {steps:[{u,cell,op:'+'|'x'|'net'|'re',v,tot}],tot} */
 function calcLane(S,l){const f=foeIn(S,l),steps=[],seen={};let tot=0,last=null;
@@ -152,6 +157,8 @@ function cgEnd(S){if(S.over)return null;const ev=[],kill=(c,k)=>{const x=S.cells
   else if(it[0]==='atk'){const c=it[2],x=S.cells[c],e={t:'atk',u:f.u,cell:c,dmg:it[1],hits:[]};
    for(const k of x.cs.slice()){k.hp-=it[1];e.hits.push({ku:k.u,dead:k.hp<=0});if(CD[k.id].thorn&&!e.fdead){f.hp-=CD[k.id].thorn;e.thorn=(e.thorn||0)+CD[k.id].thorn;if(f.hp<=0){gone(S,f);e.fdead=1}}if(k.hp<=0)kill(c,k)}
    if(!e.fdead&&!x.cs.length){f.p--;e.adv=1;e.bleach=x.coral>0;back(S,x,x.coral);x.coral=0;x.kind=null;x.lush=false}ev.push(e);if(e.adv)fixCap(S,ev)}
+  else if(it[0]==='gas'){const e={t:'gas',u:f.u,dmg:it[1],hits:[]};for(const c of it[2])for(const k of S.cells[c].cs.slice()){k.hp-=it[1];e.hits.push({ku:k.u,dead:k.hp<=0});if(k.hp<=0)kill(c,k)}ev.push(e)}
+  else if(it[0]==='rest')ev.push({t:'rest',u:f.u});
   else if(it[0]==='net'){const k=S.cells[it[1]].cs.find(o=>o.u===it[2]);k.net=true;k.netNew=true;ev.push({t:'net',u:f.u,cell:it[1],ku:k.u})}
   else if(it[0]==='eat'){const x=S.cells[it[1]];back(S,x,1);x.coral--;if(!x.coral){x.lush=false;x.kind=null}ev.push({t:'eat',u:f.u,cell:it[1],left:x.coral});fixCap(S,ev)}
   if(S.heart<=0){S.heart=0;S.over='lose';return ev}}
