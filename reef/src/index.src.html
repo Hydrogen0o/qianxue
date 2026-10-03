@@ -563,9 +563,9 @@ html.land .chand .cc{flex:0 0 62px;max-width:62px;height:84px;transform:none}
 html.land .chand .cc .art{height:34px}
 html.land .chand .cc+.cc{margin-left:0}
 html.land .chand .cc.sel{transform:translateY(-10px) scale(1.08)}
-html.land .lside{flex:0 0 138px;display:flex;flex-direction:column;gap:6px;padding:62px 0 8px;min-height:0;box-sizing:border-box}
+html.land .lside{flex:0 0 138px;display:flex;flex-direction:column;gap:6px;padding:84px 0 8px;min-height:0;box-sizing:border-box}
 html.land .modes{position:absolute;right:8px;top:6px;width:138px;z-index:5;flex-wrap:wrap;gap:5px;justify-content:space-between}
-html.land .modes span{margin-left:0;width:100%}html.land .modes .lvb{display:block;width:100%;text-align:center}
+html.land .modes>span{margin-left:0;width:100%}html.land .modes .lvb{display:block;width:100%;text-align:center}
 html.land .ctext{flex:1;min-height:0;overflow:auto;font-size:12px;line-height:1.4}
 html.land .ctext b{display:block;font-size:14px}
 html.land .coach{font-size:13px;border-radius:12px;padding:6px 10px;line-height:1.35}
@@ -580,6 +580,33 @@ html.land .slot .cor.l1{top:auto;height:42%;left:22%;right:22%}html.land .slot .
 html.land .slot .cor.side{top:auto;height:30%;left:30%;right:30%}
 html.land #cScene .foe{width:64px;height:64px;margin-top:-36px}
 html.rot .pop,html.rot .bt{rotate:90deg}
+
+/* ===== 画面引导、进度、结算锁定 ===== */
+.chand .cc.hintc{animation:hfloat 1.5s ease-in-out infinite;border-color:var(--sun);box-shadow:0 0 0 2px var(--sun),0 6px 14px rgba(0,0,0,.5);z-index:3}
+@keyframes hfloat{50%{translate:0 -7px}}
+.slot.hintt{border:2.5px dashed var(--sun);background:rgba(255,201,60,.14);animation:hpulse 1.2s ease-in-out infinite}
+@keyframes hpulse{50%{background:rgba(255,201,60,.3);box-shadow:0 0 14px rgba(255,201,60,.55)}}
+.cc.nudge,.slot.nudge{animation:nudge .32s 2}
+.hintb{animation:rdy .9s infinite alternate;box-shadow:0 0 0 2px var(--sun)}
+.dghost{position:fixed;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;z-index:70;pointer-events:none;border-radius:10px;background:rgba(255,255,255,.9);box-shadow:0 0 0 2px var(--sun),0 6px 14px rgba(0,0,0,.4);overflow:hidden}
+.dghost svg{width:100%;height:100%}
+html.rot .dghost{rotate:90deg}
+.cc .nw{position:absolute;left:50%;top:-1px;width:26px;height:6px;margin-left:-13px;border-radius:0 0 6px 6px;background:#ff7a59;z-index:3}
+.slot .cor.hug{animation:hug .5s}@keyframes hug{40%{scale:1.25;filter:brightness(1.4)}}
+.slot .cor.k-anem{filter:saturate(1.15)}
+.cr.threat::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid #ff5a5a;animation:wn .6s infinite alternate;pointer-events:none}
+.prog2{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:5px}
+.prog2 i{width:13px;height:13px;border-radius:50% 46% 52% 44%;border:2px solid #8fa33a;box-sizing:border-box}
+.prog2 i.a{background:#8fa33a;box-shadow:0 0 6px #c5d95a;animation:wn .8s infinite alternate}
+.prog2 i.d{background:#5fe3d0;border-color:#5fe3d0;opacity:.9}
+.foe .hpb.pend{animation:hpend .2s}@keyframes hpend{50%{filter:brightness(2)}}
+.foe .hpb i{transition:width .15s}
+html.busy #cHand{opacity:.4;filter:saturate(.4);pointer-events:none}
+html.busy .foot button{opacity:.35;pointer-events:none;animation:none;box-shadow:none}
+html.busy .ctext{visibility:hidden}
+html.busy .slot.tgt,html.busy .slot.hintt{animation:none;border:1.5px dashed rgba(255,255,255,.16);background:none}
+@media (prefers-reduced-motion:reduce){.chand .cc.hintc,.slot.hintt,.hintb,.prog2 i.a{animation:none}}
+.modes .prog2{margin:5px 0 0}
 </style>
 <div id="stage">
 <div id="app">

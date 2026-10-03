@@ -563,9 +563,9 @@ html.land .chand .cc{flex:0 0 62px;max-width:62px;height:84px;transform:none}
 html.land .chand .cc .art{height:34px}
 html.land .chand .cc+.cc{margin-left:0}
 html.land .chand .cc.sel{transform:translateY(-10px) scale(1.08)}
-html.land .lside{flex:0 0 138px;display:flex;flex-direction:column;gap:6px;padding:62px 0 8px;min-height:0;box-sizing:border-box}
+html.land .lside{flex:0 0 138px;display:flex;flex-direction:column;gap:6px;padding:84px 0 8px;min-height:0;box-sizing:border-box}
 html.land .modes{position:absolute;right:8px;top:6px;width:138px;z-index:5;flex-wrap:wrap;gap:5px;justify-content:space-between}
-html.land .modes span{margin-left:0;width:100%}html.land .modes .lvb{display:block;width:100%;text-align:center}
+html.land .modes>span{margin-left:0;width:100%}html.land .modes .lvb{display:block;width:100%;text-align:center}
 html.land .ctext{flex:1;min-height:0;overflow:auto;font-size:12px;line-height:1.4}
 html.land .ctext b{display:block;font-size:14px}
 html.land .coach{font-size:13px;border-radius:12px;padding:6px 10px;line-height:1.35}
@@ -580,6 +580,33 @@ html.land .slot .cor.l1{top:auto;height:42%;left:22%;right:22%}html.land .slot .
 html.land .slot .cor.side{top:auto;height:30%;left:30%;right:30%}
 html.land #cScene .foe{width:64px;height:64px;margin-top:-36px}
 html.rot .pop,html.rot .bt{rotate:90deg}
+
+/* ===== 画面引导、进度、结算锁定 ===== */
+.chand .cc.hintc{animation:hfloat 1.5s ease-in-out infinite;border-color:var(--sun);box-shadow:0 0 0 2px var(--sun),0 6px 14px rgba(0,0,0,.5);z-index:3}
+@keyframes hfloat{50%{translate:0 -7px}}
+.slot.hintt{border:2.5px dashed var(--sun);background:rgba(255,201,60,.14);animation:hpulse 1.2s ease-in-out infinite}
+@keyframes hpulse{50%{background:rgba(255,201,60,.3);box-shadow:0 0 14px rgba(255,201,60,.55)}}
+.cc.nudge,.slot.nudge{animation:nudge .32s 2}
+.hintb{animation:rdy .9s infinite alternate;box-shadow:0 0 0 2px var(--sun)}
+.dghost{position:fixed;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;z-index:70;pointer-events:none;border-radius:10px;background:rgba(255,255,255,.9);box-shadow:0 0 0 2px var(--sun),0 6px 14px rgba(0,0,0,.4);overflow:hidden}
+.dghost svg{width:100%;height:100%}
+html.rot .dghost{rotate:90deg}
+.cc .nw{position:absolute;left:50%;top:-1px;width:26px;height:6px;margin-left:-13px;border-radius:0 0 6px 6px;background:#ff7a59;z-index:3}
+.slot .cor.hug{animation:hug .5s}@keyframes hug{40%{scale:1.25;filter:brightness(1.4)}}
+.slot .cor.k-anem{filter:saturate(1.15)}
+.cr.threat::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid #ff5a5a;animation:wn .6s infinite alternate;pointer-events:none}
+.prog2{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:5px}
+.prog2 i{width:13px;height:13px;border-radius:50% 46% 52% 44%;border:2px solid #8fa33a;box-sizing:border-box}
+.prog2 i.a{background:#8fa33a;box-shadow:0 0 6px #c5d95a;animation:wn .8s infinite alternate}
+.prog2 i.d{background:#5fe3d0;border-color:#5fe3d0;opacity:.9}
+.foe .hpb.pend{animation:hpend .2s}@keyframes hpend{50%{filter:brightness(2)}}
+.foe .hpb i{transition:width .15s}
+html.busy #cHand{opacity:.4;filter:saturate(.4);pointer-events:none}
+html.busy .foot button{opacity:.35;pointer-events:none;animation:none;box-shadow:none}
+html.busy .ctext{visibility:hidden}
+html.busy .slot.tgt,html.busy .slot.hintt{animation:none;border:1.5px dashed rgba(255,255,255,.16);background:none}
+@media (prefers-reduced-motion:reduce){.chand .cc.hintc,.slot.hintt,.hintb,.prog2 i.a{animation:none}}
+.modes .prog2{margin:5px 0 0}
 </style>
 <div id="stage">
 <div id="app">
@@ -810,60 +837,63 @@ const ZN=['开阔水域','礁石','沙地'];
 /* a 净化 h 血；home 珊瑚鱼（在珊瑚里 +hb、每回合回 1 血，不在珊瑚里每回合掉 1 血）；school 左边每有一条同类 +1；
    play 放下时的效果；pair 成对翻倍；algae 对藻团翻倍；clean 让左边的鱼再算一次；push 撞退；thorn 反刺 */
 const CD={
- coral:{n:'珊瑚',e:1,terr:1,z:[1],art:'coral',lg:'只能长在礁石上，同一格可以叠到 3 级。1 级住 2 条鱼，2 级住 3 条；3 级时左右两格也算在珊瑚里、能住 2 条。',fact:'珊瑚幼体要附着在坚硬的礁石上才能生长，所以沙地和开阔水域里没有珊瑚。珊瑚丛越大，能藏身的鱼越多。'},
- clown:{n:'小丑鱼',e:1,a:2,h:3,home:1,hb:2,z:[1],art:'clown',lg:'住在礁石上。待在珊瑚里净化 +2、每回合回 1 血；不在珊瑚里每回合掉 1 血。',fact:'小丑鱼离不开礁上的海葵和珊瑚：那里是它的家，也是它躲避天敌的地方。'},
+ anem:{n:'海葵',e:1,terr:'anem',z:[1],art:'anemone',lg:'只能长在礁石上，是小丑鱼的家。同一格可以叠到 3 级：1 级住 2 条，2 级住 3 条；3 级时左右两格也算家、能住 2 条。',fact:'海葵用带刺细胞的触手捕食，小丑鱼身上有一层黏液不怕它，一家子就住在同一丛海葵里。'},
+ coral:{n:'珊瑚',e:1,terr:'coral',z:[1],art:'coral',lg:'只能长在礁石上，是光鳃鱼、蝴蝶鱼这些珊瑚鱼的家。同一格可以叠到 3 级，规则和海葵一样。',fact:'珊瑚幼体要附着在坚硬的礁石上才能生长，所以沙地和开阔水域里没有珊瑚。珊瑚丛越大，能藏身的鱼越多。'},
+ clown:{n:'小丑鱼',e:1,a:2,h:3,home:'anem',hb:2,z:[1],art:'clown',lg:'住在礁石上。待在海葵里净化 +2、每回合回 1 血；不在海葵里每回合掉 1 血。',fact:'小丑鱼一生都守着自己的海葵：海葵的毒触手替它挡天敌，它替海葵赶走啃触手的鱼。'},
  urchin:{n:'海胆',e:1,a:1,h:6,thorn:1,play:'graze',z:[1],art:'urchin',lg:'住在礁石上，血厚。放下时：啃藻，立刻清掉这条道污染源 2 点。污染源打它会被刺扎掉 1 血。',fact:'海胆夜里出来啃藻。海胆大量死亡的礁区，藻类很快就会盖过珊瑚。'},
- chromis:{n:'光鳃鱼',e:1,a:1,h:2,home:1,hb:1,school:1,z:[1],art:'chromis',lg:'住在礁石的珊瑚里。结算时，它左边每有一条光鳃鱼，净化 +1。',fact:'光鳃鱼成群悬在鹿角珊瑚上方，一有危险就整群缩回枝杈里。'},
- cleaner:{n:'裂唇鱼',e:2,a:0,h:2,home:1,hb:0,clean:1,z:[1],art:'cleaner',lg:'住在礁石的珊瑚里。结算时：给它左边那条鱼回 2 血、解开渔网，并让它再算一次。',fact:'裂唇鱼在固定的“清洁站”替别的鱼吃掉寄生虫，大鱼会排队等它。'},
- parrot:{n:'鹦嘴鱼',e:2,a:2,h:4,home:1,hb:1,algae:1,z:[1],art:'parrot',lg:'住在礁石上。结算时，如果污染源是藻团：把已经叠起来的净化 ×2。',fact:'鹦嘴鱼刮食礁石上的藻类，磨碎的石灰质排出来就是白沙。'},
- butterfly:{n:'蝴蝶鱼',e:2,a:2,h:3,home:1,hb:1,pair:1,z:[1],art:'butterfly',lg:'住在礁石的珊瑚里。结算时，如果它左边已经有一条蝴蝶鱼：把已经叠起来的净化 ×2。',fact:'很多蝴蝶鱼终生成对活动，一起巡视同一片珊瑚。珊瑚死了，它们也跟着消失。'},
+ chromis:{n:'光鳃鱼',e:1,a:1,h:2,home:'coral',hb:1,school:1,z:[1],art:'chromis',lg:'住在礁石的珊瑚里。结算时，它左边每有一条光鳃鱼，净化 +1。',fact:'光鳃鱼成群悬在鹿角珊瑚上方，一有危险就整群缩回枝杈里。'},
+ cleaner:{n:'裂唇鱼',e:2,a:0,h:2,home:'coral',hb:0,clean:1,z:[1],art:'cleaner',lg:'住在礁石的珊瑚里。结算时：给它左边那条鱼回 2 血、解开渔网，并让它再算一次。',fact:'裂唇鱼在固定的“清洁站”替别的鱼吃掉寄生虫，大鱼会排队等它。'},
+ parrot:{n:'鹦嘴鱼',e:2,a:2,h:4,home:'coral',hb:1,algae:1,z:[1],art:'parrot',lg:'住在礁石上。结算时，如果污染源是藻团：把已经叠起来的净化 ×2。',fact:'鹦嘴鱼刮食礁石上的藻类，磨碎的石灰质排出来就是白沙。'},
+ butterfly:{n:'蝴蝶鱼',e:2,a:2,h:3,home:'coral',hb:1,pair:1,z:[1],art:'butterfly',lg:'住在礁石的珊瑚里。结算时，如果它左边已经有一条蝴蝶鱼：把已经叠起来的净化 ×2。',fact:'很多蝴蝶鱼终生成对活动，一起巡视同一片珊瑚。珊瑚死了，它们也跟着消失。'},
  eel:{n:'花园鳗',e:1,a:1,h:3,school:1,z:[2],art:'gardeneel',lg:'只住在沙地。结算时，它左边每有一条花园鳗，净化 +1。',fact:'花园鳗成群把尾巴插在沙里，迎着水流吃漂来的浮游生物，一受惊就整片缩回洞里。'},
  cucumber:{n:'海参',e:1,a:1,h:7,play:'heart',z:[2],art:'cucumber',lg:'只住在沙地，血厚。放下时：把沙滤干净，礁心 +1。',fact:'海参一边爬一边吞沙，把沙里的有机碎屑消化掉，排出来的沙更干净。'},
  fusilier:{n:'乌尾鮗',e:1,a:1,h:3,school:1,z:[0],art:'fusilier',lg:'只在开阔水域。结算时，它左边每有一条乌尾鮗，净化 +1。',fact:'乌尾鮗成大群在礁外的水层里巡游，白天吃浮游生物，晚上才回礁石缝里睡觉。'},
  jack:{n:'鲹',e:2,a:3,h:4,play:'draw',z:[0],art:'jack',lg:'只在开阔水域，净化高。放下时：抽 1 张牌。',fact:'鲹是开阔水域里的快速猎手，常成群围着礁外的鱼群打转。'},
  turtle:{n:'绿海龟',e:3,a:2,h:9,push:1,play:'push',z:[0,1,2],art:'turtle',lg:'三条道都能去，血最厚。放下时和每次结算后：把这条道的污染源撞退一格。',fact:'绿海龟到水面换气，到礁石上休息，到海草床吃草，三处都能见到它。'},
  plankton:{n:'浮游生物',e:0,fx:'plankton',art:'',lg:'这回合多 2 点能量。这一关里用掉就没有了。',fact:'浮游生物是整片海的口粮。光鳃鱼、花园鳗、乌尾鮗，甚至鲸鲨，都靠滤食它们为生。'},
- zoox:{n:'虫黄藻',e:1,fx:'zoox',art:'',lg:'选一格珊瑚，让它变茂盛：这一格里的每条鱼净化 +1，每回合回 2 血。',fact:'珊瑚体内住着虫黄藻，它们晒太阳制造养分，珊瑚九成的能量来自它们。'},
+ zoox:{n:'虫黄藻',e:1,fx:'zoox',art:'',lg:'选一格海葵或珊瑚，让它变茂盛：这一格里的每条鱼净化 +1，每回合回 2 血。',fact:'珊瑚和海葵体内都住着虫黄藻，它们晒太阳制造养分，珊瑚九成的能量来自它们。'},
  cleanup:{n:'净滩',e:1,fx:'cleanup',art:'',lg:'选一个污染源，直接清掉它 4 点。',fact:'人把垃圾和渔网清走，礁才有机会自己恢复。'}};
 /* 污染源。plan 轮流：adv=往前推（有生物挡着就打它，到头就打礁心）；net=缠住本道最强的生物；eat=把本道最靠前的珊瑚啃掉一级 */
 const FOE={
- algae:{n:'藻团',h:8,atk:2,plan:['adv'],lg:'每回合往前推一格，盖住的珊瑚会死。有生物挡着就打那一格里血最多的，打空了就顺势压上来；推到头就撞上礁心，礁心掉血，它也散掉。'},
+ algae:{n:'藻团',h:8,atk:2,plan:['adv'],lg:'每回合往前推一格，盖住的海葵和珊瑚会死。有生物挡着就打那一格里血最多的，打空了就顺势压上来；推到头就撞上礁心，礁心掉血，它也散掉。'},
  net:{n:'幽灵渔网',h:8,atk:2,plan:['net','adv'],lg:'一回合缠住这条道上最强的生物（它下回合动不了），一回合往前推。'},
  cots:{n:'长棘海星',h:12,atk:3,plan:['eat','adv'],lg:'只在礁石上。一回合把最靠前的珊瑚啃掉一级，一回合往前推。'}};
 /* waves：[第几回合出现, 哪种, 哪条道, 血量] */
+/* waves：[第几回合出现, 哪种, 哪条道, 血量]；hand 开局手牌；top 牌堆顶（按抽到的先后） */
 let LV=[
- {n:'礁石',heart:10,deck:{coral:4,clown:5,urchin:3},waves:[[1,'algae',1,12],[3,'algae',1,20],[5,'algae',1,28],[7,'algae',1,36]],fresh:['coral','clown','urchin'],foes:['algae']},
- {n:'沙地',heart:10,deck:{coral:5,clown:4,urchin:3,butterfly:2,eel:4,cucumber:3,plankton:2},waves:[[1,'algae',1,10],[2,'algae',2,10],[4,'algae',1,16],[5,'algae',2,16],[7,'algae',1,22],[8,'algae',2,22],[10,'algae',1,28],[11,'algae',2,28]],fresh:['eel','cucumber','butterfly','plankton'],foes:[]},
- {n:'开阔水域',heart:12,deck:{coral:5,clown:3,urchin:3,butterfly:2,parrot:2,cleaner:1,eel:3,cucumber:2,fusilier:4,turtle:2,plankton:2},waves:[[1,'algae',1,10],[2,'net',0,10],[3,'algae',2,10],[4,'cots',1,16],[5,'net',0,16],[6,'algae',2,16],[7,'algae',1,22],[8,'net',0,22],[9,'algae',2,22],[10,'cots',1,28],[11,'net',0,28],[12,'algae',2,28]],fresh:['fusilier','turtle','parrot','cleaner'],foes:['net','cots']}];
-const POOL=['parrot','butterfly','turtle','zoox','cleanup','plankton','cleaner','chromis','jack','urchin','clown'];
+ {n:'礁石',heart:10,hand:['anem','clown'],top:['clown','anem','urchin','clown'],deck:{anem:4,clown:6,urchin:3},waves:[[1,'algae',1,4],[2,'algae',1,10],[4,'algae',1,18],[6,'algae',1,26],[8,'algae',1,34]],fresh:['anem','clown','urchin'],foes:['algae']},
+ {n:'沙地',heart:10,hand:['anem','clown','urchin','eel'],deck:{anem:4,clown:5,urchin:3,eel:4,cucumber:3,plankton:2},waves:[[1,'algae',1,10],[2,'algae',2,10],[4,'algae',1,16],[5,'algae',2,16],[7,'algae',1,22],[8,'algae',2,22],[10,'algae',1,28],[11,'algae',2,28]],fresh:['eel','cucumber','plankton'],foes:[]},
+ {n:'开阔水域',heart:12,hand:['anem','clown','urchin','fusilier'],deck:{anem:3,clown:4,urchin:3,coral:3,butterfly:3,eel:3,cucumber:2,fusilier:4,turtle:2,plankton:2},waves:[[1,'algae',1,10],[2,'net',0,10],[3,'algae',2,10],[4,'cots',1,16],[5,'net',0,16],[6,'algae',2,16],[7,'algae',1,22],[8,'net',0,22],[9,'algae',2,22],[10,'cots',1,28],[11,'net',0,28],[12,'algae',2,28]],fresh:['fusilier','turtle','coral','butterfly'],foes:['net','cots']}];
+const POOL=['parrot','butterfly','turtle','zoox','cleanup','plankton','cleaner','chromis','coral','jack','urchin','clown','anem'];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const mkc=id=>({id,u:++CUID});
 const laneOf=c=>Math.floor(c/NC),colOf=c=>c%NC,ci=(l,col)=>l*NC+col;
 const foeIn=(S,l)=>S.foes.find(f=>f.lane===l)||null;
 const polluted=(S,c)=>{const f=foeIn(S,laneOf(c));return !!f&&f.p<=colOf(c)};
 const nb=c=>[colOf(c)-1,colOf(c)+1].filter(q=>q>=0&&q<NC).map(q=>ci(laneOf(c),q));
-/* 这格算不算“在珊瑚里”：自己有珊瑚，或隔壁是 3 级珊瑚 */
-const inCoral=(S,c)=>laneOf(c)===1&&(S.cells[c].coral>0||nb(c).some(q=>S.cells[q].coral>=3));
+/* 这格算不算这种鱼的家（kind：'anem' 海葵 / 'coral' 珊瑚）：自己这格长着它，或自己空着而隔壁是 3 级的它 */
+const inHome=(S,c,kind)=>{const x=S.cells[c];return laneOf(c)===1&&(x.coral>0?x.kind===kind:nb(c).some(q=>S.cells[q].coral>=3&&S.cells[q].kind===kind))};
+const sideKind=(S,c)=>{const q=nb(c).find(q=>S.cells[q].coral>=3);return q==null?null:S.cells[q].kind};
 const capOf=(S,c)=>laneOf(c)!==1?1:Math.max(CAPS[S.cells[c].coral],nb(c).some(q=>S.cells[q].coral>=3)?2:1);
 function cgInit(lv,extra){const S={lv:lv||0,extra:extra||[]};cgStage(S);return S}
-function cgStage(S){const L=LV[S.lv];S.turn=1;S.over=null;S.heart=S.heartMax=L.heart;S.energy=ENERGY;S.bonus=0;S.auto=false;S.cells=Array.from({length:NS},()=>({coral:0,lush:false,cs:[]}));S.foes=[];S.queue=L.waves.map(w=>({t:w[0],id:w[1],lane:w[2],h:w[3]||FOE[w[1]].h}));S.drops=[];S.pfx=null;
+function cgStage(S){const L=LV[S.lv];S.turn=1;S.over=null;S.heart=S.heartMax=L.heart;S.energy=ENERGY;S.bonus=0;S.auto=false;S.cells=Array.from({length:NS},()=>({coral:0,kind:null,lush:false,cs:[]}));S.total=L.waves.length;S.done=0;S.foes=[];S.queue=L.waves.map(w=>({t:w[0],id:w[1],lane:w[2],h:w[3]||FOE[w[1]].h}));S.drops=[];S.pfx=null;S.gift=0;
  const d=[];for(const k in L.deck)for(let i=0;i<L.deck[k];i++)d.push(mkc(k));S.extra.forEach(k=>d.push(mkc(k)));S.deck=cshuf(d);S.hand=[];S.dis=[];
- ['coral','clown','urchin'].forEach(id=>{const i=S.deck.findIndex(k=>k.id===id);if(i>=0)S.hand.push(S.deck.splice(i,1)[0])});cgDraw(S,HAND0-S.hand.length);cgSpawn(S)}
+ const take=id=>{const i=S.deck.findIndex(k=>k.id===id);return i>=0?S.deck.splice(i,1)[0]:null};(L.hand||[]).forEach(id=>{const k=take(id);if(k)S.hand.push(k)});const top=(L.top||[]).map(take).filter(Boolean);S.deck.push(...top.reverse());cgSpawn(S)}
 function cgDraw(S,n){for(let i=0;i<n;i++){if(S.hand.length>=HANDMAX)return;if(!S.deck.length){if(!S.dis.length)return;S.deck=cshuf(S.dis);S.dis=[]}S.hand.push(S.deck.pop())}}
-function cgSpawn(S){const out=[];for(let i=0;i<S.queue.length;i++){const q=S.queue[i];if(q.t>S.turn)continue;const o=foeIn(S,q.lane);if(o){o.hp+=q.h;o.max=Math.max(o.max,o.hp);o.atk++;out.push({u:o.u,grow:q.h})}else{const f={id:q.id,u:++CUID,hp:q.h,max:q.h,atk:FOE[q.id].atk,step:0,lane:q.lane,p:NC};S.foes.push(f);out.push({u:f.u})}S.queue.splice(i,1);i--}return out}
+function cgSpawn(S){const out=[];for(let i=0;i<S.queue.length;i++){const q=S.queue[i];if(q.t>S.turn)continue;const o=foeIn(S,q.lane);if(o){o.hp+=q.h;o.max=Math.max(o.max,o.hp);o.atk++;o.n++;out.push({u:o.u,grow:q.h})}else{const f={id:q.id,u:++CUID,hp:q.h,max:q.h,atk:FOE[q.id].atk,n:1,step:0,lane:q.lane,p:NC};S.foes.push(f);out.push({u:f.u})}S.queue.splice(i,1);i--}return out}
 const nextIn=(S,l)=>{const q=S.queue.find(q=>q.lane===l);return q?{id:q.id,n:Math.max(1,q.t-S.turn),h:q.h}:null};
 const frontCell=(S,l)=>{for(let col=NC-1;col>=0;col--)if(S.cells[ci(l,col)].cs.length)return ci(l,col);return -1};
 const inReach=(S,l)=>{const f=foeIn(S,l),fc=frontCell(S,l);return !!f&&fc>=0&&f.p-colOf(fc)<=RNG};
 /* 每条鱼现在值多少净化（给界面显示用） */
-function valOf(S,c,k){const d=CD[k.id],x=S.cells[c];if(d.clean)return 0;let n=0;if(d.school){const l=laneOf(c);outer:for(let col=0;col<NC;col++)for(const o of S.cells[ci(l,col)].cs){if(o===k)break outer;if(o.id===k.id)n++}}return d.a+(d.home&&inCoral(S,c)?d.hb:0)+(x.lush?1:0)+n}
+function valOf(S,c,k){const d=CD[k.id],x=S.cells[c];if(d.clean)return 0;let n=0;if(d.school){const l=laneOf(c);outer:for(let col=0;col<NC;col++)for(const o of S.cells[ci(l,col)].cs){if(o===k)break outer;if(o.id===k.id)n++}}return d.a+(d.home&&inHome(S,c,d.home)?d.hb:0)+(x.lush?1:0)+n}
 /* 污染源这回合实际要做什么：['move'] ['atk',n,cell] ['heart',n] ['net',cell,u] ['eat',cell] */
 function intent(S,f){const F=FOE[f.id],k=F.plan[f.step%F.plan.length],l=f.lane;
  if(k==='net'){let b=null,bv=-1,bc=-1;for(let col=0;col<NC;col++){const c=ci(l,col);for(const o of S.cells[c].cs)if(!o.net){const v=valOf(S,c,o);if(v>bv){bv=v;b=o;bc=c}}}if(b)return ['net',bc,b.u]}
- if(k==='eat'){for(let col=Math.min(NC,f.p)-1;col>=0;col--)if(S.cells[ci(l,col)].coral>0)return ['eat',ci(l,col)]}
+ if(k==='eat'){for(let col=Math.min(NC,f.p)-1;col>=0;col--)if(S.cells[ci(l,col)].coral>0&&S.cells[ci(l,col)].kind==='coral')return ['eat',ci(l,col)]}
  if(f.p===0)return ['heart',3+Math.floor(f.hp/10)];const c=ci(l,f.p-1);return S.cells[c].cs.length?['atk',f.atk,c]:['move']}
 /* 一条道的结算（不改局面）：从左到右，每条鱼一步。返回 {steps:[{u,cell,op:'+'|'x'|'net'|'re',v,tot}],tot} */
 function calcLane(S,l){const f=foeIn(S,l),steps=[],seen={};let tot=0,last=null;
- const add=(k,c,re)=>{const d=CD[k.id],x=S.cells[c],had=seen[k.id]||0,v=d.a+(d.home&&inCoral(S,c)?d.hb:0)+(x.lush?1:0)+(d.school?had:0);seen[k.id]=had+1;if(v){tot+=v;steps.push({u:k.u,cell:c,op:'+',v,tot,re})}
+ const add=(k,c,re)=>{const d=CD[k.id],x=S.cells[c],had=seen[k.id]||0,v=d.a+(d.home&&inHome(S,c,d.home)?d.hb:0)+(x.lush?1:0)+(d.school?had:0);seen[k.id]=had+1;if(v){tot+=v;steps.push({u:k.u,cell:c,op:'+',v,tot,re})}
   if(d.pair&&had>=1){tot*=2;steps.push({u:k.u,cell:c,op:'x',v:2,tot,re})}if(d.algae&&f&&f.id==='algae'){tot*=2;steps.push({u:k.u,cell:c,op:'x',v:2,tot,re})}};
  for(let col=0;col<NC;col++){const c=ci(l,col);for(const k of S.cells[c].cs){const d=CD[k.id];
    if(d.clean){if(k.net){steps.push({u:k.u,cell:c,op:'net',tot});continue}if(last){steps.push({u:k.u,cell:c,op:'re',tu:last.k.u,tcell:last.c,tot});add(last.k,last.c,1)}continue}
@@ -872,14 +902,14 @@ function calcLane(S,l){const f=foeIn(S,l),steps=[],seen={};let tot=0,last=null;
 /* 手牌能打到哪：{cell} 或 {foe} 或 {any:1} */
 function cgTargets(S,id){const d=CD[id],o=[];if(d.fx==='plankton')return [{any:1}];if(d.fx==='cleanup')return S.foes.map((f,i)=>({foe:i}));
  for(let c=0;c<NS;c++){const x=S.cells[c],l=laneOf(c);if(polluted(S,c))continue;
-  if(d.terr){if(l===1&&x.coral<3)o.push({cell:c})}
+  if(d.terr){if(l===1&&(x.coral===0||(x.kind===d.terr&&x.coral<3)))o.push({cell:c})}
   else if(d.fx==='zoox'){if(x.coral>0&&!x.lush)o.push({cell:c})}
   else if(d.z.includes(l)&&x.cs.length<capOf(S,c))o.push({cell:c})}return o}
 function cgPlay(S,i,t){const k=S.hand[i];if(S.over||!k)return false;const d=CD[k.id];if(S.energy<d.e)return false;const T=cgTargets(S,k.id);S.pfx=null;
  if(d.fx==='plankton'){S.energy+=2}
  else if(d.fx==='cleanup'){if(!t||t.foe==null||!S.foes[t.foe])return false;hitFoe(S,t.foe,4)}
  else{if(!t||t.cell==null||!T.some(q=>q.cell===t.cell))return false;const x=S.cells[t.cell],l=laneOf(t.cell);
-  if(d.terr)x.coral++;else if(d.fx==='zoox')x.lush=true;
+  if(d.terr){x.coral++;x.kind=d.terr}else if(d.fx==='zoox')x.lush=true;
   else{x.cs.push({id:k.id,u:k.u,hp:d.h,net:false});const fi=S.foes.findIndex(f=>f.lane===l),f=S.foes[fi];
    if(d.play==='graze'&&f){S.pfx={t:'hit',u:f.u,dmg:2};hitFoe(S,fi,2)}
    else if(d.play==='push'&&f&&f.p<NC){f.p++;S.pfx={t:'push',u:f.u}}
@@ -889,7 +919,8 @@ function cgPlay(S,i,t){const k=S.hand[i];if(S.over||!k)return false;const d=CD[k
 /* 抽牌：1 点能量抽 2 张；手牌放不下时，最旧的牌先回弃牌堆 */
 function cgDrawAct(S){if(S.over||S.energy<DRAWCOST||(!S.deck.length&&!S.dis.length&&S.hand.length<=HANDMAX-DRAWN))return false;S.energy-=DRAWCOST;let out=0;while(S.hand.length>HANDMAX-DRAWN){S.dis.push(S.hand.shift());out++}cgDraw(S,DRAWN);return {out}}
 const gainE=S=>{if(S.auto)S.bonus=(S.bonus||0)+1;else S.energy++};
-function hitFoe(S,fi,dmg){const f=S.foes[fi];f.hp-=dmg;if(f.hp<=0){S.foes.splice(fi,1);const drop=Math.random()<.5?'energy':'card';if(drop==='energy')gainE(S);else cgDraw(S,1);S.drops.push({u:f.u,drop});return true}return false}
+const gone=(S,f)=>{S.foes.splice(S.foes.indexOf(f),1);S.done+=f.n};
+function hitFoe(S,fi,dmg){const f=S.foes[fi];f.hp-=dmg;if(f.hp<=0){gone(S,f);const first=S.done===f.n&&!S.gift;if(first){S.gift=1;cgDraw(S,2);S.drops.push({u:f.u,drop:'card'},{u:f.u,drop:'card'});return true}const drop=Math.random()<.5?'energy':'card';if(drop==='energy')gainE(S);else cgDraw(S,1);S.drops.push({u:f.u,drop});return true}return false}
 /* 结束回合第一步：够得着的道逐条结算。返回 [{lane,u,steps,tot,dead,push}] */
 function cgSettle(S){if(S.over)return [];S.auto=true;const out=[];
  for(let l=0;l<NL;l++){if(!inReach(S,l))continue;const f=foeIn(S,l),r=calcLane(S,l);if(!r.steps.length)continue;
@@ -902,17 +933,17 @@ function cgCheck(S){if(!S.over&&!S.foes.length&&!S.queue.length)S.over='win'}
 function fixCap(S,ev){for(let c=0;c<NS;c++){const x=S.cells[c];while(x.cs.length>capOf(S,c)){const k=x.cs.pop();S.dis.push({id:k.id,u:k.u});ev.push({t:'leave',cell:c,ku:k.u})}}}
 function cgEnd(S){if(S.over)return null;const ev=[],kill=(c,k)=>{const x=S.cells[c];x.cs.splice(x.cs.indexOf(k),1);S.dis.push({id:k.id,u:k.u})};
  for(const f of S.foes.slice().sort((a,b)=>a.lane-b.lane)){const it=intent(S,f);f.step++;
-  if(it[0]==='heart'){S.heart-=it[1];S.foes.splice(S.foes.indexOf(f),1);ev.push({t:'heart',u:f.u,dmg:it[1]})}
-  else if(it[0]==='move'){f.p--;const c=ci(f.lane,f.p),x=S.cells[c],e={t:'move',u:f.u,lane:f.lane,p:f.p,cell:c,bleach:x.coral>0};x.coral=0;x.lush=false;ev.push(e);fixCap(S,ev)}
-  else if(it[0]==='atk'){const c=it[2],x=S.cells[c],k=x.cs.slice().sort((a,b)=>b.hp-a.hp)[0];k.hp-=it[1];const e={t:'atk',u:f.u,cell:c,ku:k.u,dmg:it[1],dead:k.hp<=0};if(CD[k.id].thorn){f.hp-=CD[k.id].thorn;e.thorn=CD[k.id].thorn;if(f.hp<=0){S.foes.splice(S.foes.indexOf(f),1);e.fdead=1}}if(k.hp<=0){kill(c,k);if(!e.fdead&&!x.cs.length){f.p--;e.adv=1;e.bleach=x.coral>0;x.coral=0;x.lush=false}}ev.push(e);if(e.adv)fixCap(S,ev)}
+  if(it[0]==='heart'){S.heart-=it[1];gone(S,f);ev.push({t:'heart',u:f.u,dmg:it[1]})}
+  else if(it[0]==='move'){f.p--;const c=ci(f.lane,f.p),x=S.cells[c],e={t:'move',u:f.u,lane:f.lane,p:f.p,cell:c,bleach:x.coral>0};x.coral=0;x.kind=null;x.lush=false;ev.push(e);fixCap(S,ev)}
+  else if(it[0]==='atk'){const c=it[2],x=S.cells[c],k=x.cs.slice().sort((a,b)=>b.hp-a.hp)[0];k.hp-=it[1];const e={t:'atk',u:f.u,cell:c,ku:k.u,dmg:it[1],dead:k.hp<=0};if(CD[k.id].thorn){f.hp-=CD[k.id].thorn;e.thorn=CD[k.id].thorn;if(f.hp<=0){gone(S,f);e.fdead=1}}if(k.hp<=0){kill(c,k);if(!e.fdead&&!x.cs.length){f.p--;e.adv=1;e.bleach=x.coral>0;x.coral=0;x.kind=null;x.lush=false}}ev.push(e);if(e.adv)fixCap(S,ev)}
   else if(it[0]==='net'){const k=S.cells[it[1]].cs.find(o=>o.u===it[2]);k.net=true;k.netNew=true;ev.push({t:'net',u:f.u,cell:it[1],ku:k.u})}
-  else if(it[0]==='eat'){const x=S.cells[it[1]];x.coral--;if(!x.coral)x.lush=false;ev.push({t:'eat',u:f.u,cell:it[1],left:x.coral});fixCap(S,ev)}
+  else if(it[0]==='eat'){const x=S.cells[it[1]];x.coral--;if(!x.coral){x.lush=false;x.kind=null}ev.push({t:'eat',u:f.u,cell:it[1],left:x.coral});fixCap(S,ev)}
   if(S.heart<=0){S.heart=0;S.over='lose';return ev}}
  /* 回合末：珊瑚鱼回血 / 掉血，解开上回合的网 */
- for(let c=0;c<NS;c++){const x=S.cells[c];for(const k of x.cs.slice()){const d=CD[k.id];if(d.home){if(inCoral(S,c)){if(k.hp<d.h){k.hp=Math.min(d.h,k.hp+(x.lush?2:1));ev.push({t:'heal',cell:c,ku:k.u})}}else{k.hp--;const e={t:'dry',cell:c,ku:k.u,dead:k.hp<=0};if(k.hp<=0)kill(c,k);ev.push(e)}}
+ for(let c=0;c<NS;c++){const x=S.cells[c];for(const k of x.cs.slice()){const d=CD[k.id];if(d.home){if(inHome(S,c,d.home)){if(k.hp<d.h){k.hp=Math.min(d.h,k.hp+(x.lush?2:1));ev.push({t:'heal',cell:c,ku:k.u})}}else{k.hp--;const e={t:'dry',cell:c,ku:k.u,dead:k.hp<=0};if(k.hp<=0)kill(c,k);ev.push(e)}}
    if(k.netNew)k.netNew=false;else k.net=false}}
  S.turn++;S.energy=ENERGY+(S.bonus||0);S.bonus=0;S.auto=false;const sp=cgSpawn(S);if(sp.length)ev.push({t:'spawn',us:sp});cgCheck(S);return ev}
-const CG={NL,NC,NS,CD,FOE,POOL,ZN,RNG,cgInit,cgStage,cgTargets,cgPlay,cgDrawAct,cgSettle,cgEnd,calcLane,valOf,capOf,inCoral,intent,frontCell,foeIn,polluted,inReach,nextIn,laneOf,colOf,ci,getLV:()=>LV};
+const CG={NL,NC,NS,CD,FOE,POOL,ZN,RNG,cgInit,cgStage,cgTargets,cgPlay,cgDrawAct,cgSettle,cgEnd,calcLane,valOf,capOf,inHome,sideKind,intent,frontCell,foeIn,polluted,inReach,nextIn,laneOf,colOf,ci,getLV:()=>LV};
 
 </script>
 <script>
@@ -972,8 +1003,8 @@ requestAnimationFrame(loop);
 </script>
 <script>/* ---------- 牌局界面 v6：你指挥生物打敌人 ---------- */
 mode='cg';let S,csel=null,cact=null,cinfo=null,cbusy=false,ctT=0,tdStarted=false,cdrag=null,cLv=0,cExtra=[],cSeen={},lpT=0;
-try{const s=JSON.parse(localStorage.getItem('reefCG8')||'{}');if(s.lv)cLv=Math.min(LV.length-1,s.lv);if(s.seen)cSeen=s.seen;if(s.extra)cExtra=s.extra}catch(e){}
-const csave=()=>{try{localStorage.setItem('reefCG8',JSON.stringify({lv:cLv,seen:cSeen,extra:cExtra}))}catch(e){}};
+try{const s=JSON.parse(localStorage.getItem('reefCG9')||'{}');if(s.lv)cLv=Math.min(LV.length-1,s.lv);if(s.seen)cSeen=s.seen;if(s.extra)cExtra=s.extra}catch(e){}
+const csave=()=>{try{localStorage.setItem('reefCG9',JSON.stringify({lv:cLv,seen:cSeen,extra:cExtra}))}catch(e){}};
 const cart=id=>CD[id].art?svg(P[CD[id].art]()):'';
 const FXART={plankton:'<g fill="#e9fbff"><circle cx="28" cy="34" r="7"/><circle cx="62" cy="26" r="5"/><circle cx="74" cy="58" r="8"/><circle cx="40" cy="66" r="6"/><circle cx="52" cy="46" r="4"/><circle cx="22" cy="62" r="4"/></g>',
  zoox:'<circle cx="50" cy="50" r="30" fill="#f2c14e"/><g stroke="#f2c14e" stroke-width="6" stroke-linecap="round"><path d="M50 6 V16 M50 84 V94 M6 50 H16 M84 50 H94 M19 19 l7 7 M74 74 l7 7 M81 19 l-7 7 M26 74 l-7 7"/></g><circle cx="42" cy="44" r="7" fill="#a9d94a"/><circle cx="58" cy="56" r="8" fill="#8fc43a"/>',
@@ -984,7 +1015,7 @@ const II={atk:'<svg viewBox="0 0 24 24"><path d="M4 20 L14 10 M12 6 L18 12 M16 4
  eat:'<svg viewBox="0 0 24 24"><path d="M12 21 V12 M12 12 L7 6 M12 12 L17 6 M12 15 L8 12 M12 15 L16 12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M3 4 L21 20" stroke="#ff7a59" stroke-width="3" stroke-linecap="round"/></svg>',
  move:'<svg viewBox="0 0 24 24"><path d="M20 12 H5 M11 5 L4 12 L11 19" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  heart:'<svg viewBox="0 0 24 24"><path d="M12 21 C4 15 2 11 2 7.5 A5 5 0 0 1 12 6 A5 5 0 0 1 22 7.5 C22 11 20 15 12 21Z" fill="currentColor"/></svg>'};
-const handCard=(k,attr,extra)=>{const id=k.id||k,d=CD[id];return `<button class="cc ${d.fx?'h-fx':d.terr?'h-terr':d.home?'h-reef':'h-free'} ${extra||''}" ${attr||''}><span class="orb">${d.e}</span>${d.z?`<span class="zp">${[0,1,2].map(z=>`<i class="z${z} ${d.z.includes(z)?'on':''}"></i>`).join('')}</span>`:''}<span class="art">${svg(d.fx?FXART[d.fx]:P[d.art]())}</span>${d.play?'<span class="pl">⚡</span>':''}${d.pair||d.algae?'<span class="tag">×2</span>':d.clean?'<span class="tag">↺</span>':d.school?'<span class="tag">+1</span>':''}<b>${d.n}</b>${d.a!=null?`<span class="st"><i class="sa">${d.clean?'↺':d.a}</i><i class="sh">${d.h}</i></span>`:'<span class="st"></span>'}</button>`};
+const handCard=(k,attr,extra)=>{const id=k.id||k,d=CD[id];return `<button class="cc ${d.fx?'h-fx':d.terr?'h-terr':d.home?'h-reef':'h-free'} ${extra||''}" ${attr||''}><span class="orb">${d.e}</span>${d.z?`<span class="zp">${[0,1,2].map(z=>`<i class="z${z} ${d.z.includes(z)?'on':''}"></i>`).join('')}</span>`:''}<span class="art">${svg(d.fx?FXART[d.fx]:P[d.art]())}</span>${cSeen[id]?'':'<span class="nw"></span>'}${d.play?'<span class="pl">⚡</span>':''}${d.pair||d.algae?'<span class="tag">×2</span>':d.clean?'<span class="tag">↺</span>':d.school?'<span class="tag">+1</span>':''}<b>${d.n}</b>${d.a!=null?`<span class="st"><i class="sa">${d.clean?'↺':d.a}</i><i class="sh">${d.h}</i></span>`:'<span class="st"></span>'}</button>`};
 function csay(t,bad){document.querySelectorAll('.ctoast').forEach(e=>e.remove());const d=document.createElement('div');d.className='ctoast'+(bad?' bad':'');d.textContent=t;($('stage')||document.body).appendChild(d);clearTimeout(ctT);ctT=setTimeout(()=>d.remove(),2000)}
 let LAND=false,ROT=false;const RS=()=>ROT?' rotate(90deg)':'',upPt=(x,y,d)=>ROT?[x+d,y]:[x,y-d];
 function applyLand(){const on=mode==='cg',vw=innerWidth,vh=innerHeight,H=document.documentElement;LAND=on;ROT=on&&vh>vw;H.classList.toggle('land',on);H.classList.toggle('rot',ROT);if(on){const W=Math.min(ROT?vh:vw,940),Hh=Math.min(ROT?vw:vh,480);H.style.setProperty('--W',W+'px');H.style.setProperty('--H',Hh+'px');H.style.setProperty('--L',ROT?'0px':(vw-W)/2+'px');H.style.setProperty('--T',ROT?'0px':(vh-Hh)/2+'px')}}
@@ -992,13 +1023,16 @@ addEventListener('resize',()=>{applyLand();if(mode==='cg'&&S&&!cbusy)crender()})
 const LT=[16.5,50,85],ZC=['z-top','z-reef','z-sand'],fx=p=>9.5+p*14.6;
 /* 一格里几条鱼时各自的位置：[左%, 上%] 与大小 */
 const CPOS={1:[[50,34]],2:[[27,36],[73,36]],3:[[27,24],[73,24],[50,66]]},CSZ={1:46,2:40,3:36};
-function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.moved?S.hand[cdrag.i]:null),T=k&&S.energy>=CD[k.id].e?cgTargets(S,k.id):[],okc=new Set(T.filter(t=>t.cell!=null).map(t=>t.cell)),okf=new Set(T.filter(t=>t.foe!=null).map(t=>t.foe)),any=T.some(t=>t.any);
- $('mInfo').innerHTML=`<button id="cLvB" class="lvb">${S.lv+1}/${LV.length} ${st.n}</button>`;
+function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.moved?S.hand[cdrag.i]:null),T=k&&S.energy>=CD[k.id].e?cgTargets(S,k.id):[],okc=new Set(T.filter(t=>t.cell!=null).map(t=>t.cell)),okf=new Set(T.filter(t=>t.foe!=null).map(t=>t.foe)),any=T.some(t=>t.any),hn=chint(),thr=new Set();
+ if(hn&&hn.lock&&k){okc.clear();if(S.hand.indexOf(k)===hn.card)okc.add(hn.cell)}
+ S.foes.forEach(f=>{const it=intent(S,f);if(it[0]==='atk'){const o=S.cells[it[2]].cs.slice().sort((a,b)=>b.hp-a.hp)[0];if(o)thr.add(o.u)}else if(it[0]==='net')thr.add(it[2])});
+ const act=S.foes.reduce((n,f)=>n+f.n,0);
+ $('mInfo').innerHTML=`<button id="cLvB" class="lvb">${S.lv+1}/${LV.length} ${st.n}</button><span class="prog2" role="img" aria-label="这一关的污染源：已净化 ${S.done} 个，共 ${S.total} 个">${Array.from({length:S.total},(_,i)=>`<i class="${i<S.done?'d':i<S.done+act?'a':''}"></i>`).join('')}</span>`;
  let h=`<div class="heartb" id="cHeart"><span>${II.heart}</span><b>${S.heart}</b></div>`;
  for(let l=0;l<NL;l++){const f=foeIn(S,l),fc=frontCell(S,l),nx=nextIn(S,l),reach=inReach(S,l),tot=fc>=0?calcLane(S,l).tot:0;h+=`<div class="zone ${ZC[l]}">`;
-  for(let col=0;col<NC;col++){const c=ci(l,col),x=S.cells[c],n=x.cs.length,cap=capOf(S,c),side=!x.coral&&inCoral(S,c);
-   h+=`<button class="slot ${okc.has(c)?'tgt':''}" data-cell="${c}" style="left:${fx(col)}%" aria-label="${ZN[l]}第${col+1}格">${x.coral||side?`<span class="cor l${x.coral} ${side?'side':''} ${x.lush?'lush':''}">${cart('coral')}</span>`:''}`;
-   x.cs.forEach((u,i)=>{const d=CD[u.id],a=valOf(S,c,u),ps=CPOS[Math.min(3,n)][i]||[50,50],sz=CSZ[Math.min(3,n)];h+=`<span class="cr ${n>1?'sm':''} ${reach&&!u.net?'rdy':''} ${u.net?'netted':''} ${d.home&&!inCoral(S,c)?'dry':''} ${cinfo==='u'+u.u?'on':''}" data-u="${u.u}" style="width:${sz}px;height:${sz}px;left:${ps[0]}%;top:${ps[1]}%;margin:${-sz/2}px 0 0 ${-sz/2}px"><span class="sw" style="animation-duration:${2.6+(u.u%7)*.45}s;animation-delay:-${(u.u%9)*.5}s">${cart(u.id)}</span>${u.net?`<span class="nt">${II.net}</span>`:''}<i class="sa ${a>d.a?'up':''}">${d.clean?'↺':a}</i><i class="sh ${u.hp<d.h?'hurt':''}">${u.hp}</i></span>`});
+  for(let col=0;col<NC;col++){const c=ci(l,col),x=S.cells[c],n=x.cs.length,cap=capOf(S,c),side=x.coral?null:sideKind(S,c);
+   h+=`<button class="slot ${okc.has(c)?'tgt':''} ${hn&&hn.cell===c&&!k?'hintt':''}" data-cell="${c}" style="left:${fx(col)}%" aria-label="${ZN[l]}第${col+1}格">${x.coral||side?`<span class="cor k-${x.coral?x.kind:side} l${x.coral} ${x.coral?'':'side'} ${x.lush?'lush':''}">${cart(x.coral?x.kind:side)}</span>`:''}`;
+   x.cs.forEach((u,i)=>{const d=CD[u.id],a=valOf(S,c,u),ps=CPOS[Math.min(3,n)][i]||[50,50],sz=CSZ[Math.min(3,n)];h+=`<span class="cr ${n>1?'sm':''} ${reach&&!u.net?'rdy':''} ${u.net?'netted':''} ${d.home&&!inHome(S,c,d.home)?'dry':''} ${thr.has(u.u)?'threat':''} ${cinfo==='u'+u.u?'on':''}" data-u="${u.u}" style="width:${sz}px;height:${sz}px;left:${ps[0]}%;top:${ps[1]}%;margin:${-sz/2}px 0 0 ${-sz/2}px"><span class="sw" style="animation-duration:${2.6+(u.u%7)*.45}s;animation-delay:-${(u.u%9)*.5}s">${cart(u.id)}</span>${u.net?`<span class="nt">${II.net}</span>`:''}<i class="sa ${a>d.a?'up':''}">${d.clean?'↺':a}</i><i class="sh ${u.hp<d.h?'hurt':''}">${u.hp}</i></span>`});
    if(cap>1)h+=`<span class="cap">${Array.from({length:cap},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
    if(c===fc&&f)h+='<i class="fr"></i>';
    h+='</button>'}
@@ -1012,15 +1046,24 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  let tx='';if(csel!=null){const d=CD[S.hand[csel].id];tx=`<b>${d.n}</b><i>${d.lg}</i>${S.energy<d.e?`<br><u>能量不够：要 ${d.e} 点。</u>`:!T.length?'<br><u>现在没有能用它的地方。</u>':''}`}
  else if(cinfo&&String(cinfo)[0]==='f'){const f=S.foes.find(x=>'f'+x.u===cinfo);if(f)tx=`<b>${FOE[f.id].n}</b><i>${FOE[f.id].lg}</i>`}
  else if(cinfo&&String(cinfo)[0]==='u'){let u=null;S.cells.forEach(x=>x.cs.forEach(o=>{if('u'+o.u===cinfo)u=o}));if(u){const d=CD[u.id];tx=`<b>${d.n}</b><i>${d.lg}</i>${u.net?'<br><u>被渔网缠住了，这回合不结算。</u>':''}`}}
- if(!tx&&S.lv===0&&!S.over){const hasCr=S.cells.some(x=>x.cs.length),playable=S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length),f=foeIn(S,1),far=f&&hasCr&&!inReach(S,1),up=S.hand.some(c=>c.id==='coral')&&S.energy>=1&&S.cells.some((x,c)=>x.coral>0&&x.coral<3&&x.cs.length>=capOf(S,c)&&!polluted(S,c));
-  tx='<em class="coach">'+(!hasCr&&playable?'把牌拖到礁石这条道上':far&&playable?'污染源离最前面的鱼 2 格内才开打：往前放':up?'珊瑚叠在同一格会升级，能多住鱼':playable?'还能放牌':cgCanDraw()?'能量还有剩：点牌堆抽 2 张':'结束回合：从左到右一条条结算')+'</em>'}
  $('cText').innerHTML=tx;
  $('cOrbs').innerHTML=Array.from({length:Math.max(3,S.energy)},(_,i)=>`<i class="${i<S.energy?'on':''}"></i>`).join('');
  $('cDeck').textContent=S.deck.length;$('cDisP').textContent=S.dis.length;
- const n=S.hand.length;$('cHand').style.setProperty('--ov',n>5?((n*19-96)/(n-1)).toFixed(2)+'%':'0%');$('cHand').innerHTML=S.hand.map((c,i)=>{const d=CD[c.id],dead=S.energy<d.e||!cgTargets(S,c.id).length,rot=(i-(n-1)/2)*2.4;return handCard(c,`data-h="${i}" style="--r:${rot}deg;--y:${Math.abs(i-(n-1)/2)*5}px"`,(csel===i?'sel ':'')+(dead?'dead':''))}).join('');
+ const n=S.hand.length;$('cHand').style.setProperty('--ov',n>5?((n*19-96)/(n-1)).toFixed(2)+'%':'0%');$('cHand').innerHTML=S.hand.map((c,i)=>{const d=CD[c.id],dead=S.energy<d.e||!cgTargets(S,c.id).length,rot=(i-(n-1)/2)*2.4;return handCard(c,`data-h="${i}" style="--r:${rot}deg;--y:${Math.abs(i-(n-1)/2)*5}px"`,(csel===i?'sel ':'')+(dead?'dead':'')+(hn&&hn.card===i&&csel!==i?' hintc':''))}).join('');
  if(!$('cDis').firstChild)$('cDis').innerHTML='<span class="dk"><i></i><i></i></span><b>+2</b>';
  $('cUndo').hidden=true;$('cDis').disabled=!cgCanDraw();
- $('cEnd').classList.toggle('ready',!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length))}
+ const idle=!cbusy&&!S.over&&!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length),drawHint=idle&&cgCanDraw()&&S.hand.length<5&&!(S.lv===0&&S.turn===1&&!cSeen.tutDone);$('cDis').classList.toggle('hintb',drawHint);$('cEnd').classList.toggle('ready',idle&&!drawHint);cdemo(hn)}
+/* 第一关的画面引导：该拿哪张牌、放到哪。lock=第一回合只认这一步，放错不花任何东西 */
+function chint(){if(!S||S.lv!==0||S.over||cbusy||cSeen.tutDone)return null;const f=foeIn(S,1),p=f?f.p:NC,hi=id=>S.hand.findIndex(k=>k.id===id&&CD[id].e<=S.energy),reef=Array.from({length:NC},(_,col)=>ci(1,col)).filter(c=>!polluted(S,c)),an=reef.filter(c=>S.cells[c].coral>0&&S.cells[c].kind==='anem'),lock=S.turn===1;let i;
+ if(!an.length&&(i=hi('anem'))>=0)return {card:i,cell:ci(1,Math.max(0,Math.min(NC-1,p-2))),lock};
+ if((i=hi('clown'))>=0){const c=an.filter(c=>S.cells[c].cs.length<capOf(S,c)).sort((a,b)=>b-a)[0];if(c!=null)return {card:i,cell:c,lock};const j=hi('anem'),u=an.filter(c=>S.cells[c].coral<3).sort((a,b)=>b-a)[0];if(j>=0&&u!=null)return {card:j,cell:u}}
+ if((i=hi('urchin'))>=0&&f&&p-1>=0){const c=ci(1,p-1);if(S.cells[c].cs.length<capOf(S,c)&&!S.cells[c].cs.some(o=>o.id==='urchin'))return {card:i,cell:c}}
+ return null}
+/* 拖动示意：一张半透明的牌从手里滑到落点，最多演 3 遍，放对了立刻停 */
+let cdemoKey='',cdemoEl=null;function cdemo(hn){const key=hn&&hn.lock&&!cdrag&&csel==null?hn.card+':'+hn.cell+':'+S.hand.length:'';if(key===cdemoKey)return;cdemoKey=key;if(cdemoEl){cdemoEl.remove();cdemoEl=null}if(!key||window.__fast)return;
+ requestAnimationFrame(()=>{if(cdemoKey!==key)return;const a=document.querySelector(`#cHand .cc[data-h="${hn.card}"]`),b=document.querySelector(`#cScene .slot[data-cell="${hn.cell}"]`);if(!a||!b||!a.animate)return;const A=rectOf(a),B=rectOf(b),g=document.createElement('div');g.className='dghost';g.innerHTML=a.querySelector('.art').innerHTML;document.body.appendChild(g);cdemoEl=g;
+  const an=g.animate([{left:A[0]+'px',top:A[1]+'px',opacity:0},{left:A[0]+'px',top:A[1]+'px',opacity:.85,offset:.12},{left:B[0]+'px',top:B[1]+'px',opacity:.85,offset:.7},{left:B[0]+'px',top:B[1]+'px',opacity:0}],{duration:1700,delay:500,iterations:3,easing:'ease-in-out',fill:'both'});an.onfinish=()=>{if(cdemoEl===g){g.remove();cdemoEl=null}}})}
+
 const cgCanDraw=()=>S.energy>=1&&!S.over&&(S.deck.length+S.dis.length>0||S.hand.length>5);
 let cwarnT=-1;
 const cwait=ms=>new Promise(r=>setTimeout(r,window.__fast?0:ms));
@@ -1034,23 +1077,23 @@ function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList
 /* 敌人的回合：一个个演 */
 /* 结算：一条道一条道来，从左到右每条鱼把净化叠进计数器，最后一击 */
 async function csettle(){const R=cgSettle(S),slide=(u,p)=>{const fe=foeEl(u),sl=document.querySelector(`#cScene .sludge[data-su="${u}"]`);if(fe)fe.style.left=`calc(${fx(p)+7}% - 29px)`;if(sl)sl.style.left=fx(p)+'%'};
- for(const r of R){const fe=foeEl(r.u);if(!fe)continue;const fr=rectOf(fe),cnt=document.createElement('div');cnt.className='run';cnt.textContent='0';document.body.appendChild(cnt);let i=0,first=true;
+ for(const r of R){const fe=foeEl(r.u);if(!fe)continue;const hb0=fe.querySelector('.hpb'),hp0=+hb0.querySelector('b').textContent,mx=hp0/(parseFloat(hb0.querySelector('i').style.width)/100||1),tick=t=>{const left=Math.max(0,hp0-t);hb0.querySelector('i').style.width=left/mx*100+'%';hb0.querySelector('b').textContent=left;hb0.classList.remove('pend');void hb0.offsetWidth;hb0.classList.add('pend')};const fr=rectOf(fe),cnt=document.createElement('div');cnt.className='run';cnt.textContent='0';document.body.appendChild(cnt);let i=0,first=true;
   const at=el=>{const q=rectOf(el);cnt.style.transform=`translate(${q[0]}px,${q[1]}px) translate(-50%,-50%)${RS()} translateY(-34px) scale(${Math.min(2,1+r.steps.length*0+Math.log2(1+(+cnt.textContent||0))*.12)})`};
   for(const st of r.steps){const ce=crEl(st.u);if(!ce)continue;if(first){cnt.style.transition='none';at(ce);void cnt.offsetWidth;cnt.style.transition='';first=false}
    if(st.op==='net'){shake(ce);await cwait(140);continue}
    if(st.op==='re'){const te=crEl(st.tu);at(ce);if(ce.animate&&!window.__fast)ce.animate([{transform:'scale(1)'},{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:220});pop(rectOf(ce),'↺','x2');if(te){pop(rectOf(te),'+2♥','heal');te.classList.remove('netted')}tone(990,.12,'triangle',.07);await cwait(230);continue}
    at(ce);if(ce.animate&&!window.__fast)ce.animate([{transform:'scale(1)'},{transform:'scale(1.45) translateY(-4px)'},{transform:'scale(1)'}],{duration:200});
-   if(st.op==='+'){pop(rectOf(ce),'+'+st.v,'add');tone(330*Math.pow(1.122,Math.min(i,14)),.1,'triangle',.08);cnt.textContent=st.tot;cnt.classList.remove('tick');void cnt.offsetWidth;cnt.classList.add('tick');await cwait(Math.max(110,230-i*18))}
-   else{pop(rectOf(ce),'×'+st.v,'mul');cnt.textContent=st.tot;cnt.classList.remove('tick','mulf');void cnt.offsetWidth;cnt.classList.add('mulf');tone(523,.2,'square',.07);tone(784,.25,'square',.06);shake($('cScene'));await cwait(360)}
+   if(st.op==='+'){pop(rectOf(ce),'+'+st.v,'add');tone(330*Math.pow(1.122,Math.min(i,14)),.1,'triangle',.08);cnt.textContent=st.tot;tick(st.tot);cnt.classList.remove('tick');void cnt.offsetWidth;cnt.classList.add('tick');await cwait(Math.max(110,230-i*18))}
+   else{pop(rectOf(ce),'×'+st.v,'mul');cnt.textContent=st.tot;tick(st.tot);cnt.classList.remove('tick','mulf');void cnt.offsetWidth;cnt.classList.add('mulf');tone(523,.2,'square',.07);tone(784,.25,'square',.06);shake($('cScene'));await cwait(360)}
    at(ce);i++}
   if(!r.tot){cnt.remove();continue}
   await cwait(140);cnt.style.transition='transform .22s cubic-bezier(.5,0,.9,.4)';cnt.style.transform=`translate(${fr[0]}px,${fr[1]}px) translate(-50%,-50%)${RS()} scale(1.2)`;await cwait(230);cnt.remove();
   const big=r.tot>=10;fe.classList.add('hit');pop(fr,'−'+r.tot,big?'dmg crit':'dmg');burst(fr,big?16:7,'g');tone(big?110:200,big?.3:.14,'square',.08);if(big){shake($('cScene'));tone(70,.35,'sawtooth',.07)}
-  const hb=fe.querySelector('.hpb');if(hb&&!r.dead){const f=S.foes.find(x=>x.u===r.u);if(f){hb.querySelector('i').style.width=f.hp/f.max*100+'%';hb.querySelector('b').textContent=f.hp}}
   if(r.dead){await cwait(130);fe.classList.add('dying');burst(fr,14,'g');SFX.die();const sl=document.querySelector(`#cScene .sludge[data-su="${r.u}"]`);if(sl)sl.style.left='100%';for(const d of S.drops.filter(d=>d.u===r.u)){await cwait(90);flyTo(fr,d.drop==='energy'?$('cOrbs'):$('cDeck'),d.drop==='energy'?'en':'cd');tone(d.drop==='energy'?880:660,.12,'sine',.08)}await cwait(320)}
   else{if(r.push){await cwait(120);slide(r.u,r.p);tone(160,.15,'sine',.07)}await cwait(260)}}
  S.drops.length=0}
-async function cend(){if(cbusy||S.over)return;cbusy=true;csel=null;cact=null;cinfo=null;crender();await csettle();crender();if(S.over){cbusy=false;cfinish();return}
+const cbusyOn=v=>{cbusy=v;document.documentElement.classList.toggle('busy',v)};
+async function cend(){if(cbusy||S.over)return;cbusyOn(true);csel=null;cact=null;cinfo=null;crender();await csettle();crender();if(S.over){cbusyOn(false);cfinish();return}
  const ev=cgEnd(S),heartEl=$('cHeart');let heart=+heartEl.querySelector('b').textContent;
  const slide=(u,p)=>{const fe=foeEl(u),sl=document.querySelector(`#cScene .sludge[data-su="${u}"]`);if(fe)fe.style.left=`calc(${fx(p)+7}% - 29px)`;if(sl)sl.style.left=fx(p)+'%'},bleach=c=>{const sl=document.querySelector(`#cScene .slot[data-cell="${c}"] .cor`);if(sl){burst(rectOf(sl),8,'c');sl.classList.add('eaten')}};
  for(const e of ev){const fe=e.u&&foeEl(e.u),ce=e.ku&&crEl(e.ku);
@@ -1064,23 +1107,25 @@ async function cend(){if(cbusy||S.over)return;cbusy=true;csel=null;cact=null;cin
   else if(e.t==='heal'||e.t==='dry'){if(ce){pop(rectOf(ce),e.t==='heal'?'+♥':'−1',e.t==='heal'?'heal':'bad');if(e.dead)ce.classList.add('die')}}
   else if(e.t==='spawn'){await cwait(250);crender();e.us.forEach(o=>{const el=foeEl(o.u);if(!el)return;if(o.grow){pop(rectOf(el),'+'+o.grow,'bad');el.classList.add('hit')}else el.classList.add('enter')});tone(196,.3,'sawtooth',.06);await cwait(350)}
   if(S.over==='lose'&&heart<=0)break}
- await cwait(250);cbusy=false;crender();if(S.over)cfinish()}
-function cfinish(){const st=LV[S.lv];if(S.over==='lose'){SFX.lose();ov(`<h1>礁心被污染吞没了</h1><p>污染源离一条道最前面的生物 2 格以内，这条道才会结算。把血厚的顶到前面；把珊瑚叠高，让更多鱼挤在一起叠净化。</p><button class="go" data-cact="again">再试一次</button>`);return}
+ await cwait(250);cbusyOn(false);crender();if(S.over)cfinish()}
+function cfinish(){const st=LV[S.lv];if(S.over==='win'&&S.lv===0&&!cSeen.tutDone){cSeen.tutDone=1;csave()}if(S.over==='lose'){SFX.lose();ov(`<h1>礁心被污染吞没了</h1><p>污染源离一条道最前面的生物 2 格以内，这条道才会结算。把血厚的顶到前面；把海葵叠高，让更多鱼挤在一起叠净化。</p><button class="go" data-cact="again">再试一次</button>`);return}
  SFX.win();const last=S.lv>=LV.length-1,offer=cshuf(POOL.slice()).filter((v,i,a)=>a.indexOf(v)===i).slice(0,3);cfinish.offer=offer;cfinish.pick=null;
  ov(`<h1>${last?'这片礁净化完成':'净化完成'}</h1><p style="text-align:center">选 1 张记忆卡加入你的牌组。</p><div class="offer">${offer.map((k,i)=>handCard(k,`data-pick="${i}"`)).join('')}</div><p id="cPickInfo" style="font-size:13px;color:var(--dim);min-height:60px">点一张看说明，再点一次确认。</p>`)}
 function intro(){const st=LV[S.lv],fr=st.fresh.filter(id=>!cSeen[id]),ff=st.foes.filter(id=>!cSeen['f_'+id]);if(!fr.length&&!ff.length)return;fr.forEach(id=>cSeen[id]=1);ff.forEach(id=>cSeen['f_'+id]=1);csave();
  ov(`${ff.length?`<h1 style="font-size:19px">新的污染源</h1><div class="newc">${ff.map(id=>`<div><span class="foepic">${svg(FART[id]())}</span><p><b>${FOE[id].n}</b>　${FOE[id].lg}</p></div>`).join('')}</div>`:''}${fr.length?`<h1 style="font-size:19px;margin-top:12px">新的记忆卡</h1><div class="newc">${fr.map(id=>`<div>${handCard(id)}<p>${CD[id].lg}</p></div>`).join('')}</div>`:''}<button class="go" data-cact="close">开始</button>`)}
 function showCard(id){const d=CD[id];ov(`<div class="newc one"><div>${handCard(id)}<p>${d.lg}</p><p class="fa">${d.fact}</p></div></div>${d.a!=null?`<p class="leg"><i class="sa">${d.clean?'↺':d.a}</i> ${d.clean?'让左边的鱼再算一次':'净化（结算时加进这条道的总数）'}　<i class="sh">${d.h}</i> 血量</p>`:''}<button class="go" data-cact="close">知道了</button>`)}
 function cplay(i,t){const k=S.hand[i];if(!k)return false;const u=k.u,rects={};S.foes.forEach(f=>{const el=foeEl(f.u);if(el)rects[f.u]=rectOf(el)});const n0=S.drops.length,tf=t&&t.foe!=null&&S.foes[t.foe]?S.foes[t.foe].u:null,nh=S.hand.length;
- if(!cgPlay(S,i,t))return false;csel=null;cinfo=null;SFX.place();const px=S.pfx,dr=S.drops.slice(n0);S.drops.length=0;crender();
+ const hn=chint();if(hn&&hn.lock&&(i!==hn.card||!t||t.cell!==hn.cell)){const c=document.querySelector(`#cHand .cc[data-h="${hn.card}"]`),sl=document.querySelector(`#cScene .slot[data-cell="${hn.cell}"]`);tone(180,.1,'sine',.04);csel=null;crender();[document.querySelector(`#cHand .cc[data-h="${hn.card}"]`),document.querySelector(`#cScene .slot[data-cell="${hn.cell}"]`)].forEach(e=>{if(e){e.classList.remove('nudge');void e.offsetWidth;e.classList.add('nudge')}});return 'lock'}
+ const kid=k.id;if(!cgPlay(S,i,t))return false;if(!cSeen[kid]){cSeen[kid]=1;csave()}csel=null;cinfo=null;SFX.place();const px=S.pfx,dr=S.drops.slice(n0);S.drops.length=0;crender();
  if(tf&&rects[tf]){pop(rects[tf],'−4','dmg');burst(rects[tf],8,'g')}
  if(px){if(px.t==='hit'&&rects[px.u]){pop(rects[px.u],'−'+px.dmg,'dmg');burst(rects[px.u],6,'g');tone(220,.12,'square',.06);const fe=foeEl(px.u);if(fe)fe.classList.add('hit')}
   else if(px.t==='push'){const fe=foeEl(px.u);if(fe){pop(rectOf(fe),'撞退','add');fe.classList.add('hit')}tone(160,.15,'sine',.07)}
   else if(px.t==='heart'){pop(rectOf($('cHeart')),'+1','heal');$('cHeart').classList.add('bump');tone(880,.15,'sine',.08)}
   else if(px.t==='draw'){$('cDeck').classList.add('bump');const c=document.querySelectorAll('#cHand .cc');if(c.length)c[c.length-1].classList.add('drop')}}
  dr.forEach(d=>{if(rects[d.u])flyTo(rects[d.u],d.drop==='energy'?$('cOrbs'):$('cDeck'),d.drop==='energy'?'en':'cd')});
+ if(t&&t.cell!=null){const d=CD[kid],cor=document.querySelector(`#cScene .slot[data-cell="${t.cell}"] .cor`),me=crEl(u);if(d.home&&me&&inHome(S,t.cell,d.home)){pop(rectOf(me),'+'+d.hb,'add');if(cor)cor.classList.add('hug');burst(rectOf(me),6,'w');tone(784,.14,'triangle',.07)}else if(d.terr&&cor){S.cells[t.cell].cs.forEach(o=>{if(CD[o.id].home===d.terr){const e=crEl(o.u);if(e)e.classList.add('drop')}});document.querySelectorAll('#cHand .cc').forEach((c,j)=>{if(S.hand[j]&&CD[S.hand[j].id].home===d.terr)c.classList.add('drop')})}}
  const el=t&&t.cell!=null?(crEl(u)||document.querySelector(`#cScene .slot[data-cell="${t.cell}"] .cor`)):$('cOrbs');if(el)el.classList.add(el.id==='cOrbs'?'bump':'drop');if(S.over)cfinish();return true}
-function cwhy(k,t){const d=CD[k.id];if(S.energy<d.e)return '能量不够：它要 '+d.e+' 点';if(d.fx==='cleanup')return '净滩要拖到一个污染源身上';if(!t||t.cell==null)return '拖到一个格子上';const x=S.cells[t.cell],l=laneOf(t.cell);if(polluted(S,t.cell))return '这格被污染盖住了';if(d.fx==='zoox')return x.lush?'这格已经很茂盛了':'虫黄藻要用在一格珊瑚上';if(d.terr)return l!==1?'珊瑚只能长在礁石上':'珊瑚最多 3 级';if(!d.z.includes(l))return d.n+'只生活在'+d.z.map(z=>ZN[z]).join('、');return l===1?'这格住满了：把珊瑚叠高能多住几条':'这格已经住了一只'}
+function cwhy(k,t){const d=CD[k.id];if(S.energy<d.e)return '能量不够：它要 '+d.e+' 点';if(d.fx==='cleanup')return '净滩要拖到一个污染源身上';if(!t||t.cell==null)return '拖到一个格子上';const x=S.cells[t.cell],l=laneOf(t.cell);if(polluted(S,t.cell))return '这格被污染盖住了';if(d.fx==='zoox')return x.lush?'这格已经很茂盛了':'虫黄藻要用在一格珊瑚上';if(d.terr)return l!==1?d.n+'只能长在礁石上':x.coral&&x.kind!==d.terr?'这格已经长了别的':d.n+'最多 3 级';if(!d.z.includes(l))return d.n+'只生活在'+d.z.map(z=>ZN[z]).join('、');return l===1?'这格住满了：把海葵或珊瑚叠高能多住几条':'这格已经住了一只'}
 const targetAt=(x,y)=>{for(const n of document.elementsFromPoint(x,y)){if(!n.closest||!n.closest('#cScene'))continue;const f=n.closest('.foe');if(f)return {foe:+f.dataset.foe};const s=n.closest('.slot');if(s)return {cell:+s.dataset.cell};}const r=$('cScene').getBoundingClientRect();return x>r.left&&x<r.right&&y>r.top&&y<r.bottom?{any:1}:null};
 document.addEventListener('pointerdown',e=>{if(mode!=='cg'||cbusy||!S||S.over)return;const c=e.target.closest('#cHand .cc');if(!c)return;cdrag={i:+c.dataset.h,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,pid:e.pointerId};try{c.setPointerCapture(e.pointerId)}catch(_){}
  clearTimeout(lpT);const i=cdrag.i;lpT=setTimeout(()=>{if(cdrag&&!cdrag.moved&&cdrag.i===i){const id=S.hand[i].id;cdrag=null;showCard(id)}},480)});
@@ -1090,10 +1135,10 @@ function cdrop(e){clearTimeout(lpT);if(!cdrag||e.pointerId!==cdrag.pid)return;co
  if(!d.moved){csel=csel===d.i?null:d.i;cact=null;cinfo=null;crender();return}
  const k=S.hand[d.i],t=targetAt(...upPt(e.clientX,e.clientY,56));if(!t){crender();return}
  if(CD[k.id].fx==='plankton'){if(!cplay(d.i,{any:1})){csay('能量不够',1);crender()}return}
- if(cplay(d.i,t))return;csay(cwhy(k,t),1);tone(140,.12,'square',.04);csel=d.i;crender()}
+ const r=cplay(d.i,t);if(r)return;csay(cwhy(k,t),1);tone(140,.12,'square',.04);csel=d.i;crender()}
 document.addEventListener('pointerup',cdrop);document.addEventListener('pointercancel',e=>{clearTimeout(lpT);if(cdrag&&e.pointerId===cdrag.pid){if(cdrag.ghost)cdrag.ghost.remove();cdrag=null;crender()}});
 document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('#cHand'))e.preventDefault()});
-function cstart(lv){cwarnT=-1;cLv=lv;if(lv===0)cExtra=[];csave();S=cgInit(lv,cExtra);csel=cact=cinfo=null;$('ov').hidden=true;crender();intro()}
+function cstart(lv){cwarnT=-1;cLv=lv;if(lv===0)cExtra=[];csave();S=cgInit(lv,cExtra);csel=cact=cinfo=null;$('ov').hidden=true;LV[lv].foes.forEach(id=>cSeen['f_'+id]=1);crender()}
 document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
  if(t.id==='mA'||t.id==='mB'){mode=t.id==='mA'?'cg':'td';$('mA').className=mode==='cg'?'on':'';$('mB').className=mode==='td'?'on':'';$('mCG').hidden=mode!=='cg';$('mTD').hidden=mode!=='td';$('ov').hidden=true;applyLand();try{localStorage.setItem('reefMode',mode)}catch(e){}
   if(mode==='td'){$('mInfo').textContent='';if(!tdStarted){tdStarted=true;start()}}else crender();return}
