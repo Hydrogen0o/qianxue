@@ -20,7 +20,8 @@ function applyLand(){const on=mode==='cg',vw=innerWidth,vh=innerHeight,H=documen
 addEventListener('resize',()=>{applyLand();if(mode==='cg'&&S&&!cbusy)crender()});
 const LT=[16.5,50,85],ZC=['z-top','z-reef','z-sand'],fx=p=>9.5+p*14.6;
 /* 一格里几条鱼时各自的位置：[左%, 上%] 与大小 */
-const CPOS={1:[[50,34]],2:[[27,36],[73,36]],3:[[27,24],[73,24],[50,66]]},CSZ={1:46,2:40,3:36};
+const CPOS={1:[[50,34]],2:[[27,36],[73,36]],3:[[27,24],[73,24],[50,66]],4:[[26,22],[74,24],[28,64],[72,66]],5:[[22,20],[76,22],[50,44],[24,70],[76,68]],6:[[18,22],[50,18],[82,24],[20,66],[50,70],[80,64]]},CSZ={1:46,2:40,3:36,4:32,5:30,6:28},
+ FPOS={2:[[28,40],[72,40]],3:[[18,42],[50,42],[82,42]],4:[[20,26],[62,24],[38,68],[80,70]],5:[[16,24],[50,22],[84,26],[32,70],[68,72]],6:[[16,24],[50,22],[84,24],[18,70],[50,72],[82,70]]},FSZ={2:36,3:28,4:26,5:25,6:24};
 let cmv=null;
 function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.moved?S.hand[cdrag.i]:null),T=cmv&&cmv.moved?cgMoveTargets(S,cmv.u):k&&S.energy>=CD[k.id].e?cgTargets(S,k.id):[],okc=new Set(T.filter(t=>t.cell!=null).map(t=>t.cell)),swp=new Set(T.filter(t=>t.swap).map(t=>t.cell)),okf=new Set(T.filter(t=>t.foe!=null).map(t=>t.foe)),any=T.some(t=>t.any),hn=chint(),thr=new Set();
  if(hn&&hn.lock&&k){okc.clear();if(S.hand.indexOf(k)===hn.card)okc.add(hn.cell)}
@@ -29,14 +30,14 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  $('mInfo').innerHTML=`<button id="cLvB" class="lvb">${S.lv+1}/${LV.length} ${st.n}</button><span class="prog2" role="img" aria-label="这一关的污染源：已净化 ${S.done} 个，共 ${S.total} 个">${Array.from({length:S.total},(_,i)=>`<i class="${i<S.done?'d':i<S.done+act?'a':''}"></i>`).join('')}</span>`;
  let h=`<div class="heartb" id="cHeart"><span>${II.heart}</span><b>${S.heart}</b></div>`;
  for(let l=0;l<NL;l++){const f=foeIn(S,l),fc=frontCell(S,l),nx=nextIn(S,l),reach=inReach(S,l),cl=fc>=0?calcLane(S,l):{tot:0,steps:[]},tot=cl.tot,ge=cl.steps.filter(q=>q.op==='e').length,gc=cl.steps.filter(q=>q.op==='c').length;h+=`<div class="zone ${ZC[l]}">`;
-  for(let col=0;col<NC;col++){const c=ci(l,col),x=S.cells[c],n=x.cs.length,cap=capOf(S,c),side=x.coral?null:sideKind(S,c);
+  for(let col=0;col<NC;col++){const c=ci(l,col),x=S.cells[c],n=x.cs.length,side=x.coral?null:sideKind(S,c);
    h+=`<button class="slot ${okc.has(c)?(swp.has(c)?'tgt swp':'tgt'):''} ${hn&&hn.cell===c&&!k?'hintt':''}" data-cell="${c}" style="left:${fx(col)}%" aria-label="${ZN[l]}第${col+1}格">${x.coral||side?`<span class="cor k-${x.coral?x.kind:side} l${x.coral} ${x.coral?'':'side'} ${x.lush?'lush':''}">${cart(x.coral?x.kind:side)}</span>`:''}`;
-   x.cs.forEach((u,i)=>{const d=CD[u.id],a=valOf(S,c,u),flat=l!==1&&n>1,ps=(flat?(n>2?[[18,42],[50,42],[82,42]]:[[28,40],[72,40]]):CPOS[Math.min(3,n)])[i]||[50,50],sz=flat&&n>2?28:CSZ[Math.min(3,n)];h+=`<span class="cr ${n>1?'sm':''} ${reach&&!u.net?'rdy':''} ${u.net?'netted':''} ${d.home&&!inHome(S,c,d.home)?'dry':''} ${thr.has(u.u)?'threat':''} ${cinfo==='u'+u.u?'on':''} ${cmv&&cmv.moved&&cmv.u===u.u?'lift':''}" data-u="${u.u}" style="width:${sz}px;height:${sz}px;left:${ps[0]}%;top:${ps[1]}%;margin:${-sz/2}px 0 0 ${-sz/2}px"><span class="sw" style="animation-duration:${2.6+(u.u%7)*.45}s;animation-delay:-${(u.u%9)*.5}s">${cart(u.id)}</span>${u.net?`<span class="nt">${II.net}</span>`:''}<i class="sa ${a>d.a?'up':''}">${d.clean?'↺':a}</i><i class="sh ${u.hp<d.h?'hurt':''}">${u.hp}</i></span>`});
-   if(cap>1)h+=`<span class="cap">${Array.from({length:cap},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
+   x.cs.forEach((u,i)=>{const d=CD[u.id],a=valOf(S,c,u),flat=l!==1&&n>1,nn=Math.min(6,n),ps=(flat?FPOS[nn]:CPOS[nn])[i]||[50,50],sz=flat?FSZ[nn]:CSZ[nn];h+=`<span class="cr k-${u.id} ${n>1?'sm':''} ${n>3?'xs':''} ${reach&&!u.net?'rdy':''} ${u.net?'netted':''} ${d.home&&!inHome(S,c,d.home)?'dry':''} ${thr.has(u.u)?'threat':''} ${cinfo==='u'+u.u?'on':''} ${cmv&&cmv.moved&&cmv.u===u.u?'lift':''}" data-u="${u.u}" style="width:${sz}px;height:${sz}px;left:${ps[0]}%;top:${ps[1]}%;margin:${-sz/2}px 0 0 ${-sz/2}px"><span class="sw" style="animation-duration:${2.6+(u.u%7)*.45}s;animation-delay:-${(u.u%9)*.5}s">${cart(u.id)}</span>${u.net?`<span class="nt">${II.net}</span>`:''}<i class="sa ${a>d.a?'up':''}">${d.clean?'↺':a}</i><i class="sh ${u.hp<d.h?'hurt':''}">${u.hp}</i></span>`});
+   { const hs=x.coral?x.cs.filter(o=>CD[o.id].hab===x.kind||CD[o.id].home===x.kind):[];if(x.coral){const hid=x.kind==='anem'?'clown':x.kind==='coral'?'butterfly':x.kind==='seagrass'?'eel':'fusilier',lim=limitOf(S,c,hid),cnt=countOf(S,c,hid);h+=`<span class="cap">${Array.from({length:lim},(_,i)=>`<i class="${i<cnt?'on':''}"></i>`).join('')}</span>`} }
    if(c===fc&&f)h+='<i class="fr"></i>';
    h+='</button>'}
-  if(fc>=0)h+=`<div class="lt ${reach?(f.arm&&tot<=f.arm?'weak':''):'off'}" data-lt="${l}">${II.atk}<b>${tot}</b></div>`;
-  if(ge||gc)h+=`<div class="lg2" style="left:${fc>=0?52:2}px">${ge?`<span class="ge">+${ge}<i></i></span>`:''}${gc?`<span class="gc">+${gc}<i></i></span>`:''}</div>`;
+  if(fc>=0)h+=`<div class="lt ${reach?(f.arm&&tot<=f.arm?'weak':''):'off'} ${cl.kinds>=3?'eco':''}" data-lt="${l}">${II.atk}<b>${tot}</b>${cl.kinds>=3?'<em>×2</em>':`<s>${'●'.repeat(cl.kinds||0)}${'○'.repeat(Math.max(0,3-(cl.kinds||0)))}</s>`}</div>`;
+  if(ge||gc)h+=`<div class="lg2" style="left:${fc>=0?92:2}px">${ge?`<span class="ge">+${ge}<i></i></span>`:''}${gc?`<span class="gc">+${gc}<i></i></span>`:''}</div>`;
   if(f)h+=`<div class="sludge" data-su="${f.u}" style="left:${fx(f.p)}%"></div>`;
   if(nx)h+=`<div class="inc"><span>${svg(FART[nx.id]())}</span><b>${nx.n}</b></div>`;
   h+='</div>'}
@@ -60,16 +61,16 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
 function chint(){if(!S||S.lv!==0||S.over||cbusy||cSeen.tutDone)return null;const f=foeIn(S,1),p=f?f.p:NC,hi=id=>S.hand.findIndex(k=>k.id===id&&CD[id].e<=S.energy),reef=Array.from({length:NC},(_,col)=>ci(1,col)).filter(c=>!polluted(S,c)),an=reef.filter(c=>S.cells[c].coral>0&&S.cells[c].kind==='anem'),lock=false,demo=S.turn===1;let i;
  const stray=reef.find(c=>!S.cells[c].coral&&S.cells[c].cs.some(o=>o.id==='clown')&&!inHome(S,c,'anem'));if(stray!=null&&(i=hi('anem'))>=0)return {card:i,cell:stray,lock,demo};
  if(!an.length&&(i=hi('anem'))>=0)return {card:i,cell:ci(1,Math.max(0,Math.min(NC-1,p-2))),lock,demo};
- if((i=hi('clown'))>=0){const c=an.filter(c=>S.cells[c].cs.length<capOf(S,c)).sort((a,b)=>b-a)[0];if(c!=null)return {card:i,cell:c,lock,demo};const j=hi('anem'),u=an.filter(c=>S.cells[c].coral<3).sort((a,b)=>b-a)[0];if(j>=0&&u!=null)return {card:j,cell:u}}
- if((i=hi('urchin'))>=0&&f&&p-1>=0){const c=ci(1,p-1);if(S.cells[c].cs.length<capOf(S,c)&&!S.cells[c].cs.some(o=>o.id==='urchin'))return {card:i,cell:c}}
- const free=c=>!polluted(S,c)&&S.cells[c].cs.length<capOf(S,c),right=from=>reef.filter(c=>c>=from&&free(c))[0],lastFish=Math.max(-1,...reef.filter(c=>S.cells[c].cs.some(o=>!CD[o.id].algae&&!CD[o.id].clean)));
- if((i=hi('parrot'))>=0&&f&&lastFish>=0){const c=right(lastFish);if(c!=null)return {card:i,cell:c}}
- if((i=hi('cleaner'))>=0&&lastFish>=0){const c=right(lastFish);if(c!=null)return {card:i,cell:c}}
- if((i=hi('turtle'))>=0&&f&&p-1>=0&&free(ci(1,p-1)))return {card:i,cell:ci(1,p-1)};
- const lane=l=>Array.from({length:NC},(_,col)=>ci(l,col)).filter(free);
- if((i=hi('eel'))>=0){const c=lane(2)[0];if(c!=null)return {card:i,cell:c}}
- if((i=hi('cucumber'))>=0){const c=lane(2).pop();if(c!=null)return {card:i,cell:c}}
- if((i=hi('fusilier'))>=0){const c=lane(0)[0];if(c!=null)return {card:i,cell:c}}
+ if((i=hi('clown'))>=0){const c=an.filter(c=>room(S,c,'clown')>0).sort((a,b)=>b-a)[0];if(c!=null)return {card:i,cell:c,lock,demo};const j=hi('anem'),u=an.filter(c=>S.cells[c].coral<3).sort((a,b)=>b-a)[0];if(j>=0&&u!=null)return {card:j,cell:u}}
+ if((i=hi('urchin'))>=0&&f&&p-1>=0){const c=ci(1,p-1);if(room(S,c,'urchin')>0)return {card:i,cell:c}}
+ const free=(c,id)=>!polluted(S,c)&&room(S,c,id||'urchin')>0,right=(from,id)=>reef.filter(c=>c>=from&&free(c,id))[0],lastFish=Math.max(-1,...reef.filter(c=>S.cells[c].cs.some(o=>!CD[o.id].algae&&!CD[o.id].clean)));
+ if((i=hi('parrot'))>=0&&f&&lastFish>=0){const c=right(lastFish,'parrot');if(c!=null)return {card:i,cell:c}}
+ if((i=hi('cleaner'))>=0&&lastFish>=0){const c=right(lastFish,'cleaner');if(c!=null)return {card:i,cell:c}}
+ if((i=hi('turtle'))>=0&&f&&p-1>=0&&free(ci(1,p-1),'turtle'))return {card:i,cell:ci(1,p-1)};
+ const lane=(l,id)=>Array.from({length:NC},(_,col)=>ci(l,col)).filter(c=>free(c,id));
+ if((i=hi('eel'))>=0){const c=lane(2,'eel')[0];if(c!=null)return {card:i,cell:c}}
+ if((i=hi('cucumber'))>=0){const c=lane(2,'cucumber').pop();if(c!=null)return {card:i,cell:c}}
+ if((i=hi('fusilier'))>=0){const c=lane(0,'fusilier')[0];if(c!=null)return {card:i,cell:c}}
  if((i=hi('plankton'))>=0&&S.hand.some(k=>CD[k.id].e>S.energy))return {card:i,cell:-1};
  return null}
 /* 拖动示意：一张半透明的牌从手里滑到落点，最多演 3 遍，放对了立刻停 */
@@ -93,7 +94,8 @@ async function csettle(){const R=cgSettle(S),slide=(u,p)=>{const fe=foeEl(u),sl=
  const gen=async st=>{const ce=crEl(st.u);if(!ce)return;const q=rectOf(ce);if(ce.animate&&!window.__fast)ce.animate([{transform:'scale(1)'},{transform:'scale(1.35)'},{transform:'scale(1)'}],{duration:200});if(st.op==='e'){pop(q,'+1','gen');flyTo(q,$('cOrbs'),'en');tone(880,.12,'sine',.08)}else{pop(q,'+牌','gen');flyTo(q,$('cDeck'),'cd');tone(660,.12,'sine',.08)}await cwait(200)};
  for(const r of R){const fe=r.u&&foeEl(r.u);if(!fe){for(const st of r.steps){if(st.op==='e'||st.op==='c')await gen(st);else if(st.op==='re'){const te=crEl(st.tu);if(te)pop(rectOf(te),'+2♥','heal');await cwait(160)}}continue}const arm=r.arm||0,ab=fe.querySelector('.arm'),hb0=fe.querySelector('.hpb'),hp0=+hb0.querySelector('b').textContent,mx=hp0/(parseFloat(hb0.querySelector('i').style.width)/100||1),tick=t=>{if(ab&&t>arm&&!ab.classList.contains('brk')){ab.classList.add('brk');tone(1200,.08,'square',.05)}const left=Math.max(0,hp0-Math.max(0,t-arm));hb0.querySelector('i').style.width=left/mx*100+'%';hb0.querySelector('b').textContent=left;hb0.classList.remove('pend');void hb0.offsetWidth;hb0.classList.add('pend')};const fr=rectOf(fe),cnt=document.createElement('div');cnt.className='run';cnt.textContent='0';document.body.appendChild(cnt);let i=0,first=true;
   const at=el=>{const q=rectOf(el);cnt.style.transform=`translate(${q[0]}px,${q[1]}px) translate(-50%,-50%)${RS()} translateY(-34px) scale(${Math.min(2,1+r.steps.length*0+Math.log2(1+(+cnt.textContent||0))*.12)})`};
-  for(const st of r.steps){const ce=crEl(st.u);if(!ce)continue;if(first){cnt.style.transition='none';at(ce);void cnt.offsetWidth;cnt.style.transition='';first=false}
+  for(const st of r.steps){if(st.eco){const lt=document.querySelector(`#cScene .lt[data-lt="${r.lane}"]`),q=lt?rectOf(lt):fr;pop([q[0]+(ROT?0:50),q[1]+(ROT?50:0)],'生态循环 ×2','mul');cnt.textContent=st.tot;tick(st.tot);cnt.classList.remove('tick','mulf');void cnt.offsetWidth;cnt.classList.add('mulf');tone(523,.2,'square',.07);tone(659,.22,'square',.06);tone(784,.3,'square',.06);shake($('cScene'));await cwait(420);continue}
+   const ce=crEl(st.u);if(!ce)continue;if(first){cnt.style.transition='none';at(ce);void cnt.offsetWidth;cnt.style.transition='';first=false}
    if(st.op==='net'){shake(ce);await cwait(140);continue}
    if(st.op==='e'||st.op==='c'){await gen(st);continue}
    if(st.op==='re'){const te=crEl(st.tu);at(ce);if(ce.animate&&!window.__fast)ce.animate([{transform:'scale(1)'},{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:220});pop(rectOf(ce),'↺','x2');if(te){pop(rectOf(te),'+2♥','heal');te.classList.remove('netted')}tone(990,.12,'triangle',.07);await cwait(230);continue}
@@ -146,7 +148,7 @@ function cwhy(k,t){const d=CD[k.id];if(S.energy<d.e)return '能量不够：它�
 const targetAt=(x,y)=>{let ru=null;for(const n of document.elementsFromPoint(x,y)){if(!n.closest||!n.closest('#cScene'))continue;const f=n.closest('.foe');if(f)return {foe:+f.dataset.foe};const cr=n.closest('.cr');if(cr&&ru==null)ru=+cr.dataset.u;const s=n.closest('.slot');if(s)return {cell:+s.dataset.cell,ru};}const r=$('cScene').getBoundingClientRect();return x>r.left&&x<r.right&&y>r.top&&y<r.bottom?{any:1}:null};
 document.addEventListener('pointerdown',e=>{if(mode!=='cg'||cbusy||!S||S.over)return;const c=e.target.closest('#cHand .cc');if(!c)return;cdrag={i:+c.dataset.h,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,pid:e.pointerId};try{c.setPointerCapture(e.pointerId)}catch(_){}
  clearTimeout(lpT);const i=cdrag.i;lpT=setTimeout(()=>{if(cdrag&&!cdrag.moved&&cdrag.i===i){const id=S.hand[i].id;cdrag=null;showCard(id)}},480)});
-document.addEventListener('pointermove',e=>{if(!cdrag||e.pointerId!==cdrag.pid)return;if(!cdrag.moved){if(Math.hypot(e.clientX-cdrag.x0,e.clientY-cdrag.y0)<9)return;cdrag.moved=true;clearTimeout(lpT);csel=null;cact=null;cinfo=null;const src=document.querySelector(`#cHand .cc[data-h="${cdrag.i}"]`),g=src.cloneNode(true);g.classList.add('ghost');g.classList.remove('sel','dead');g.removeAttribute('data-h');g.style.cssText='';document.body.appendChild(g);cdrag.ghost=g;crender();const s2=document.querySelector(`#cHand .cc[data-h="${cdrag.i}"]`);if(s2)s2.classList.add('lift')}
+document.addEventListener('pointermove',e=>{if(!cdrag||e.pointerId!==cdrag.pid)return;if(!cdrag.moved){if(Math.hypot(e.clientX-cdrag.x0,e.clientY-cdrag.y0)<9)return;cdrag.moved=true;clearTimeout(lpT);csel=null;cact=null;cinfo=null;const src=document.querySelector(`#cHand .cc[data-h="${cdrag.i}"]`),g=src.cloneNode(true);g.classList.add('ghost');g.classList.add(CD[S.hand[cdrag.i].id].fx?'fxg':'spr');g.classList.remove('sel','dead');g.removeAttribute('data-h');g.style.cssText='';document.body.appendChild(g);cdrag.ghost=g;crender();const s2=document.querySelector(`#cHand .cc[data-h="${cdrag.i}"]`);if(s2)s2.classList.add('lift')}
  cdrag.ghost.style.transform=`translate(${e.clientX}px,${e.clientY}px) translate(-50%,-50%)${RS()} translateY(-46px) rotate(${Math.max(-8,Math.min(8,((ROT?e.clientY-cdrag.y0:e.clientX-cdrag.x0))*.05))}deg) scale(.85)`;e.preventDefault()},{passive:false});
 function cdrop(e){clearTimeout(lpT);if(!cdrag||e.pointerId!==cdrag.pid)return;const d=cdrag;cdrag=null;if(d.ghost)d.ghost.remove();
  if(!d.moved){csel=csel===d.i?null:d.i;cact=null;cinfo=null;crender();return}

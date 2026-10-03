@@ -644,6 +644,31 @@ html.land .slot .cor.k-sargassum{top:0;bottom:auto}
 .lg2 span{display:flex;align-items:center;gap:2px;font:800 11px/17px var(--num);padding:0 5px;border-radius:99px;background:rgba(4,18,24,.7);color:#ffd166}
 .lg2 .ge i{width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6c8,#ffc93c 60%)}
 .lg2 .gc{color:#cfe8ef}.lg2 .gc i{width:7px;height:9px;border-radius:2px;background:#5fa0b0;border:1px solid #cfe8ef}
+
+/* ===== 没有格子的海 ===== */
+#cScene .slot{border:0!important;border-radius:50%;background:none}
+#cScene .slot.tgt{background:radial-gradient(ellipse at 50% 62%,rgba(255,214,102,.5),rgba(255,214,102,.14) 48%,transparent 66%);animation:tg2 .8s infinite alternate}
+#cScene .slot.tgt.swp{background:radial-gradient(ellipse at 50% 62%,rgba(255,154,89,.5),rgba(255,154,89,.12) 48%,transparent 66%);animation:none}
+#cScene .slot.hintt{background:radial-gradient(ellipse at 50% 62%,rgba(255,214,102,.42),rgba(255,214,102,.1) 50%,transparent 68%);box-shadow:none;animation:hpulse2 1.2s ease-in-out infinite}
+@keyframes hpulse2{50%{filter:brightness(1.5)}}
+html.busy #cScene .slot.tgt,html.busy #cScene .slot.hintt{background:none;animation:none}
+#cScene .zone+.zone{box-shadow:none}
+#cScene .z-reef{background:linear-gradient(#2a86bd 0,#2b7aa8 52%,#3f5d73 60%,#36506a)}
+#cScene .z-sand{background:linear-gradient(#36506a 0,#5f93a3 38%,#e3cf99 62%,#cdb780)}
+.slot .cap{top:auto;bottom:-2px}
+.slot .cap i{width:5px;height:5px;border-width:1px}
+.cr.xs .sa,.cr.xs .sh{min-width:12px;height:12px;font-size:9px;line-height:12px;padding:0 1px;bottom:-7px}
+.cr.k-eel::after{content:"";position:absolute;left:18%;right:18%;bottom:-3px;height:7px;border-radius:50%;background:rgba(60,40,10,.55);z-index:-1}
+.cr.k-eel .sw{animation:eelbob 3.2s ease-in-out infinite alternate}@keyframes eelbob{to{transform:translateY(3px) scaleY(.94)}}
+#cScene .z-top::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 60px,rgba(255,255,255,.13) 60px 96px,transparent 96px 190px);-webkit-mask-image:repeating-linear-gradient(0deg,transparent 0 13px,#000 13px 15px,transparent 15px 31px);mask-image:repeating-linear-gradient(0deg,transparent 0 13px,#000 13px 15px,transparent 15px 31px);background-size:190px 100%;animation:flowx 7s linear infinite}
+@keyframes flowx{to{background-position:-190px 0}}
+.lt s{text-decoration:none;font-size:7px;letter-spacing:1px;opacity:.7;margin-left:2px}
+.lt em{font:800 11px/17px var(--num);font-style:normal;margin-left:3px;color:#7a4a00;background:#ffd166;border-radius:99px;padding:0 4px}
+.cc.ghost.spr{background:none;border:0;box-shadow:none;width:62px;height:62px;overflow:visible}
+.cc.ghost.spr>*:not(.art){display:none}
+.cc.ghost.spr .art{background:none;height:62px;margin:0;filter:drop-shadow(0 10px 10px rgba(0,0,0,.5))}
+.cc.ghost.spr .art svg{width:100%;height:100%}
+@media (prefers-reduced-motion:reduce){#cScene .z-top::after,.cr.k-eel .sw{animation:none}}
 </style>
 <div id="stage">
 <div id="app">
