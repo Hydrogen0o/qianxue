@@ -31,7 +31,7 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  else if(cinfo&&String(cinfo)[0]==='f'){const f=S.foes.find(x=>'f'+x.u===cinfo);if(f)tx=`<b>${FOE[f.id].n}</b><i>${FOE[f.id].lg}</i>`}
  else if(cinfo!=null&&S.cells[cinfo]&&S.cells[cinfo].c){const u=S.cells[cinfo].c,d=CD[u.id];tx=`<b>${d.n}</b><i>${d.lg}</i>${u.net?'<br><u>被渔网缠住了，这回合动不了。</u>':!u.ready?'<br><u>这回合已经行动过了。</u>':''}`}
  if(!tx&&S.lv===0&&!S.over){const hasCr=S.cells.some(x=>x.c),playable=S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length);
-  tx='<em class="coach">'+(!hasCr&&playable?'把牌拖到礁石上':ccanAct()?'点发光的鱼，再点敌人':playable?'还能放牌，或者结束回合':cgCanDraw()?'能量还有剩：点牌堆抽 2 张':'结束回合')+'</em>'}
+  tx='<em class="coach">'+(!hasCr&&playable?'把牌拖到礁石上':playable?'还能放牌':cgCanDraw()?'能量还有剩：点牌堆抽 2 张':'结束回合，鱼会自己出手')+'</em>'}
  $('cText').innerHTML=tx;
  $('cOrbs').innerHTML=Array.from({length:Math.max(3,S.energy)},(_,i)=>`<i class="${i<S.energy?'on':''}"></i>`).join('');
  $('cDeck').textContent=S.deck.length;$('cDisP').textContent=S.dis.length;
@@ -39,7 +39,7 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  if(!$('cDis').firstChild)$('cDis').innerHTML='<span class="dk"><i></i><i></i></span><b>+2</b>';
  $('cUndo').hidden=true;$('cDis').disabled=S.energy<1||S.hand.length>=7||(!S.deck.length&&!S.dis.length);
  const canAct=ccanAct();
- $('cEnd').classList.toggle('ready',!canAct&&!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length))}
+ $('cEnd').classList.toggle('ready',!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length))}
 const cgCanDraw=()=>!(S.energy<1||S.hand.length>=7||(!S.deck.length&&!S.dis.length));
 const ccanAct=()=>S.cells.some((x,c)=>cgCanAct(S,c)&&(CD[x.c.id].clean?S.cells.some((y,q)=>q!==c&&y.c):S.foes.length));let cwarnT=-1;
 const cwait=ms=>new Promise(r=>setTimeout(r,window.__fast?0:ms));
@@ -58,7 +58,7 @@ async function doAttack(c,fi){if(cbusy)return;const f=S.foes[fi],u=S.cells[c].c,
  cact=null;cbusy=false;crender();if(S.over)cfinish()}
 async function doClean(c,c2){if(cbusy)return;const a=crEl(S.cells[c].c.u),b=crEl(S.cells[c2].c.u);cbusy=true;lunge(a,rectOf(b));await cwait(200);if(cgClean(S,c,c2)){pop(rectOf(b),'+2♥','heal');burst(rectOf(b),8,'w');tone(990,.15,'triangle',.08)}await cwait(260);cact=null;cbusy=false;crender()}
 /* 敌人的回合：一个个演 */
-async function cend(){if(cbusy||S.over)return;cbusy=true;csel=null;cact=null;cinfo=null;crender();const pre=S.foes.map(f=>f.u),preCells=S.cells.map(x=>x.c&&x.c.u),ev=cgEnd(S),heartEl=$('cHeart');let heart=+heartEl.querySelector('b').textContent;
+async function cend(){if(cbusy||S.over)return;csel=null;cact=null;cinfo=null;$('cEnd').disabled=true;let au,g=0;while((au=cgAutoNext(S))&&g++<40){if(au.atk)await doAttack(...au.atk);else await doClean(...au.clean)}$('cEnd').disabled=false;if(S.over)return;cbusy=true;crender();const pre=S.foes.map(f=>f.u),preCells=S.cells.map(x=>x.c&&x.c.u),ev=cgEnd(S),heartEl=$('cHeart');let heart=+heartEl.querySelector('b').textContent;
  for(const e of ev){const fe=e.u&&foeEl(e.u);
   if(e.t==='atk'){const ce=crEl(preCells[e.cell]);lunge(fe,rectOf(ce));await cwait(190);ce.classList.add('hurt');pop(rectOf(ce),'−'+e.dmg,'bad');SFX.eaten();shake($('cScene'));if(e.thorn){await cwait(120);pop(rectOf(fe),'−'+e.thorn,'dmg');fe.classList.add('hit');if(e.fdead){fe.classList.add('dying');burst(rectOf(fe),10,'g')}}if(e.dead){await cwait(150);ce.classList.add('die')}
    if(e.over){await cwait(150);heart-=e.over;heartEl.querySelector('b').textContent=Math.max(0,heart);shake(heartEl);pop(rectOf(heartEl),'−'+e.over,'bad')}await cwait(380)}
@@ -101,7 +101,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)r
  if(t.id==='cLvB'){ov(`<h1 style="font-size:20px">选关</h1><div class="lvs">${LV.map((l,i)=>`<button class="go ${i===S.lv?'':'alt'}" data-golv="${i}">${i+1}　${l.n}</button>`).join('')}</div><button class="go alt" data-cact="close">返回</button>`);return}
  if(cbusy||S.over)return;
  if(t.id==='cDis'){const n0=S.hand.length;if(cgDrawAct(S)){csel=null;SFX.sun();crender();document.querySelectorAll('#cHand .cc').forEach((c,i)=>{if(i>=n0)c.classList.add('drop')})}return}
- if(t.id==='cEnd'){if(ccanAct()&&cwarnT!==S.turn){cwarnT=S.turn;csay('还有鱼没出手：点发光的鱼，再点敌人',1);document.querySelectorAll('#cScene .cr.rdy').forEach(e=>{e.classList.remove('nudge');void e.offsetWidth;e.classList.add('nudge')});return}cend();return}
+ if(t.id==='cEnd'){cend();return}
  if(d.any&&csel!=null){if(!cplay(csel,{any:1}))csay('能量不够',1);return}
  if(d.foe!=null){const fi=+d.foe;if(csel!=null){if(!cplay(csel,{foe:fi})){csay(cwhy(S.hand[csel],{foe:fi}),1)}return}
   if(cact!=null&&cgCanAct(S,cact)&&!CD[S.cells[cact].c.id].clean){doAttack(cact,fi);return}cact=null;const key='f'+S.foes[fi].u;cinfo=cinfo===key?null:key;crender();return}

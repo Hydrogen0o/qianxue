@@ -47,11 +47,18 @@ function cgPlay(S,i,t){const k=S.hand[i];if(S.over||!k)return false;const d=CD[k
   if(d.terr){if(!x.coral)x.coral=true;else[t.cell-1,t.cell+1].forEach(q=>{if(S.cells[q])S.cells[q].coral=true})}else if(d.fx==='zoox')x.lush=true;else x.c={id:k.id,u:k.u,hp:d.h,ready:true,net:false}}
  S.energy-=d.e;S.hand.splice(i,1);if(d.terr||d.fx)S.dis.push(k);cgCheck(S);return true}
 function cgDrawAct(S){if(S.over||S.energy<DRAWCOST||S.hand.length>=HANDMAX||(!S.deck.length&&!S.dis.length))return false;S.energy-=DRAWCOST;cgDraw(S,DRAWN);return true}
-function hitFoe(S,fi,dmg,byCell){const f=S.foes[fi];f.hp-=dmg;if(f.hp<=0){S.foes.splice(fi,1);const k=byCell!=null&&S.cells[byCell].c;const drop=Math.random()<.5?'energy':'card';if(drop==='energy')S.energy++;else cgDraw(S,1);S.drops.push({u:f.u,drop});if(k&&CD[k.id].algae&&f.id==='algae'){S.energy++;S.drops.push({u:f.u,drop:'energy'})}return true}return false}
+const gainE=S=>{if(S.auto)S.bonus=(S.bonus||0)+1;else S.energy++};
+function hitFoe(S,fi,dmg,byCell){const f=S.foes[fi];f.hp-=dmg;if(f.hp<=0){S.foes.splice(fi,1);const k=byCell!=null&&S.cells[byCell].c;const drop=Math.random()<.5?'energy':'card';if(drop==='energy')gainE(S);else cgDraw(S,1);S.drops.push({u:f.u,drop});if(k&&CD[k.id].algae&&f.id==='algae'){gainE(S);S.drops.push({u:f.u,drop:'energy'})}return true}return false}
 /* 生物行动：打敌人，或（裂唇鱼）清洁同伴 */
 function cgCanAct(S,c){const k=S.cells[c]&&S.cells[c].c;return !!k&&k.ready&&!k.net&&!S.over}
 function cgAttack(S,c,fi){if(!cgCanAct(S,c)||!S.foes[fi])return null;const k=S.cells[c].c,d=CD[k.id];if(d.clean)return null;let dmg=atkOf(S,c);if(d.algae&&S.foes[fi].id==='algae')dmg*=2;k.ready=false;const dead=hitFoe(S,fi,dmg,c);cgCheck(S);return {dmg,dead}}
 function cgClean(S,c,c2){if(!cgCanAct(S,c)||c===c2)return false;const k=S.cells[c].c,o=S.cells[c2]&&S.cells[c2].c;if(!CD[k.id].clean||!o)return false;k.ready=false;o.hp=Math.min(CD[o.id].h,o.hp+2);o.net=false;o.ready=true;return true}
+/* 结束回合时，没出手的生物自己出手：打血最少的敌人；裂唇鱼先救被网住的，再帮最强的同伴多打一次 */
+function cgAutoNext(S){if(S.over)return null;S.auto=true;
+ for(let c=0;c<NS;c++){if(!cgCanAct(S,c)||CD[S.cells[c].c.id].clean||!S.foes.length)continue;let fi=0;S.foes.forEach((f,i)=>{if(f.hp<S.foes[fi].hp)fi=i});return {atk:[c,fi]}}
+ for(let c=0;c<NS;c++){if(!cgCanAct(S,c)||!CD[S.cells[c].c.id].clean)continue;let b=-1,bv=-1;for(let q=0;q<NS;q++){const o=S.cells[q].c;if(!o||q===c||CD[o.id].clean)continue;const v=o.net?100:(S.foes.length?atkOf(S,q):0)+(o.hp<CD[o.id].h?.5:0);if(v>bv&&(o.net||S.foes.length||o.hp<CD[o.id].h)){bv=v;b=q}}if(b>=0)return {clean:[c,b]}}
+ return null}
+function cgAutoAll(S){let a,g=0;while((a=cgAutoNext(S))&&g++<40){if(a.atk)cgAttack(S,...a.atk);else cgClean(S,...a.clean)}}
 function cgCheck(S){if(!S.over&&!S.foes.length&&!S.queue.length)S.over='win'}
 function cgEnd(S){if(S.over)return null;const ev=[];
  for(const f of S.foes.slice()){const it=intent(f);f.step++;
@@ -62,6 +69,6 @@ function cgEnd(S){if(S.over)return null;const ev=[];
  /* 回合末：珊瑚鱼回血 / 掉血，解开上回合的网，全员恢复行动 */
  for(let c=0;c<NS;c++){const x=S.cells[c],k=x.c;if(!k)continue;const d=CD[k.id];if(d.home){if(x.coral){if(k.hp<d.h){k.hp=Math.min(d.h,k.hp+(x.lush?2:1));ev.push({t:'heal',cell:c})}}else{k.hp--;const e={t:'dry',cell:c,dead:k.hp<=0};if(k.hp<=0){S.dis.push({id:k.id,u:k.u});x.c=null}ev.push(e)}}
   if(x.c){if(k.netNew)k.netNew=false;else k.net=false;k.ready=true}}
- S.turn++;S.energy=ENERGY;const sp=cgSpawn(S);if(sp.length)ev.push({t:'spawn',us:sp});cgCheck(S);return ev}
-const CG={NS,CD,FOE,POOL,cgInit,cgStage,cgTargets,cgPlay,cgDrawAct,cgAttack,cgClean,cgCanAct,cgEnd,atkOf,intent,frontCell,getLV:()=>LV};
+ S.turn++;S.energy=ENERGY+(S.bonus||0);S.bonus=0;S.auto=false;const sp=cgSpawn(S);if(sp.length)ev.push({t:'spawn',us:sp});cgCheck(S);return ev}
+const CG={NS,CD,FOE,POOL,cgInit,cgStage,cgTargets,cgPlay,cgDrawAct,cgAttack,cgClean,cgCanAct,cgEnd,cgAutoNext,cgAutoAll,atkOf,intent,frontCell,getLV:()=>LV};
 if(typeof module!=='undefined')module.exports=CG;
