@@ -5,9 +5,10 @@
    4 吃藻的生物（鹦嘴鱼、海胆）住进去，就清掉藻并守住那个家。 */
 const HANDN=5,ENERGY0=3,SWAPCOST=1,CAP=2;
 const SPOTS=[
- {type:'blue',t:0},{type:'blue',t:0},{type:'blue',t:1},{type:'blue',t:2},
- {type:'bare',t:0},{type:'bare',t:0},{type:'bare',t:1},{type:'bare',t:3},
- {type:'sand',t:0},{type:'sand',t:2}];
+ {type:'bare',t:0,x:33,y:43},{type:'bare',t:0,x:53,y:50},{type:'sand',t:0,x:13,y:52},{type:'blue',t:0,x:84,y:33},{type:'blue',t:0,x:90,y:52},
+ {type:'bare',t:1,x:40,y:63},{type:'sand',t:1,x:21,y:66},{type:'blue',t:1,x:80,y:67},
+ {type:'bare',t:2,x:61,y:66},{type:'grass',t:2,x:13,y:22},{type:'blue',t:2,x:86,y:15},{type:'sand',t:2,x:27,y:31},
+ {type:'cave',t:3,x:17,y:89},{type:'bare',t:3,x:50,y:86},{type:'blue',t:3,x:85,y:86},{type:'bare',t:3,x:70,y:82}];
 const TIERS=[0,.18,.42,.68];
 const CD={
  coral:{n:'鹿角珊瑚',e:1,p:1,hab:1,art:'coral',tx:'家 · 住 2 条礁鱼',lg:'种在荒礁上，是礁鱼的家，能住 2 条。',fact:'珊瑚搭起了整片礁的骨架。礁只占海底不到 1%，却养活了约四分之一的海洋鱼类。'},
@@ -24,18 +25,18 @@ const CD={
  sardine:{n:'沙丁鱼',e:1,p:1,home:'blue',art:'sardine',tx:'游蓝水 · 鲹鱼的食物',fact:'沙丁鱼成千上万挤成“饵球”，是鲹鱼、鲨鱼这些掠食者的主要食物。'},
  jack:{n:'鲹鱼',e:2,p:3,home:'blue',art:'jack',tx:'游蓝水 · 每条沙丁鱼 +3',fact:'鲹鱼白天聚成大鱼群，追着沙丁鱼这样的小鱼捕食。'},
  shark:{n:'礁鲨',e:4,p:6,home:'blue',art:'shark',tx:'游蓝水 · 每种生物 +2',lg:'游蓝水。场上每有一种不同的生物，+2 分。',fact:'有鲨鱼巡游的礁，说明下面整条食物链是健康的。'},
- turtle:{n:'绿海龟',e:3,p:7,home:'sand',art:'turtle',tx:'住沙地海草 · 稳稳 7 分',fact:'绿海龟成年后主要吃海草。它像割草机一样啃食，反而让海草床长得更健康。'},
- moray:{n:'海鳝',e:3,p:4,home:'coral',art:'moray',tx:'住珊瑚 · 有石斑鱼 ×3',fact:'石斑鱼会到洞口摇头“邀请”海鳝一起捕猎：海鳝钻缝赶鱼，石斑在外面堵。'},
+ turtle:{n:'绿海龟',e:3,p:7,home:'grass',art:'turtle',tx:'去海草床 · 稳稳的 7 分',fact:'绿海龟成年后主要吃海草。它像割草机一样啃食，反而让海草床长得更健康。'},
+ moray:{n:'海鳝',e:3,p:4,home:'cave',art:'moray',tx:'住洞穴 · 有石斑鱼 ×3',fact:'石斑鱼会到洞口摇头“邀请”海鳝一起捕猎：海鳝钻缝赶鱼，石斑在外面堵。'},
  spawn:{n:'产卵季',e:2,p:0,fx:1,art:'',tx:'本回合 ×2',lg:'一次性：这个回合的总净化 ×2。留到礁上最热闹的时候。',fact:'很多礁鱼在满月前后集体产卵。'}};
 const HOMEN={coral:'珊瑚',anem:'海葵',sand:'沙地',blue:'蓝水',grass:'海草床',cave:'洞穴',bare:'荒礁'};
 const CSTART=['coral','coral','coral','coral','anem','anem','clown','clown','clown','clown','chromis','chromis','chromis','chromis','butterfly','butterfly','cleaner','parrot','parrot','eel','eel','eel','eel','urchin','urchin','sardine','sardine','sardine','jack','jack','turtle','spawn'];
 const CPOOL=['shark','grouper','moray','ray','parrot','butterfly','coral','anem','spawn','jack','cleaner','clown','urchin'];
 const CST=[{n:'浅滩',turns:7,rule:''},{n:'礁坡',turns:8,rule:'这片水域污染更重，要净化更多才会退。'},{n:'峭壁',turns:9,rule:'最后一片，也是污染最重的一片。'}];
-let CTARGET=[190,290,390];
+let CTARGET=[210,340,450];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const cmk=id=>({id,u:++CUID,b:0});
 function cgInit(){const S={stage:0,cards:CSTART.map(cmk)};cgStage(S);return S}
-function cgStage(S){S.target=CTARGET[S.stage];S.turn=0;S.total=0;S.tier=0;S.spots=SPOTS.map((s,i)=>({i,type:s.type,t:s.t,hab:null,res:[],c:null,alg:false}));
+function cgStage(S){S.target=CTARGET[S.stage];S.turn=0;S.total=0;S.tier=0;S.spots=SPOTS.map((s,i)=>({i,type:s.type,t:s.t,x:s.x,y:s.y,hab:null,res:[],c:null,alg:false}));
  S.deck=cshuf(S.cards.map(k=>({id:k.id,u:k.u,b:0})));S.hand=[];S.dis=[];S.over=null;S.offer=null;
  /* 开局手牌保证有一丛珊瑚和一个海葵 */
  ['coral','anem'].forEach(id=>{const i=S.deck.findIndex(k=>k.id===id);if(i>=0)S.hand.push(S.deck.splice(i,1)[0])});cgTurn(S)}
