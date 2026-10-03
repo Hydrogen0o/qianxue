@@ -310,14 +310,60 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .hand-hint.tap{animation:tap 1s infinite}
 .ctext:empty{min-height:0}
 .row{padding:8px 6px 8px}
+
+/* ===== 三道海景 ===== */
+.scene3{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin-block:auto;touch-action:manipulation}
+.lane{position:relative;height:104px;overflow:hidden}
+.ln-blue{background:linear-gradient(#3aa5d2,#1b6fa8)}
+.ln-reef{background:linear-gradient(#1b6fa8 0,#3f5a70 30%,#33485a)}
+.ln-reef::before{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;background:radial-gradient(circle at 8% 100%,#4d6679 0 14px,transparent 15px),radial-gradient(circle at 30% 100%,#465d70 0 18px,transparent 19px),radial-gradient(circle at 55% 100%,#516b7f 0 12px,transparent 13px),radial-gradient(circle at 78% 100%,#465d70 0 17px,transparent 18px),#3a5062}
+.ln-sand{background:linear-gradient(#33485a 0,#5f7a80 26%,#d8c38d 60%,#cbb47c)}
+.lane.act{outline:2px solid rgba(255,255,255,.55);outline-offset:-2px;z-index:2}
+.lane.shake{animation:tshake .35s}
+.cell{position:absolute;top:0;bottom:0;width:16.667%;border-right:1px dashed rgba(255,255,255,.1)}
+.cell.fr{background:linear-gradient(90deg,transparent,rgba(95,227,208,.2))}
+.cell.fr::after{content:"×2";position:absolute;right:3px;top:2px;font:800 11px var(--num);color:var(--pur);opacity:.9}
+.cell.tgt{background:rgba(255,201,60,.22);box-shadow:inset 0 0 0 2.5px var(--sun);animation:tg2 .8s infinite alternate;z-index:3}
+@keyframes tg2{to{background:rgba(255,201,60,.34)}}
+.cell.tgt.over{background:rgba(255,201,60,.55)}
+.sp{position:absolute;z-index:4}
+.sp .sw{display:block;width:100%;height:100%;animation:wander 4s ease-in-out infinite alternate;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+@keyframes wander{0%{transform:translate(calc(var(--dx)*-1),var(--dy))}50%{transform:translate(var(--dx),calc(var(--dy)*-1))}100%{transform:translate(calc(var(--dx)*-.4),var(--dy))}}
+.sp svg{width:100%;height:100%;display:block;overflow:visible}
+.sp.k-hab{z-index:3}
+.sp.off{z-index:1}.sp.off .sw{filter:grayscale(1) brightness(.35);animation:none}
+.sp .val{right:-2px;bottom:-4px;min-width:17px;height:17px;font-size:11.5px;line-height:17px}
+.sp .val.x2{background:#fff;box-shadow:0 0 0 2px var(--pur)}
+.sp.on .sw{filter:drop-shadow(0 0 5px #fff)}
+.sp.spark .sw{animation:sparkk .5s}
+@keyframes sparkk{40%{filter:brightness(1.8) drop-shadow(0 0 8px #fff7c2);transform:scale(1.25)}}
+.mass{position:absolute;top:0;bottom:0;right:-20%;z-index:5;transition:transform .5s cubic-bezier(.4,1.4,.5,1);background:radial-gradient(circle at 12px 22%,#6b7a2c 0 14px,transparent 15px),radial-gradient(circle at 20px 62%,#55632a 0 18px,transparent 19px),radial-gradient(circle at 46px 40%,#4a5722 0 20px,transparent 21px),radial-gradient(circle at 70px 78%,#5d6b2a 0 16px,transparent 17px),radial-gradient(circle at 96px 24%,#4a5722 0 18px,transparent 19px),linear-gradient(90deg,rgba(24,30,12,.55),rgba(24,30,12,.94) 26px);border-left:3px solid #8fa33a;pointer-events:none}
+.duel{position:absolute;top:50%;margin:-16px 0 0 -36px;z-index:6;display:flex;align-items:center;gap:2px;transition:transform .5s cubic-bezier(.4,1.4,.5,1);pointer-events:none}
+.duel b{min-width:26px;height:28px;border-radius:99px;font:800 16px/28px var(--num);text-align:center;padding:0 6px;box-shadow:0 2px 5px rgba(0,0,0,.5)}
+.duel .pw{background:var(--pur);color:#04302a}
+.duel .pp{background:#2a3117;color:#d5e58a;border:2px solid #8fa33a;line-height:24px}
+.duel i{font-style:normal;font-size:13px;color:var(--good)}
+.duel.l i{color:var(--bad)}
+.duel.l .pp{border-color:var(--bad);animation:wn .6s infinite alternate}
+.duel .pp.hit{animation:pphit .3s}
+@keyframes pphit{40%{transform:scale(1.5);background:#fff;color:#2a3117}}
+.duel.won .pw{transform:scale(1.25)}.duel.lost .pp{transform:scale(1.25)}
+.clear{position:absolute;right:10px;top:8px;font:800 20px var(--num);color:var(--good);z-index:6}
+.shot{position:fixed;left:0;top:0;width:11px;height:11px;margin:-5px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,var(--pur,#5fe3d0));z-index:70;pointer-events:none;transition:transform .3s ease-in}
+.shot.big{width:17px;height:17px;margin:-8px}
+.pop{position:fixed;transform:translate(-50%,-50%);font:800 17px var(--num);color:#5fe3d0;text-shadow:0 1px 3px #000;z-index:71;pointer-events:none;animation:flo .8s forwards}
+.pop.eat{color:#d5e58a;font-size:20px}.pop.x2{color:#fff}
+.bub2{position:fixed;width:8px;height:8px;border-radius:50%;border:1.5px solid #dff6ff;z-index:70;pointer-events:none;animation:bub2 .8s forwards}
+@keyframes bub2{to{transform:translateY(-34px) scale(.4);opacity:0}}
+.cc.h-reef{--hc:#ff8a6b}.cc.h-sand{--hc:#e3cf9a}.cc.h-blue{--hc:#6ab8ff}
+@media (prefers-reduced-motion:reduce){.sp .sw,.cell.tgt{animation:none}}
 @media (prefers-reduced-motion:reduce){.tgt,.home.warn,.table.shake{animation:none}}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
 </style>
 <div id="app">
  <div class="modes"><div class="seg"><button id="mA" class="on">牌局</button><button id="mB">守礁</button></div><span id="mInfo"></span></div>
  <div id="mCG" class="mode">
-  <div class="pm"><div class="pnum" id="cTotBox"><b id="cTot">0</b><span id="cTgt"></span></div><div class="pbar"><i id="cBar"></i><span id="cTicks"></span></div><em id="cGain"></em></div>
-  <div class="table" id="cTable"></div>
+  <div class="scene3" id="cScene"></div>
   <div class="ctext" id="cText"></div>
   <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="piles"><span class="pile" aria-label="牌库"><i id="cDeck">0</i></span><span class="pile dis" aria-label="弃牌"><i id="cDisP">0</i></span></span></div>
   <div class="chand" id="cHand"></div>
