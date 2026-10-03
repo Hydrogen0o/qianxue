@@ -1,6 +1,6 @@
 /* 用简单打法攻击 v8：不看局面的打法应该明显更差 */
 const C=require('./cg.js');const {NC,NL,ci,laneOf,colOf}=C;
-const plays=S=>{const A=[];S.hand.forEach((k,i)=>{if(S.energy>=C.CD[k.id].e)C.cgTargets(S,k.id).forEach(t=>A.push([i,t]))});return A};
+const plays=S=>{const A=[];S.hand.forEach((k,i)=>{if(S.energy>=C.CD[k.id].e)C.cgTargets(S,k.id).forEach(t=>{if(!t.swap)A.push([i,t])})});return A};
 function playNovice(S){for(let g=0;g<40;g++){const A=plays(S);if(A.length){C.cgPlay(S,...A[Math.floor(Math.random()*A.length)]);continue}if(Math.random()<.6&&C.cgDrawAct(S))continue;break}}
 function playBlind(S){for(let g=0;g<40;g++){const A=plays(S);if(A.length){C.cgPlay(S,...A[0]);continue}if(!C.cgDrawAct(S))break}}
 function threat(S,l){const f=C.foeIn(S,l);if(f)return 3+(NC-f.p)*.8+f.hp*.05;const n=C.nextIn(S,l);return n?(n.n<=2?2:.8):0}
