@@ -65,6 +65,10 @@ function chint(){if(!S||S.lv!==0||S.over||cbusy||cSeen.tutDone)return null;const
  if((i=hi('parrot'))>=0&&f&&lastFish>=0){const c=right(lastFish);if(c!=null)return {card:i,cell:c}}
  if((i=hi('cleaner'))>=0&&lastFish>=0){const c=right(lastFish);if(c!=null)return {card:i,cell:c}}
  if((i=hi('turtle'))>=0&&f&&p-1>=0&&free(ci(1,p-1)))return {card:i,cell:ci(1,p-1)};
+ const lane=l=>Array.from({length:NC},(_,col)=>ci(l,col)).filter(free);
+ if((i=hi('eel'))>=0){const c=lane(2)[0];if(c!=null)return {card:i,cell:c}}
+ if((i=hi('cucumber'))>=0){const c=lane(2).pop();if(c!=null)return {card:i,cell:c}}
+ if((i=hi('fusilier'))>=0){const c=lane(0)[0];if(c!=null)return {card:i,cell:c}}
  if((i=hi('plankton'))>=0&&S.hand.some(k=>CD[k.id].e>S.energy))return {card:i,cell:-1};
  return null}
 /* 拖动示意：一张半透明的牌从手里滑到落点，最多演 3 遍，放对了立刻停 */
