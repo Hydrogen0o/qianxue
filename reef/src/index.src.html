@@ -632,6 +632,18 @@ html.busy .slot.tgt,html.busy .slot.hintt{animation:none;border:1.5px dashed rgb
 .chand .cc.oswap::after{content:"换";position:absolute;right:-3px;bottom:26px;z-index:4;font:800 11px/18px var(--ui);width:18px;height:18px;border-radius:50%;background:#ff9a59;color:#2a0d05;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.4)}
 .chand .cc.oswap{filter:none}
 html.land .lside{width:138px;max-width:138px;overflow:hidden}html.land .orbs{flex-wrap:wrap;max-width:100px}
+
+/* ===== 三条道各自的样子 ===== */
+#cScene .z-top{background:linear-gradient(#5cc0e6,#2a86bd)}
+#cScene .z-top::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(105deg,rgba(255,255,255,.10) 0 14px,transparent 14px 52px);-webkit-mask-image:linear-gradient(#000,transparent 85%);mask-image:linear-gradient(#000,transparent 85%)}
+#cScene .z-sand::before{content:"";position:absolute;left:0;right:0;bottom:0;height:42%;pointer-events:none;background:repeating-radial-gradient(ellipse at 50% 140%,rgba(120,90,40,.16) 0 3px,transparent 3px 13px)}
+.slot .cor.k-sargassum{top:0;bottom:auto;transform:scaleY(-1);opacity:.85}
+html.land .slot .cor.k-sargassum{top:0;bottom:auto}
+.slot .cor.k-seagrass{opacity:.95}
+.lg2{position:absolute;top:2px;z-index:6;display:flex;gap:3px;pointer-events:none}
+.lg2 span{display:flex;align-items:center;gap:2px;font:800 11px/17px var(--num);padding:0 5px;border-radius:99px;background:rgba(4,18,24,.7);color:#ffd166}
+.lg2 .ge i{width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6c8,#ffc93c 60%)}
+.lg2 .gc{color:#cfe8ef}.lg2 .gc i{width:7px;height:9px;border-radius:2px;background:#5fa0b0;border:1px solid #cfe8ef}
 </style>
 <div id="stage">
 <div id="app">
