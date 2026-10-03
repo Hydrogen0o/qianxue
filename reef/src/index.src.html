@@ -437,6 +437,75 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .sghost{position:fixed;left:0;top:0;width:48px;height:48px;z-index:60;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))}
 .sghost svg{width:100%;height:100%}
 #cScene .sp{touch-action:none}
+
+/* ===== v6 战斗场景 ===== */
+#cScene{position:relative;overflow:hidden}
+#cScene.shake{animation:tshake .3s}
+.zone{position:relative}
+.z-top{height:60px;background:linear-gradient(#49b2dc,#2a86bd)}
+.z-reef{height:156px;background:linear-gradient(#2a86bd 0,#2f6f95 62%,#3c5568 63%,#33485a)}
+.z-reef::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;background:radial-gradient(circle at 7% 100%,#51697b 0 15px,transparent 16px),radial-gradient(circle at 28% 100%,#465d70 0 19px,transparent 20px),radial-gradient(circle at 52% 100%,#566f82 0 13px,transparent 14px),radial-gradient(circle at 76% 100%,#465d70 0 18px,transparent 19px),#3a5062;pointer-events:none}
+.z-sand{height:46px;background:linear-gradient(#33485a 0,#56899a 40%,#d8c38d 41%,#c9b27a)}
+.heartb{position:absolute;left:3px;top:50%;margin-top:-26px;width:34px;display:flex;flex-direction:column;align-items:center;z-index:6;color:#ff8a6b}
+.heartb svg{width:28px;height:28px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+.heartb b{font:800 15px var(--num);color:#fff;margin-top:-22px;z-index:1;text-shadow:0 1px 2px #000}
+.heartb.shake{animation:tshake .3s}
+.slot{position:absolute;top:18px;bottom:8px;width:15%;border-radius:10px;border:1.5px dashed rgba(255,255,255,.16);z-index:3}
+.slot .cor{position:absolute;left:4%;right:4%;bottom:0;height:54%;pointer-events:none}
+.slot .cor svg{width:100%;height:100%}
+.slot .cor.lush{filter:drop-shadow(0 0 5px #ffe27a) saturate(1.6) brightness(1.15);transform:scale(1.18);transform-origin:50% 100%}
+.slot .cor.eaten{transition:opacity .3s,transform .3s;opacity:0;transform:scale(.3)}
+.slot.tgt{border:2.5px solid var(--sun);background:rgba(255,201,60,.2);animation:tg2 .8s infinite alternate}
+.slot.ally{border:2.5px solid #ff9aa9;background:rgba(255,154,169,.18)}
+.cr{position:absolute;left:50%;top:14px;width:48px;height:48px;margin-left:-24px;display:block}
+.cr .sw{display:block;width:100%;height:100%;--dx:3px;--dy:2px;animation:wander 4s ease-in-out infinite alternate;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.cr svg{width:100%;height:100%;display:block;overflow:visible}
+.cr .sa{position:absolute;left:-1px;bottom:-12px;z-index:2}.cr .sh{position:absolute;right:-1px;bottom:-12px;z-index:2}
+.cr .sa.up{background:#fff;box-shadow:0 0 0 2px #5fe3d0}.cr .sh.hurt{background:#ffd0d8}
+.cr.rdy::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(95,227,208,.9);animation:rdy2 1s infinite alternate}
+@keyframes rdy2{to{transform:scale(1.12);opacity:.35}}
+.cr.act::before{border-color:var(--sun);border-width:3px;animation:none;box-shadow:0 0 10px rgba(255,201,60,.8)}
+.cr:not(.rdy) .sw{filter:saturate(.35) brightness(.8)}
+.cr.dry .sh{animation:wn .6s infinite alternate}
+.cr.hurt .sw{animation:hurtk .35s}
+.cr.die{transition:opacity .35s,transform .35s;opacity:0;transform:translateY(-14px) rotate(160deg)}
+.cr .nt{position:absolute;inset:-4px;color:#dfe7ea;opacity:.9;z-index:1}
+.cr .nt svg{width:100%;height:100%}
+.cr .fr{position:absolute;left:50%;top:-13px;width:0;height:0;margin-left:-6px;border:6px solid transparent;border-top-color:#fff;opacity:.85}
+.slot.drop .cor,.cr.drop{animation:dropc .35s cubic-bezier(.3,1.6,.5,1)}
+.foe{position:absolute;right:5%;width:74px;height:74px;margin-top:-37px;z-index:5;display:block;transition:top .3s}
+.foe .fa{display:block;width:100%;height:100%;animation:fbob 2.4s ease-in-out infinite alternate;filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
+.foe .fa svg{width:100%;height:100%}
+@keyframes fbob{to{transform:translate(-5px,4px) rotate(-3deg)}}
+.foe .it{position:absolute;left:-30px;top:50%;margin-top:-15px;display:flex;align-items:center;gap:1px;background:#2a0d05;border:2px solid var(--bad);color:#ffb39f;border-radius:99px;padding:2px 6px;z-index:2}
+.foe .it svg{width:16px;height:16px}
+.foe .it b{font:800 15px var(--num);color:#fff}
+.foe .it.i-net{border-color:#c9d3d6;color:#dfe7ea;background:#22303a}
+.foe .it.i-eat{border-color:#ffb36b;color:#ffd9b0;background:#3a2408}
+.foe .hpb{position:absolute;left:6px;right:6px;bottom:-9px;height:13px;border-radius:99px;background:#1a2410;border:1.5px solid #8fa33a;overflow:hidden}
+.foe .hpb i{display:block;height:100%;background:linear-gradient(90deg,#8fa33a,#c5d95a)}
+.foe .hpb b{position:absolute;inset:0;text-align:center;font:800 10.5px/11px var(--num);color:#fff;text-shadow:0 1px 1px #000}
+.foe.tg::before,.foe.tgt::before{content:"";position:absolute;inset:-5px;border-radius:50%;border:3px dashed var(--sun);animation:spin 5s linear infinite}
+.foe.hit .fa{animation:fhit .25s}
+@keyframes fhit{40%{filter:brightness(3);transform:translateX(8px) scale(.9)}}
+.foe.dying{transition:opacity .3s,transform .3s;opacity:0;transform:scale(1.5) rotate(40deg)}
+.foe.enter{animation:fenter .4s}
+@keyframes fenter{from{transform:translateX(90px);opacity:0}}
+.foe.on .fa{filter:drop-shadow(0 0 6px #fff)}
+.incoming{position:absolute;right:4px;top:4px;font:800 12px var(--num);color:#d5e58a;background:rgba(20,26,10,.75);border:1px solid #8fa33a;border-radius:99px;padding:0 7px;z-index:6}
+.anyt{position:absolute;inset:0;z-index:8;background:rgba(255,201,60,.12);box-shadow:inset 0 0 0 3px var(--sun)}
+.pop.dmg{color:#fff;font-size:22px}
+.bt{position:fixed;width:8px;height:8px;margin:-4px;border-radius:50%;z-index:72;pointer-events:none;animation:btk .55s forwards;background:#cfeffa}
+.bt.g{background:#9db83a}.bt.c{background:#ffb59c}.bt.w{background:#ffd0d8}
+@keyframes btk{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
+.drop2{position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px;border-radius:50%;z-index:73;pointer-events:none;transition:transform .5s cubic-bezier(.4,-.3,.5,1)}
+.drop2.en{background:radial-gradient(circle at 35% 30%,#fff6c8,#ffc93c 60%);box-shadow:0 0 8px #ffc93c}
+.drop2.cd{width:14px;height:19px;border-radius:3px;background:linear-gradient(#f6f1e4,#e3d9c2);border:1.5px solid #fff}
+#cDeck.bump{animation:bump .25s}
+.foepic{display:block;width:74px;height:74px}
+.foepic svg{width:100%;height:100%}
+.cc .st{gap:6px}
+@media (prefers-reduced-motion:reduce){.cr .sw,.foe .fa,.cr.rdy::before{animation:none}}
 @media (prefers-reduced-motion:reduce){.sp .sw,.cell.tgt{animation:none}}
 @media (prefers-reduced-motion:reduce){.tgt,.home.warn,.table.shake{animation:none}}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
