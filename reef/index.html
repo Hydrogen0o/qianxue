@@ -420,6 +420,19 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .dk i:first-child{transform:translate(3px,-3px)}
 #mCG .foot .icb.drawb{flex:0 0 76px}
 .chand .cc.drop{animation:dropc .35s cubic-bezier(.3,1.6,.5,1)}
+
+.ln-0{background:linear-gradient(#49b2dc,#2a86bd)}
+.ln-1{background:linear-gradient(#2a86bd 0,#2f6f95 55%,#3c5568 56%,#33485a)}
+.ln-1::after{content:"";position:absolute;left:0;right:0;bottom:0;height:20px;background:radial-gradient(circle at 7% 100%,#51697b 0 15px,transparent 16px),radial-gradient(circle at 28% 100%,#465d70 0 19px,transparent 20px),radial-gradient(circle at 52% 100%,#566f82 0 13px,transparent 14px),radial-gradient(circle at 76% 100%,#465d70 0 18px,transparent 19px),radial-gradient(circle at 95% 100%,#51697b 0 14px,transparent 15px),#3a5062;pointer-events:none}
+.ln-2{background:linear-gradient(#33485a 0,#3f6f86 22%,#56899a 52%,#d8c38d 53%,#c9b27a)}
+.lane .cor{bottom:6px;height:58%;z-index:2}
+.lane .cor.lush{filter:drop-shadow(0 0 5px #ffe27a) saturate(1.6) brightness(1.15);transform:scale(1.18);transform-origin:50% 100%}
+.cc.h-top{box-shadow:0 3px 8px rgba(0,0,0,.45),inset 0 -5px 0 #6ab8ff}
+.cc.h-sand{box-shadow:0 3px 8px rgba(0,0,0,.45),inset 0 -5px 0 #d9c38a}
+.cc.h-free{box-shadow:0 3px 8px rgba(0,0,0,.45),inset 0 -5px 0 #9fb0b6}
+.den{position:absolute;left:6px;bottom:4px;display:flex;gap:3px;z-index:8}
+.den i{width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6c8,#ffc93c 60%)}
+.demo.ln-1::after{height:12px}
 @media (prefers-reduced-motion:reduce){.sp .sw,.cell.tgt{animation:none}}
 @media (prefers-reduced-motion:reduce){.tgt,.home.warn,.table.shake{animation:none}}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
@@ -647,30 +660,38 @@ const TD={COLS,UNITS,FOES,TDL,tdNew,tdCan,tdPlace,tdSun,tdStep,unitAt};
      不够 → 差多少，紧挨污染的那个生物就掉多少血；它死了，或者那格没人，污染进一格。
    · 珊瑚鱼在珊瑚上：净化 +1、每回合回 1 血；不在珊瑚上：每回合掉 1 血。 */
 const NC=6,HAND0=3,HANDMAX=7,DRAWCOST=1,DRAWN=2;
+const LANEN=['开阔水域','礁石','沙地'],LTYPE=['top','reef','sand'];
 const CD={
- coral:{n:'珊瑚',e:1,terr:1,art:'coral',lg:'铺在一格上。再打一张在已有的珊瑚上，它会长到上下左右的格子里。',fact:'珊瑚搭起了整片礁的骨架。礁只占海底不到 1%，却养活了约四分之一的海洋鱼类。'},
- clown:{n:'小丑鱼',e:1,a:2,h:3,r:2,reef:2,art:'clown',lg:'珊瑚鱼。在珊瑚上净化 +2、每回合回 1 血；离开珊瑚每回合掉 1 血。',fact:'小丑鱼离不开礁上的海葵和珊瑚：那里是它的家，也是它躲避天敌的地方。'},
- chromis:{n:'光鳃鱼',e:1,a:1,h:2,r:2,reef:1,school:1,art:'chromis',lg:'珊瑚鱼。同一条道里每多一条光鳃鱼，净化 +1。',fact:'光鳃鱼成群悬在鹿角珊瑚上方，一有危险就整群缩回枝杈里。'},
- butterfly:{n:'蝴蝶鱼',e:2,a:3,h:3,r:3,reef:1,art:'butterfly',lg:'珊瑚鱼。够得远，隔三格也能净化。',fact:'很多蝴蝶鱼以珊瑚虫为食，珊瑚死了，它们也跟着消失。'},
- parrot:{n:'鹦嘴鱼',e:2,a:1,h:4,r:2,reef:1,eat:2,art:'parrot',lg:'珊瑚鱼。每回合啃掉这条道 2 点污染。',fact:'鹦嘴鱼刮食礁石上的藻类，磨碎的石灰质排出来就是白沙。'},
- urchin:{n:'海胆',e:1,a:1,h:6,r:1,art:'urchin',lg:'血厚，适合顶在最前面。只够得着紧挨着的污染。',fact:'海胆夜里出来啃藻。海胆大量死亡的礁区，藻类很快就会盖过珊瑚。'},
- turtle:{n:'绿海龟',e:3,a:2,h:9,r:1,art:'turtle',lg:'血最厚的盾。',fact:'绿海龟成年后主要吃海草。它像割草机一样啃食，反而让海草床长得更健康。'},
- cleaner:{n:'裂唇鱼',e:2,a:1,h:2,r:2,reef:1,heal:2,art:'cleaner',lg:'珊瑚鱼。每回合给左右两边的生物各回 2 血。',fact:'裂唇鱼在固定的“清洁站”替别的鱼吃掉寄生虫，大鱼会排队等它。'},
- jack:{n:'鲹鱼',e:2,a:2,h:3,r:6,sup:1,art:'jack',lg:'游得远：整条道都够得着，还给上下相邻的道各 +1 净化。',fact:'鲹鱼白天聚成大鱼群，在礁外的蓝水里来回巡游。'},
- shark:{n:'礁鲨',e:4,a:4,h:6,r:6,sup:2,art:'shark',lg:'游得最远：整条道都够得着，还给上下相邻的道各 +2 净化。',fact:'有鲨鱼巡游的礁，说明下面整条食物链是健康的。'},
+ coral:{n:'珊瑚',e:1,terr:1,only:['reef'],art:'coral',lg:'只能长在礁石上。再打一张在已有的珊瑚上，它会沿着礁石向两边长。',fact:'珊瑚幼体要附着在坚硬的礁石上才能生长，所以沙地和开阔水域里没有珊瑚。'},
+ clown:{n:'小丑鱼',e:1,a:2,h:3,r:2,home:'coral',hb:2,art:'clown',lg:'珊瑚鱼。在珊瑚上净化 +2、每回合回 1 血；离开珊瑚每回合掉 1 血。',fact:'小丑鱼离不开礁上的海葵和珊瑚：那里是它的家，也是它躲避天敌的地方。'},
+ chromis:{n:'光鳃鱼',e:1,a:1,h:2,r:2,home:'coral',hb:1,school:1,art:'chromis',lg:'珊瑚鱼。同一条道里每多一条光鳃鱼，净化 +1。',fact:'光鳃鱼成群悬在鹿角珊瑚上方，一有危险就整群缩回枝杈里。'},
+ butterfly:{n:'蝴蝶鱼',e:2,a:3,h:3,r:3,home:'coral',hb:1,art:'butterfly',lg:'珊瑚鱼。够得远，隔三格也能净化。',fact:'很多蝴蝶鱼以珊瑚虫为食，珊瑚死了，它们也跟着消失。'},
+ parrot:{n:'鹦嘴鱼',e:2,a:1,h:4,r:2,home:'coral',hb:1,eat:2,art:'parrot',lg:'珊瑚鱼。每回合啃掉这条道 2 点污染。',fact:'鹦嘴鱼刮食礁石上的藻类，磨碎的石灰质排出来就是白沙。'},
+ cleaner:{n:'裂唇鱼',e:2,a:1,h:2,r:2,home:'coral',hb:1,heal:2,art:'cleaner',lg:'珊瑚鱼。每回合给左右两边的生物各回 2 血。',fact:'裂唇鱼在固定的“清洁站”替别的鱼吃掉寄生虫，大鱼会排队等它。'},
+ urchin:{n:'海胆',e:1,a:1,h:6,r:1,only:['reef','sand'],art:'urchin',lg:'贴着海底生活，只能放在礁石或沙地。血厚，适合顶在最前面。',fact:'海胆夜里出来啃藻。海胆大量死亡的礁区，藻类很快就会盖过珊瑚。'},
+ eel:{n:'花园鳗',e:1,a:2,h:2,r:2,home:'sand',hb:1,only:['sand'],school:1,art:'gardeneel',lg:'住在沙洞里，只能放在沙地。每多一条花园鳗，净化 +1。',fact:'花园鳗成片住在沙洞里，只探出半截身子，迎着水流吃浮游生物。'},
+ ray:{n:'蓝斑魟',e:2,a:3,h:5,r:2,home:'sand',hb:1,only:['reef','sand'],art:'ray',lg:'贴着海底游，只能放在礁石或沙地。在沙地上净化 +1。',fact:'蓝斑魟白天常躲在礁石下，涨潮时到沙地上翻沙找贝类吃。'},
+ sardine:{n:'沙丁鱼',e:1,a:1,h:2,r:3,home:'top',hb:1,school:1,art:'sardine',lg:'开阔水域的鱼：在那里净化 +1，去别处每回合掉 1 血。每多一条沙丁鱼，净化 +1。',fact:'沙丁鱼成千上万挤成“饵球”，是鲹鱼、鲨鱼这些掠食者的主要食物。'},
+ jack:{n:'鲹鱼',e:2,a:2,h:3,r:6,home:'top',hb:1,sup:1,art:'jack',lg:'开阔水域的鱼。游得远：整条道都够得着，还给上下相邻的道各 +1 净化。',fact:'鲹鱼白天聚成大鱼群，在礁外的蓝水里来回巡游。'},
+ shark:{n:'礁鲨',e:4,a:4,h:6,r:6,home:'top',hb:1,sup:2,art:'shark',lg:'开阔水域的鱼。整条道都够得着，还给上下相邻的道各 +2 净化。',fact:'有鲨鱼巡游的礁，说明下面整条食物链是健康的。'},
+ turtle:{n:'绿海龟',e:3,a:2,h:9,r:1,art:'turtle',lg:'哪条道都能去，不挑地方。血最厚的盾。',fact:'绿海龟到水面换气，到礁石上休息，到海草床吃草，三处都能见到它。'},
+ plankton:{n:'浮游生物',e:0,fx:'plankton',art:'',lg:'一阵浮游生物漂过：这回合多 2 点能量。',fact:'浮游生物是整片海的口粮。光鳃鱼、花园鳗、沙丁鱼，甚至鲸鲨，都靠滤食它们为生。'},
+ zoox:{n:'虫黄藻',e:1,fx:'zoox',art:'',lg:'选一格珊瑚，让它变茂盛：上面的珊瑚鱼净化再 +1，每回合多回 1 血。',fact:'珊瑚体内住着虫黄藻，它们晒太阳制造养分，珊瑚九成的能量来自它们。'},
+ cleanup:{n:'净滩',e:2,fx:'cleanup',art:'',lg:'选一条道：把这条道的污染值减 3。',fact:'人把垃圾和渔网清走，礁才有机会自己恢复。'},
  breed:{n:'繁殖',e:2,fx:'breed',art:'',lg:'选一条在珊瑚上的珊瑚鱼，它旁边的空格里多出一条一样的。',fact:'很多礁鱼在满月前后集体产卵，珊瑚的枝杈是鱼苗最好的藏身处。'},
  flow:{n:'水流',e:1,fx:'flow',art:'',lg:'选一条道：这条道的生物全部被冲到最前面，紧贴污染排好。',fact:'洋流给礁带来浮游生物，也把鱼卵和幼体带到新的地方。'}};
 /* 关卡：一关只加一两样新东西 */
 let LV=[
- {n:'一丛珊瑚',pl:[1],p0:2,up:2,turns:9,deck:{coral:4,clown:6},fresh:['coral','clown']},
- {n:'鱼群',pl:[1],p0:2,up:2,turns:12,deck:{coral:4,clown:4,chromis:5,urchin:2},fresh:['chromis','urchin']},
- {n:'三条水道',pl:[0,1,2],p0:2,up:1,turns:12,deck:{coral:5,clown:4,chromis:4,urchin:3,jack:3,flow:2},fresh:['jack','flow']},
- {n:'啃藻的鱼',pl:[0,1,2],p0:2,up:2,turns:12,deck:{coral:5,clown:4,chromis:4,urchin:2,jack:3,flow:2,parrot:2,butterfly:2,breed:2},fresh:['parrot','butterfly','breed']},
- {n:'大潮',pl:[0,1,2],p0:3,up:2,turns:14,deck:{coral:5,clown:4,chromis:4,urchin:2,jack:2,flow:2,parrot:2,butterfly:2,breed:2,turtle:1,cleaner:2,shark:1},fresh:['turtle','cleaner','shark']}];
+ {n:'一丛珊瑚',pl:[1],f0:5,p0:10,dn:2,up:0,turns:13,deck:{coral:4,clown:6,urchin:2},fresh:['coral','clown','urchin']},
+ {n:'鱼群',pl:[1],f0:5,p0:11,dn:2,up:1,turns:14,deck:{coral:4,clown:4,chromis:5,urchin:2,zoox:2},fresh:['chromis','zoox']},
+ {n:'开阔水域',pl:[0,1],f0:5,p0:10,dn:2,up:1,turns:14,deck:{coral:4,clown:4,chromis:3,urchin:2,zoox:1,sardine:4,jack:3,plankton:3},fresh:['sardine','jack','plankton']},
+ {n:'沙地',pl:[0,1,2],f0:5,p0:10,dn:2,up:1,turns:15,deck:{coral:4,clown:4,chromis:3,urchin:3,zoox:1,sardine:3,jack:3,plankton:3,eel:4,ray:2,flow:2},fresh:['eel','ray','flow']},
+ {n:'啃藻的鱼',pl:[0,1,2],f0:5,p0:11,dn:2,up:1,turns:15,deck:{coral:4,clown:4,chromis:3,urchin:2,zoox:2,sardine:3,jack:3,plankton:3,eel:3,ray:2,flow:2,parrot:2,butterfly:2,breed:2,cleanup:2},fresh:['parrot','butterfly','breed','cleanup']},
+ {n:'大潮',pl:[0,1,2],f0:5,p0:12,dn:2,up:1,turns:16,deck:{coral:4,clown:4,chromis:3,urchin:2,zoox:2,sardine:3,jack:2,plankton:3,eel:3,ray:2,flow:2,parrot:2,butterfly:2,breed:2,cleanup:2,turtle:2,cleaner:2,shark:1},fresh:['turtle','cleaner','shark']}];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const mkc=id=>({id,u:++CUID});
 function cgInit(lv){const S={lv:lv||0};cgStage(S);return S}
-function cgStage(S){const L=LV[S.lv];S.turn=0;S.over=null;S.lanes=Array.from({length:3},(_,li)=>({li,pol:L.pl.includes(li),front:L.pl.includes(li)?3:NC,P:L.p0,cells:Array.from({length:NC},()=>({coral:false,c:null}))}));
+function cgStage(S){const L=LV[S.lv];S.turn=0;S.over=null;S.lanes=Array.from({length:3},(_,li)=>({li,pol:L.pl.includes(li),front:L.pl.includes(li)?L.f0:NC,P:L.p0,cells:Array.from({length:NC},()=>({coral:false,lush:false,c:null}))}));
  const d=[];for(const k in L.deck)for(let i=0;i<L.deck[k];i++)d.push(mkc(k));S.deck=cshuf(d);S.hand=[];S.dis=[];
  ['coral','clown'].forEach(id=>{const i=S.deck.findIndex(k=>k.id===id);if(i>=0)S.hand.push(S.deck.splice(i,1)[0])});cgDraw(S,HAND0-S.hand.length);cgTurn(S)}
 function cgDraw(S,n){for(let i=0;i<n;i++){if(!S.deck.length){if(!S.dis.length)return;S.deck=cshuf(S.dis);S.dis=[]}S.hand.push(S.deck.pop())}}
@@ -679,35 +700,43 @@ function cgTurn(S){S.turn++;S.energy=cgEnergy(S.turn)}
 /* 手牌不会自己补：花能量才能抽 2 张 */
 function cgDrawAct(S){if(S.over||S.energy<DRAWCOST||S.hand.length>=HANDMAX||(!S.deck.length&&!S.dis.length))return false;S.energy-=DRAWCOST;cgDraw(S,Math.min(DRAWN,HANDMAX-S.hand.length));return true}
 const nb=(S,l,c)=>[[l,c-1],[l,c+1],[l-1,c],[l+1,c]].filter(([a,b])=>S.lanes[a]&&b>=0&&b<S.lanes[a].front);
+const nbRow=(S,l,c)=>[[l,c-1],[l,c+1]].filter(([a,b])=>b>=0&&b<S.lanes[a].front);
+const laneOk=(d,l)=>!d.only||d.only.includes(LTYPE[l]);
 /* 一张牌能打到哪些格子 */
-function cgTargets(S,id){const d=CD[id],o=[];if(d.fx==='flow'){S.lanes.forEach((L,l)=>{if(L.front<NC)o.push({l,c:Math.max(0,L.front-1)})});return o}
- S.lanes.forEach((L,l)=>{for(let c=0;c<L.front;c++){const x=L.cells[c];if(d.terr){if(!x.coral||nb(S,l,c).some(([a,b])=>!S.lanes[a].cells[b].coral))o.push({l,c})}
-  else if(d.fx==='breed'){if(x.c&&x.coral&&CD[x.c.id].reef&&nb(S,l,c).some(([a,b])=>!S.lanes[a].cells[b].c))o.push({l,c})}else if(!x.c)o.push({l,c})}});return o}
-const cgCan=(S,id,l,c)=>cgTargets(S,id).some(t=>t.l===l&&(CD[id].fx==='flow'||t.c===c));
+function cgTargets(S,id){const d=CD[id],o=[];if(d.fx==='flow'||d.fx==='cleanup'){S.lanes.forEach((L,l)=>{if(L.front<NC&&(d.fx==='cleanup'||L.cells.some((x,q)=>q<L.front&&x.c)))o.push({l,c:Math.max(0,L.front-1)})});return o}
+ if(d.fx==='plankton'){S.lanes.forEach((L,l)=>o.push({l,c:0}));return o}
+ S.lanes.forEach((L,l)=>{if(!d.fx&&!laneOk(d,l))return;for(let c=0;c<L.front;c++){const x=L.cells[c];if(d.terr){if(!x.coral||nbRow(S,l,c).some(([a,b])=>!S.lanes[a].cells[b].coral))o.push({l,c})}
+  else if(d.fx==='zoox'){if(x.coral&&!x.lush)o.push({l,c})}
+  else if(d.fx==='breed'){if(x.c&&x.coral&&CD[x.c.id].home==='coral'&&nbRow(S,l,c).some(([a,b])=>!S.lanes[a].cells[b].c))o.push({l,c})}else if(!x.c)o.push({l,c})}});return o}
+const LANEFX=['flow','cleanup','plankton'];
+const cgCan=(S,id,l,c)=>cgTargets(S,id).some(t=>t.l===l&&(LANEFX.includes(CD[id].fx)||t.c===c));
 /* 每条道的战况预告 */
-function cgLane(S,l){const L=S.lanes[l],U=[];for(let c=0;c<L.front;c++){const x=L.cells[c];if(x.c)U.push({k:x.c,d:CD[x.c.id],col:c,on:x.coral})}
- const cnt=U.filter(u=>u.d.school).length;let eat=0;U.forEach(u=>{u.dist=L.front-u.col;u.inr=u.dist<=u.d.r;u.a=u.d.a+(u.d.reef&&u.on?u.d.reef:0)+(u.d.school?cnt-1:0);if(u.inr&&u.d.eat)eat+=u.d.eat});
+function cgLane(S,l){const L=S.lanes[l],U=[];for(let c=0;c<L.front;c++){const x=L.cells[c];if(x.c){const d=CD[x.c.id];U.push({k:x.c,d,col:c,lush:x.lush,on:!d.home||(d.home==='coral'?x.coral:d.home===LTYPE[l])})}}
+ let eat=0;U.forEach(u=>{u.dist=L.front-u.col;u.inr=u.dist<=u.d.r;u.a=u.d.a+(u.d.home&&u.on?u.d.hb+(u.d.home==='coral'&&u.lush?1:0):0)+(u.d.school?U.filter(o=>o.k.id===u.k.id).length-1:0);if(u.inr&&u.d.eat)eat+=u.d.eat});
  let sup=0;[l-1,l+1].forEach(a=>{const M=S.lanes[a];if(M)for(let c=0;c<M.front;c++){const k=M.cells[c].c;if(k&&CD[k.id].sup)sup+=CD[k.id].sup}});
  const power=U.reduce((s,u)=>s+(u.inr?u.a:0),0)+sup,need=Math.max(0,L.P-eat),done=L.front>=NC,front=U.find(u=>u.col===L.front-1)||null,win=done?null:power>=need,short=win?0:need-power;
  return {U,power,sup,eat,need,done,win,short,front,dies:!win&&!done&&front?front.k.hp-short<=0:false,adv:!win&&!done&&(!front||front.k.hp-short<=0)}}
 const cgScore=S=>S.lanes.map((_,l)=>cgLane(S,l));
 function cgPlay(S,i,l,c){const k=S.hand[i];if(S.over||!k)return false;const d=CD[k.id];if(S.energy<d.e||!cgCan(S,k.id,l,c))return false;const L=S.lanes[l],x=L.cells[c];
- if(d.terr){if(!x.coral)x.coral=true;else nb(S,l,c).forEach(([a,b])=>{S.lanes[a].cells[b].coral=true})}
- else if(d.fx==='breed'){const t=nb(S,l,c).filter(([a,b])=>!S.lanes[a].cells[b].c).sort((p,q)=>(S.lanes[q[0]].cells[q[1]].coral-S.lanes[p[0]].cells[p[1]].coral)||(q[1]-p[1]))[0];S.lanes[t[0]].cells[t[1]].c={id:x.c.id,u:++CUID,hp:CD[x.c.id].h}}
+ if(d.terr){if(!x.coral)x.coral=true;else nbRow(S,l,c).forEach(([a,b])=>{S.lanes[a].cells[b].coral=true})}
+ else if(d.fx==='breed'){const t=nbRow(S,l,c).filter(([a,b])=>!S.lanes[a].cells[b].c).sort((p,q)=>(S.lanes[q[0]].cells[q[1]].coral-S.lanes[p[0]].cells[p[1]].coral)||(q[1]-p[1]))[0];S.lanes[t[0]].cells[t[1]].c={id:x.c.id,u:++CUID,hp:CD[x.c.id].h}}
+ else if(d.fx==='plankton')S.energy+=2;
+ else if(d.fx==='zoox')x.lush=true;
+ else if(d.fx==='cleanup')L.P=Math.max(1,L.P-3);
  else if(d.fx==='flow'){const us=[];for(let q=0;q<L.front;q++)if(L.cells[q].c){us.push(L.cells[q].c);L.cells[q].c=null}us.reverse().forEach((u,n)=>{L.cells[L.front-1-n].c=u})}
  else x.c={id:k.id,u:k.u,hp:d.h};
  S.energy-=d.e;S.hand.splice(i,1);if(d.terr||d.fx)S.dis.push(k);return true}
 function cgEnd(S){if(S.over)return null;const cf=LV[S.lv],sc=cgScore(S),ev={sc,lanes:[]};
  S.lanes.forEach((L,l)=>{const r=sc[l],e={move:0,hit:null,dead:[],heal:[],wither:[]};ev.lanes.push(e);if(r.done)return;
   if(r.win){L.front++;L.P+=cf.up;e.move=1}else{if(r.front){r.front.k.hp-=r.short;e.hit=[r.front.col,r.short];if(r.front.k.hp<=0){L.cells[r.front.col].c=null;S.dis.push({id:r.front.k.id,u:r.front.k.u});e.dead.push(r.front.col)}}
-   if(r.adv){L.front--;const x=L.cells[L.front];x.coral=false;if(x.c){S.dis.push({id:x.c.id,u:x.c.u});x.c=null}L.P=Math.max(1,L.P-1);e.move=-1}}
+   if(r.adv){L.front--;const x=L.cells[L.front];x.coral=false;x.lush=false;if(x.c){S.dis.push({id:x.c.id,u:x.c.u});x.c=null}L.P=Math.max(1,L.P-(cf.dn||1));e.move=-1}}
   /* 珊瑚鱼：在珊瑚上回血，不在就掉血；裂唇鱼给两边回血 */
   for(let c=0;c<L.front;c++){const x=L.cells[c],k=x.c;if(!k)continue;const d=CD[k.id];if(d.heal)[c-1,c+1].forEach(q=>{const o=L.cells[q]&&q<L.front&&L.cells[q].c;if(o&&o.hp<CD[o.id].h){o.hp=Math.min(CD[o.id].h,o.hp+d.heal);e.heal.push(q)}})}
-  for(let c=0;c<L.front;c++){const x=L.cells[c],k=x.c;if(!k)continue;const d=CD[k.id];if(!d.reef)continue;if(x.coral){if(k.hp<d.h){k.hp++;e.heal.push(c)}}else{k.hp--;e.wither.push(c);if(k.hp<=0){x.c=null;S.dis.push({id:k.id,u:k.u});e.dead.push(c)}}}});
+  for(let c=0;c<L.front;c++){const x=L.cells[c],k=x.c;if(!k)continue;const d=CD[k.id];if(!d.home)continue;const on=d.home==='coral'?x.coral:d.home===LTYPE[l];if(on){if(d.home==='coral'&&k.hp<d.h){k.hp=Math.min(d.h,k.hp+(x.lush?2:1));e.heal.push(c)}}else{k.hp--;e.wither.push(c);if(k.hp<=0){x.c=null;S.dis.push({id:k.id,u:k.u});e.dead.push(c)}}}});
  if(S.lanes.some(L=>L.front<=0)){S.over='lose';return ev}
  if(S.lanes.every(L=>L.front>=NC)){S.over='win';return ev}
  if(S.turn>=cf.turns){S.over='lose';ev.timeout=1;return ev}cgTurn(S);return ev}
-const CG={NC,CD,cgInit,cgStage,cgTargets,cgCan,cgLane,cgScore,cgPlay,cgDrawAct,cgEnd,cgEnergy,getLV:()=>LV};
+const CG={NC,CD,LANEN,LTYPE,laneOk,cgInit,cgStage,cgTargets,cgCan,cgLane,cgScore,cgPlay,cgDrawAct,cgEnd,cgEnergy,getLV:()=>LV};
 
 </script>
 <script>
@@ -774,23 +803,25 @@ const IC={undo:'<svg viewBox="0 0 24 24"><path d="M9 4 L4 9 L9 14 M4 9 H14 a6 6 
  swap:'<svg viewBox="0 0 24 24"><path d="M4 9 a8 8 0 0 1 14 -3 M20 3 v4 h-4 M20 15 a8 8 0 0 1 -14 3 M4 21 v-4 h4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  heart:'<svg viewBox="0 0 24 24"><path d="M12 21 C4 15 2 11 2 7.5 A5 5 0 0 1 12 6 A5 5 0 0 1 22 7.5 C22 11 20 15 12 21Z" fill="currentColor"/></svg>',
  drop:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="currentColor"/><circle cx="9" cy="9" r="3" fill="#fff" opacity=".7"/></svg>'};
-const FXART={breed:'<svg viewBox="0 0 100 100"><circle cx="38" cy="52" r="20" fill="#ffd6e6"/><circle cx="62" cy="48" r="20" fill="#ffc2da"/><circle cx="38" cy="52" r="7" fill="#ff6fae"/><circle cx="62" cy="48" r="7" fill="#ff6fae"/></svg>',
+const FXART={plankton:'<svg viewBox="0 0 100 100"><g fill="#e9fbff"><circle cx="28" cy="34" r="7"/><circle cx="62" cy="26" r="5"/><circle cx="74" cy="58" r="8"/><circle cx="40" cy="66" r="6"/><circle cx="52" cy="46" r="4"/><circle cx="22" cy="62" r="4"/></g><path d="M28 34 l-9 -7 M62 26 l8 -7 M74 58 l10 5 M40 66 l-6 9" stroke="#e9fbff" stroke-width="2.5" stroke-linecap="round"/></svg>',
+ zoox:'<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="#f2c14e"/><g stroke="#f2c14e" stroke-width="6" stroke-linecap="round"><path d="M50 6 V16 M50 84 V94 M6 50 H16 M84 50 H94 M19 19 l7 7 M74 74 l7 7 M81 19 l-7 7 M26 74 l-7 7"/></g><circle cx="42" cy="44" r="7" fill="#a9d94a"/><circle cx="58" cy="56" r="8" fill="#8fc43a"/></svg>',
+ cleanup:'<svg viewBox="0 0 100 100"><path d="M30 34 H70 L64 88 H36Z" fill="#fff"/><path d="M24 30 H76" stroke="#fff" stroke-width="8" stroke-linecap="round"/><path d="M42 22 H58" stroke="#fff" stroke-width="7" stroke-linecap="round"/><path d="M43 46 V76 M57 46 V76" stroke="#7b6ad0" stroke-width="5" stroke-linecap="round"/></svg>',breed:'<svg viewBox="0 0 100 100"><circle cx="38" cy="52" r="20" fill="#ffd6e6"/><circle cx="62" cy="48" r="20" fill="#ffc2da"/><circle cx="38" cy="52" r="7" fill="#ff6fae"/><circle cx="62" cy="48" r="7" fill="#ff6fae"/></svg>',
  flow:'<svg viewBox="0 0 100 100"><path d="M10 35 Q30 20 50 35 T90 35 M10 55 Q30 40 50 55 T90 55 M10 75 Q30 60 50 75 T90 75" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M78 26 L92 35 L78 44" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
 const artOf=id=>CD[id].fx?FXART[CD[id].fx]:cart(id);
 const dots=r=>r>=6?'<i class="rg far"></i>':`<i class="rg">${'<s></s>'.repeat(r)}</i>`;
-const handCard=(k,attr,extra)=>{const id=k.id||k,d=CD[id];return `<button class="cc ${d.fx?'h-fx':d.terr?'h-terr':d.reef?'h-reef':'h-free'} ${extra||''}" ${attr||''}><span class="orb">${d.e}</span><span class="art">${svg(artOf(id).replace(/^<svg[^>]*>|<\/svg>$/g,''))}</span><b>${d.n}</b>${d.a!=null?`<span class="st"><i class="sa">${d.a}</i><i class="sh">${d.h}</i>${dots(d.r)}</span>`:'<span class="st"></span>'}</button>`};
+const handCard=(k,attr,extra)=>{const id=k.id||k,d=CD[id];return `<button class="cc ${d.fx?'h-fx':d.terr?'h-terr':'h-'+(d.home==='coral'?'reef':d.home||(d.only?'sand':'free'))} ${extra||''}" ${attr||''}><span class="orb">${d.e}</span><span class="art">${svg(artOf(id).replace(/^<svg[^>]*>|<\/svg>$/g,''))}</span><b>${d.n}</b>${d.a!=null?`<span class="st"><i class="sa">${d.a}</i><i class="sh">${d.h}</i>${dots(d.r)}</span>`:'<span class="st"></span>'}</button>`};
 function csay(t,bad){document.querySelectorAll('.ctoast').forEach(e=>e.remove());const d=document.createElement('div');d.className='ctoast'+(bad?' bad':'');d.textContent=t;document.body.appendChild(d);clearTimeout(ctT);ctT=setTimeout(()=>d.remove(),2000)}
 const LHs=()=>104;
 function laneHTML(L,l,r,ok,opt){const LH=opt&&opt.h||LHs();let h=`<div class="lane ln-${l}" data-l="${l}" style="height:${LH}px">`;
- for(let c=0;c<NC;c++){const x=L.cells[c],pol=c>=L.front;h+=`<button class="cell ${pol?'pol':''} ${ok&&ok.has(l+','+c)?'tgt':''}" data-l="${l}" data-c="${c}" style="left:${c/NC*100}%" aria-label="第${l+1}道第${c+1}格">${x.coral&&!pol?`<span class="cor">${cart('coral')}</span>`:''}</button>`}
- r.U.forEach(u=>{const s=LH>120?54:42,on=cinfo===u.k.u,max=u.d.h;h+=`<button class="sp ${u.inr?'':'far'} ${on?'on':''} ${u.d.reef&&!u.on?'dry':''}" data-u="${u.k.u}" style="left:calc(${(u.col+.5)/NC*100}% - ${s/2}px);top:${LH*.5-s/2-4}px;width:${s}px;height:${s}px"><span class="sw" style="--dx:${3+u.k.u%4}px;--dy:${2+u.k.u%3}px;animation-duration:${2.6+(u.k.u%7)*.45}s;animation-delay:-${(u.k.u%9)*.5}s">${cart(u.k.id)}</span><i class="sa ${u.a>u.d.a?'up':''}">${u.inr?u.a:0}</i><i class="sh ${u.k.hp<max?'hurt':''}">${u.k.hp}</i></button>`});
+ for(let c=0;c<NC;c++){const x=L.cells[c],pol=c>=L.front;h+=`<button class="cell ${pol?'pol':''} ${ok&&ok.has(l+','+c)?'tgt':''}" data-l="${l}" data-c="${c}" style="left:${c/NC*100}%" aria-label="第${l+1}道第${c+1}格">${x.coral&&!pol?`<span class="cor ${x.lush?'lush':''}">${cart('coral')}</span>`:''}</button>`}
+ r.U.forEach(u=>{const s=LH>120?54:42,on=cinfo===u.k.u,max=u.d.h;h+=`<button class="sp ${u.inr?'':'far'} ${on?'on':''} ${u.d.home&&!u.on?'dry':''}" data-u="${u.k.u}" style="left:calc(${(u.col+.5)/NC*100}% - ${s/2}px);top:${LH*.5-s/2-4}px;width:${s}px;height:${s}px"><span class="sw" style="--dx:${3+u.k.u%4}px;--dy:${2+u.k.u%3}px;animation-duration:${2.6+(u.k.u%7)*.45}s;animation-delay:-${(u.k.u%9)*.5}s">${cart(u.k.id)}</span><i class="sa ${u.a>u.d.a?'up':''}">${u.inr?u.a:0}</i><i class="sh ${u.k.hp<max?'hurt':''}">${u.k.hp}</i></button>`});
  if(L.front<NC)h+=`<div class="mass" style="left:${L.front/NC*100}%"></div><div class="duel ${r.win?'w':'l'}" style="left:${L.front/NC*100}%"><b class="pw">${r.power}</b><i>${r.win?'▶':'◀'}</i><b class="pp">${r.need}</b></div>${!r.win&&r.front?`<span class="dmg" style="left:${(r.front.col+.5)/NC*100}%">−${r.short}</span>`:''}`;
  else if(L.pol)h+='<div class="clear">✓</div>';return h+'</div>'}
 function crender(){const st=LV[S.lv],sc=cgScore(S),k=csel!=null?S.hand[csel]:(cdrag&&cdrag.moved?S.hand[cdrag.i]:null);
- const ok=new Set(k&&S.energy>=CD[k.id].e?cgTargets(S,k.id).flatMap(t=>CD[k.id].fx==='flow'?Array.from({length:S.lanes[t.l].front},(_,c)=>t.l+','+c):[t.l+','+t.c]):[]);
+ const ok=new Set(k&&S.energy>=CD[k.id].e?cgTargets(S,k.id).flatMap(t=>LANEFX.includes(CD[k.id].fx)?Array.from({length:S.lanes[t.l].front},(_,c)=>t.l+','+c):[t.l+','+t.c]):[]);
  $('mInfo').innerHTML=`<button id="cLvB" class="lvb">${S.lv+1}/${LV.length} ${st.n}</button> <span class="pips">${Array.from({length:st.turns},(_,i)=>`<i class="${i<S.turn-1?'d':i===S.turn-1?'c':''}"></i>`).join('')}</span>`;
  $('cScene').innerHTML=S.lanes.map((L,l)=>laneHTML(L,l,sc[l],ok)).join('');
- let tx='';if(cinfo){let u=null;sc.forEach(r=>r.U.forEach(x=>{if(x.k.u===cinfo)u=x}));if(u)tx=`<b>${u.d.n}</b><i>${u.d.lg}</i>${u.inr?'':'<br><u>它现在离污染太远，够不着。</u>'}${u.d.reef&&!u.on?'<br><u>它不在珊瑚上，每回合掉 1 血。</u>':''}`}
+ let tx='';if(cinfo){let u=null;sc.forEach(r=>r.U.forEach(x=>{if(x.k.u===cinfo)u=x}));if(u)tx=`<b>${u.d.n}</b><i>${u.d.lg}</i>${u.inr?'':'<br><u>它现在离污染太远，够不着。</u>'}${u.d.home&&!u.on?`<br><u>它不在自己的家（${u.d.home==='coral'?'珊瑚':u.d.home==='top'?'开阔水域':'沙地'}），每回合掉 1 血。</u>`:''}`}
  else if(csel!=null){const d=CD[S.hand[csel].id];tx=`<b>${d.n}</b><i>${d.lg}</i>${S.energy<d.e?`<br><u>能量不够：要 ${d.e} 点，还剩 ${S.energy} 点。</u>`:!cgTargets(S,S.hand[csel].id).length?'<br><u>现在没有能用它的地方。</u>':''}`}
  $('cText').innerHTML=tx;
  $('cOrbs').innerHTML=Array.from({length:cgEnergy(S.turn)},(_,i)=>`<i class="${i<S.energy?'on':''}"></i>`).join('');
@@ -835,19 +866,26 @@ const DEMO={
  cleaner:[{cor:[1],u:[[0,'urchin',1,2],[1,'cleaner',2,2],[2,'clown',2,1]]},{cor:[1],u:[[0,'urchin',1,4],[1,'cleaner',2,2],[2,'clown',2,3]],pop:[0,'+2♥'],pop2:[2,'+2♥']},{cor:[1],u:[[0,'urchin',1,4],[1,'cleaner',2,2],[2,'clown',2,3]]}],
  jack:[{u:[[0,'jack',2,3]],P:2,rg:[0,3]},{u:[[0,'jack',2,3]],P:2,rg:[0,3],shot:0,side:'+1'},{u:[[0,'jack',2,3]],P:2,front:4,side:'+1'}],
  shark:[{u:[[0,'shark',4,6]],P:4,rg:[0,3]},{u:[[0,'shark',4,6]],P:4,rg:[0,3],shot:0,side:'+2'},{u:[[0,'shark',4,6]],P:4,front:4,side:'+2'}],
+ sardine:[{u:[[1,'sardine',2,2]],rg:[1,2]},{u:[[1,'sardine',3,2],[2,'sardine',3,2]],pop:[1,'+1']},{u:[[0,'sardine',4,2],[1,'sardine',4,2],[2,'sardine',4,2]],pop:[0,'+1']}],
+ eel:[{u:[[2,'eel',3,2]]},{u:[[2,'eel',4,2],[1,'eel',4,2]],pop:[1,'+1']},{u:[[2,'eel',4,2],[1,'eel',4,2]]}],
+ ray:[{u:[[2,'ray',4,5]],P:4},{u:[[2,'ray',4,5]],P:4,shot:2},{u:[[2,'ray',4,5]],P:4,front:4}],
+ plankton:[{u:[[2,'clown',2,3]],en:3},{u:[[2,'clown',2,3]],en:5,pop:[2,'+2']},{u:[[2,'clown',2,3]],en:5}],
+ zoox:[{cor:[2],u:[[2,'clown',4,3]]},{cor:[2],u:[[2,'clown',4,3]],tap:2},{cor:[2],lush:[2],u:[[2,'clown',5,3]],pop:[2,'+1']},{cor:[2],lush:[2],u:[[2,'clown',5,3]]}],
+ cleanup:[{u:[[2,'urchin',1,6]],P:7},{u:[[2,'urchin',1,6]],P:7,tap:4},{u:[[2,'urchin',1,6]],P:4,pop:[3,'−3']},{u:[[2,'urchin',1,6]],P:4}],
  breed:[{cor:[1,2],u:[[2,'clown',4,3]]},{cor:[1,2],u:[[2,'clown',4,3]],tap:2},{cor:[1,2],u:[[2,'clown',4,3],[1,'clown',4,3]],pop:[1,'×2']},{cor:[1,2],u:[[2,'clown',4,3],[1,'clown',4,3]]}],
  flow:[{u:[[0,'clown',2,3],[1,'urchin',1,6]],front:5,far:1},{u:[[0,'clown',2,3],[1,'urchin',1,6]],front:5,far:1,flow:1},{u:[[3,'clown',2,3],[4,'urchin',1,6]],front:5},{u:[[3,'clown',2,3],[4,'urchin',1,6]],front:5}]};
-function demoFrame(id,n){const F=DEMO[id],f=F[n%F.length],front=f.front||3;let h='';for(let c=0;c<NC;c++)h+=`<i class="cell ${c>=front?'pol':''} ${f.rg&&c>f.rg[0]&&c<=f.rg[0]+f.rg[1]?'rgc':''}" style="left:${c/NC*100}%">${f.cor&&f.cor.includes(c)?`<span class="cor">${cart('coral')}</span>`:''}</i>`;
+function demoFrame(id,n){const F=DEMO[id],f=F[n%F.length],front=f.front||3;let h='';for(let c=0;c<NC;c++)h+=`<i class="cell ${c>=front?'pol':''} ${f.rg&&c>f.rg[0]&&c<=f.rg[0]+f.rg[1]?'rgc':''}" style="left:${c/NC*100}%">${f.cor&&f.cor.includes(c)?`<span class="cor ${f.lush&&f.lush.includes(c)?'lush':''}">${cart('coral')}</span>`:''}</i>`;
  (f.u||[]).forEach(([c,sp,a,hp])=>{h+=`<span class="sp ${f.far?'far':''}" style="left:calc(${(c+.5)/NC*100}% - 17px);top:10px;width:34px;height:34px"><span class="sw" style="--dx:2px;--dy:1px">${cart(sp)}</span><i class="sa">${a}</i><i class="sh">${hp}</i></span>`});
  h+=`<div class="mass" style="left:${front/NC*100}%"></div>${f.P?`<b class="dp" style="left:${front/NC*100}%">${f.P}</b>`:''}`;
  if(f.pop)h+=`<span class="dpop ${f.bad?'bad':''}" style="left:${(f.pop[0]+.5)/NC*100}%">${f.pop[1]}</span>`;if(f.pop2)h+=`<span class="dpop" style="left:${(f.pop2[0]+.5)/NC*100}%">${f.pop2[1]}</span>`;
- if(f.tap!=null)h+=`<span class="dtap" style="left:${(f.tap+.5)/NC*100}%">👆</span>`;if(f.shot!=null)h+=`<i class="dshot" style="left:${(f.shot+.5)/NC*100}%;--to:${(front-f.shot-.5)*100/NC*3.4}px"></i>`;if(f.side)h+=`<span class="dside">↕ ${f.side}</span>`;if(f.flow)h+='<span class="dflow">➜➜➜</span>';
+ if(f.tap!=null)h+=`<span class="dtap" style="left:${(f.tap+.5)/NC*100}%">👆</span>`;if(f.shot!=null)h+=`<i class="dshot" style="left:${(f.shot+.5)/NC*100}%;--to:${(front-f.shot-.5)*100/NC*3.4}px"></i>`;if(f.side)h+=`<span class="dside">↕ ${f.side}</span>`;if(f.flow)h+='<span class="dflow">➜➜➜</span>';if(f.en)h+=`<span class="den">${'<i></i>'.repeat(f.en)}</span>`;
  return h}
-const demoHTML=id=>DEMO[id]?`<div class="demo lane ln-1" data-demo="${id}">${demoFrame(id,0)}</div>`:'';
+const demoLn=id=>{const d=CD[id];return d.home==='top'?0:d.home==='sand'?2:1};
+const demoHTML=id=>DEMO[id]?`<div class="demo lane ln-${demoLn(id)}" data-demo="${id}">${demoFrame(id,0)}</div>`:'';
 let demoT=0;function demoRun(){clearInterval(demoT);let n=0;demoT=setInterval(()=>{const els=document.querySelectorAll('#ov .demo');if(!els.length||$('ov').hidden){clearInterval(demoT);return}n++;els.forEach(e=>{e.innerHTML=demoFrame(e.dataset.demo,n)})},950)}
 function showCard(id){const d=CD[id];ov(`<div class="newc one"><div>${handCard(id)}${demoHTML(id)}<p>${d.lg}</p><p class="fa">${d.fact}</p></div></div>${d.a!=null?`<p class="leg"><i class="sa">${d.a}</i> 净化　<i class="sh">${d.h}</i> 血量　${dots(d.r)} ${d.r>=6?'整条道都够得着':'够得着 '+d.r+' 格'}</p>`:''}<button class="go" data-cact="close">知道了</button>`);demoRun()}
 function cplay(i,l,c){const snap=JSON.stringify(S),id=S.hand[i]&&S.hand[i].id,u=S.hand[i]&&S.hand[i].u;if(cgPlay(S,i,l,c)){cundo.push(snap);csel=null;cinfo=null;SFX.place();crender();chint();const el=CD[id].terr||CD[id].fx?document.querySelector(`#cScene .cell[data-l="${l}"][data-c="${c}"]`):spEl(u);if(el){el.classList.add('drop');const r=rectOf(el);for(let n=0;n<5;n++){const b=document.createElement('i');b.className='bub2';b.style.left=r[0]+(Math.random()*30-15)+'px';b.style.top=r[1]+'px';b.style.animationDelay=n*.05+'s';document.body.appendChild(b);setTimeout(()=>b.remove(),900)}}return true}return false}
-function cwhy(k,l,c){const d=CD[k.id];if(S.energy<d.e)return '能量不够：它要 '+d.e+' 点';if(l==null)return '拖到发亮的格子里';const L=S.lanes[l];if(c>=L.front)return '这格被污染占着';const x=L.cells[c];if(d.terr)return '这丛珊瑚周围已经长满了';if(d.fx==='breed')return '繁殖要选一条在珊瑚上的珊瑚鱼，旁边还得有空格';return x.c?'这格已经有生物了':'放不了'}
+function cwhy(k,l,c){const d=CD[k.id];if(S.energy<d.e)return '能量不够：它要 '+d.e+' 点';if(l==null)return '拖到发亮的格子里';const L=S.lanes[l];if(!d.fx&&!laneOk(d,l))return d.terr?'珊瑚只能长在礁石上':d.n+'贴着海底生活，'+(d.only.length>1?'只能放在礁石或沙地':'只能放在沙地');if(c>=L.front)return '这格被污染占着';const x=L.cells[c];if(d.terr)return '这丛珊瑚两边已经长满了';if(d.fx==='zoox')return '虫黄藻要用在一格珊瑚上';if(d.fx==='flow')return '这条道上没有能冲的生物';if(d.fx==='cleanup')return '这条道没有污染';if(d.fx==='breed')return '繁殖要选一条在珊瑚上的珊瑚鱼，旁边还得有空格';return x.c?'这格已经有生物了':'放不了'}
 document.addEventListener('pointerdown',e=>{if(mode!=='cg'||cbusy||!S||S.over)return;const c=e.target.closest('#cHand .cc');if(!c)return;document.querySelectorAll('.hand-hint').forEach(x=>x.remove());cdrag={i:+c.dataset.h,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,pid:e.pointerId,long:false};try{c.setPointerCapture(e.pointerId)}catch(_){}
  clearTimeout(lpT);const i=cdrag.i;lpT=setTimeout(()=>{if(cdrag&&!cdrag.moved&&cdrag.i===i){cdrag.long=true;const id=S.hand[i].id;cdrag=null;showCard(id)}},480)});
 const cellAt=(x,y)=>{const u=document.elementsFromPoint(x,y).find(n=>n.classList&&n.classList.contains('cell')&&n.closest('#cScene'));return u?{l:+u.dataset.l,c:+u.dataset.c,el:u}:null};
