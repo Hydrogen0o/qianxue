@@ -607,6 +607,17 @@ html.busy .ctext{visibility:hidden}
 html.busy .slot.tgt,html.busy .slot.hintt{animation:none;border:1.5px dashed rgba(255,255,255,.16);background:none}
 @media (prefers-reduced-motion:reduce){.chand .cc.hintc,.slot.hintt,.hintb,.prog2 i.a{animation:none}}
 .modes .prog2{margin:5px 0 0}
+
+/* ===== 厚度与产出 ===== */
+.foe .arm{position:absolute;right:-9px;top:-6px;width:26px;height:28px;color:#9fb4c4;z-index:3;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+.foe .arm svg{width:100%;height:100%}
+.foe .arm b{position:absolute;inset:0;text-align:center;font:800 13px/26px var(--num);color:#0e1c26}
+.foe .arm.brk{color:#5fe3d0;animation:hug .3s}
+.foe .arm.bump{animation:bump .25s 2}
+.lt.weak{background:#ff7a59;color:#2a0d05;animation:wn .6s infinite alternate}
+.pop.gen{color:#ffd166;font-size:18px}
+.cc .tag.ge{background:#b8860b;color:#fff}
+.inc.arm b::after{content:""}
 </style>
 <div id="stage">
 <div id="app">

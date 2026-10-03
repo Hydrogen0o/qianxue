@@ -11,7 +11,7 @@ function playSmart(S){for(let g=0;g<40;g++){let best=null,bv=-1;const need={},fr
     if(d.terr){const K=d.terr,dry=x.cs.some(k=>C.CD[k.id].home===K)&&!C.inHome(S,t.cell,K),want=need[K]>free[K];v=dry?7:x.coral===0?(want&&!x.cs.some(k=>C.CD[k.id].home&&C.CD[k.id].home!==K)?4-Math.abs(col-Math.max(0,p-3))*.6:.4):(want?3.2+(x.cs.length>=C.capOf(S,t.cell)?.5:0)-(col>=p-1?1:0):.3)}
     else if(d.fx==='zoox')v=x.cs.length*1.5;
     else if(d.h>=6){v=th*((fc<0||colOf(fc)<p-1)&&col===p-1?1.6:.5)+(col===Math.min(p-1,NC-2)?1.5:0)-(fc>=0&&col<colOf(fc)?1:0)}
-    else{const reach=Math.max(col,fc<0?-9:colOf(fc))>=p-C.RNG;v=th*(d.home?(C.inHome(S,t.cell,d.home)?1.3:.15):1)*(reach?1.3:.7)+(d.a||0)*.2-col*.25;if(d.school)v+=.6*[...Array(NC)].reduce((n,_,q)=>n+S.cells[ci(l,q)].cs.filter(o=>o.id===S.hand[i].id).length,0);if(f&&col===p-1&&fc<0)v-=1}}
+    else{const reach=Math.max(col,fc<0?-9:colOf(fc))>=p-C.RNG;v=th*(d.home?(C.inHome(S,t.cell,d.home)?1.3:.15):1)*(reach?1.3:.7)+(d.a||0)*.2-col*.25;if(d.gen==='e')v+=S.turn<=6?2.2:.6;if(d.school)v+=.6*[...Array(NC)].reduce((n,_,q)=>n+S.cells[ci(l,q)].cs.filter(o=>o.id===S.hand[i].id).length,0);if(f&&col===p-1&&fc<0)v-=1}}
    if(v>bv){bv=v;best=[i,t]}}
   if(best&&bv>=1.2&&C.cgPlay(S,...best))continue;if(S.hand.length<4&&C.cgDrawAct(S))continue;if(best&&bv>=.6&&C.cgPlay(S,...best))continue;if(!C.cgDrawAct(S))break}}
 function game(lv,pol,extra){const S=C.cgInit(lv,extra);let g=0;while(!S.over&&g++<80){pol(S);C.cgSettle(S);if(!S.over)C.cgEnd(S)}return S}
