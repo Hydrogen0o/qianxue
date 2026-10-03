@@ -277,6 +277,39 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .sheet .offer{display:flex;gap:10px;justify-content:center;margin-top:10px}
 .sheet .offer .cc{flex:0 0 30%;height:132px}
 .sheet .offer .cc.sel{border-color:var(--sun);box-shadow:0 0 0 2px var(--sun)}
+
+.pips{display:inline-flex;gap:3px;vertical-align:middle;margin-left:4px}
+.pips i{width:7px;height:7px;border-radius:50%;background:#274a55}
+.pips i.d{background:var(--dim)}.pips i.c{background:var(--sun);box-shadow:0 0 0 2px rgba(255,201,60,.3)}
+.mi{display:inline-block;width:15px;height:13px;vertical-align:middle}
+.mi svg{width:100%;height:100%;display:block;position:static}
+.cc .fxi{gap:1px;justify-content:center;font-size:0;min-height:18px}
+.cc .fxi b{font:800 11.5px var(--num);color:#12242b;margin:0 0 0 1px}
+.cc .fxi b.big{font-size:17px;color:#5b3fc0}
+.cc .fxi .ic{display:inline-block;width:13px;height:13px}
+.cc .fxi .ic svg{width:100%;height:100%;position:static}
+.ic.sh{color:#1b8f7e}.ic.st{color:#d79a00}.ic.up{color:#1b8f7e}
+.ic.no{position:relative}
+.ic.no::after{content:"";position:absolute;left:-1px;right:-1px;top:6px;height:2px;background:#d83a1e;transform:rotate(-40deg)}
+.s2{display:inline-flex;gap:2px}.s2 i{width:11px;height:13px;border:1.5px dashed #5a6a70;border-radius:3px}
+.cc em{height:15px;display:flex;align-items:center;justify-content:center}
+.cc em .mi{width:17px;height:13px}
+.cc b{font-size:12px}
+.lock{display:flex;flex-direction:column;align-items:center;gap:1px;color:#aab777}
+.lock svg{width:20px;height:20px}
+.lock b{font:800 13px var(--num);color:var(--pur)}
+.wb,.gb{padding:1px 4px;line-height:0}
+.wb svg,.gb svg{width:15px;height:15px}
+.gb{color:var(--pur)}
+.wb{background:#2a0d05;border:1.5px solid var(--bad)}
+.icb svg{width:22px;height:22px;display:block;margin:0 auto}
+#mCG .foot .icb{flex:0 0 58px}
+#cDis{position:relative}
+#cDis::after{content:"1";position:absolute;right:6px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--sun);color:#3a2b00;font:800 11px/16px var(--num)}
+.hand-hint{position:fixed;font-size:34px;margin:-6px 0 0 -8px;z-index:80;pointer-events:none}
+.hand-hint.tap{animation:tap 1s infinite}
+.ctext:empty{min-height:0}
+.row{padding:8px 6px 8px}
 @media (prefers-reduced-motion:reduce){.tgt,.home.warn,.table.shake{animation:none}}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
 </style>
@@ -284,12 +317,11 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
  <div class="modes"><div class="seg"><button id="mA" class="on">牌局</button><button id="mB">守礁</button></div><span id="mInfo"></span></div>
  <div id="mCG" class="mode">
   <div class="pm"><div class="pnum" id="cTotBox"><b id="cTot">0</b><span id="cTgt"></span></div><div class="pbar"><i id="cBar"></i><span id="cTicks"></span></div><em id="cGain"></em></div>
-  <p class="tip" id="cTip"></p>
   <div class="table" id="cTable"></div>
   <div class="ctext" id="cText"></div>
-  <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="hl">能量</span><span class="piles"><span class="pile"><i id="cDeck">0</i>牌库</span><span class="pile dis"><i id="cDisP">0</i>弃牌</span></span></div>
+  <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="piles"><span class="pile" aria-label="牌库"><i id="cDeck">0</i></span><span class="pile dis" aria-label="弃牌"><i id="cDisP">0</i></span></span></div>
   <div class="chand" id="cHand"></div>
-  <div class="foot"><button id="cUndo">撤销</button><button id="cDis">换牌 <small>1 能量</small></button><button class="pri" id="cEnd">结束回合</button></div>
+  <div class="foot"><button id="cUndo" aria-label="撤销" class="icb"></button><button id="cDis" aria-label="换牌，花 1 点能量" class="icb"></button><button class="pri" id="cEnd">结束回合</button></div>
  </div>
  <div id="mTD" class="mode" hidden>
  <div class="hud"><div class="en" id="enBox"><i></i><b id="en">0</b></div><div class="prog"><i id="pg"></i><s id="pgf"></s></div><span class="lv" id="lv"></span><button class="sm" id="bPrev" aria-label="上一关">‹</button><button class="sm" id="bNext" aria-label="下一关">›</button><button class="sm" id="bSnd" aria-label="声音">声</button></div>
