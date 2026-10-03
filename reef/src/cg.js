@@ -7,6 +7,7 @@
    · 你的回合：花能量放牌 / 抽牌（1 点抽 2 张）。有些牌放下时立刻有效果。
    · 结束回合：有污染源、也有生物的道就结算——从左到右每条鱼把自己的净化加进去（有的会翻倍、有的让左边的鱼再算一次），总数一击打在污染源上。
    · 开局时每一层的污染已经盖住右边一半。污染源不是每回合都推进：歇、放毒气、推进轮着来（三回合推一次）。
+   · 驱散：结算那一击每打掉污染源最大血量的四分之一，就把它推回去一片。
    · 污染源往前推一格，盖到珊瑚珊瑚就死；有生物挡着就打那一格里的每一个，打空了就顺势压上来；推到头撞礁心。 */
 const AMAX=6,RNG=99,NL=3,NC=5,NS=NL*NC,ENERGY=3,HAND0=4,HANDMAX=7,DRAWCOST=1,DRAWN=2,CAPS=[1,2,3,3];
 const ZN=['上层','中层','下层'],TN={water:'开阔水域',reef:'礁石',sand:'沙地'};
@@ -36,17 +37,17 @@ const CD={
 /* 污染源。plan 轮流：adv=往前推（有生物挡着就打它，到头就打礁心）；net=缠住本道最强的生物；eat=把本道最靠前的珊瑚啃掉一级 */
 const START=3;
 const FOE={
- algae:{n:'藻团',h:8,atk:2,plan:['rest','gas','adv'],lg:'三回合一个循环：歇一回合；放一回合毒气（它面前两片区域里的生物各掉 1 血）；再往前推一片，盖住的海葵和珊瑚会死。推的时候有生物挡着就打那一片里的每一个，打空了顺势压上来；推到头就撞上礁心。'},
+ algae:{n:'藻团',h:8,atk:2,plan:['rest','gas','adv'],lg:'三回合一个循环：歇一回合；放一回合毒气（它面前两片区域里的生物各掉 1 血）；再往前推一片，盖住的海葵和珊瑚会死。推的时候有生物挡着就打那一片里的每一个，打空了顺势压上来；推到头就撞上礁心。你一击打掉它四分之一的血，就能把它推回去一片。'},
  net:{n:'幽灵渔网',h:8,atk:2,plan:['net','rest','adv'],lg:'三回合一个循环：缠住这一层最强的生物（它下回合不结算）；歇一回合；往前推一片。'},
  cots:{n:'长棘海星',h:12,atk:3,plan:['eat','gas','adv'],lg:'三回合一个循环：把最靠前的珊瑚啃掉一级；放毒气；往前推一片。'}};
 /* waves：[第几回合出现, 哪种, 哪条道, 血量] */
 /* waves：[第几回合出现, 哪种, 哪条道, 血量, 厚度]；厚度=每次结算的那一击先被挡掉这么多；第 6 项可以单独给攻击力；hand 开局手牌；top 牌堆顶（按抽到的先后） */
 let LV=[
- {n:'浅礁',heart:10,hand:['anem','clown'],top:['clown','anem','urchin','eel','clown','cucumber','parrot','fusilier','eel','fusilier','anem','clown'],deck:{anem:4,clown:6,urchin:3,parrot:2,eel:3,cucumber:2,fusilier:4,upwelling:1},
+ {n:'浅礁',heart:10,start:[4,2,3],hand:['anem','clown'],top:['clown','anem','urchin','eel','clown','cucumber','parrot','fusilier','eel','fusilier','anem','clown'],deck:{anem:4,clown:6,urchin:3,parrot:2,eel:3,cucumber:2,fusilier:4,upwelling:1},
   waves:[[1,'algae',2,4],[2,'algae',2,11],[4,'algae',1,8],[5,'algae',2,26,2],[6,'algae',0,6],[7,'algae',1,13],[8,'algae',2,44,4,3],[9,'algae',0,10],[10,'algae',1,18,1],[11,'algae',2,86,6,3],[12,'algae',0,14]],fresh:['anem','clown','urchin','eel','cucumber','parrot','fusilier','upwelling'],foes:['algae']},
- {n:'幽灵渔网',heart:12,hand:['anem','clown','urchin','eel'],deck:{anem:4,clown:5,urchin:3,parrot:2,eel:4,cucumber:2,fusilier:4,seagrass:2,sargassum:2,jack:2,upwelling:2,plankton:2,turtle:1},
+ {n:'幽灵渔网',heart:12,start:[2,4,3],hand:['anem','clown','urchin','eel'],deck:{anem:4,clown:5,urchin:3,parrot:2,eel:4,cucumber:2,fusilier:4,seagrass:2,sargassum:2,jack:2,upwelling:2,plankton:2,turtle:1},
   waves:[[1,'algae',2,30,2],[2,'algae',1,25],[3,'net',0,19],[4,'algae',2,42,3],[5,'algae',1,30],[6,'net',0,25],[7,'algae',2,55,5],[8,'algae',1,40,1],[9,'net',0,30,1],[10,'algae',2,70,7],[11,'algae',1,42,1],[12,'net',0,34,1]],fresh:['seagrass','sargassum','upwelling','jack','plankton','turtle'],foes:['net']},
- {n:'长棘海星',heart:12,hand:['anem','clown','urchin','eel'],deck:{anem:3,clown:4,urchin:3,parrot:1,coral:3,butterfly:3,cleaner:1,eel:3,cucumber:2,seagrass:2,fusilier:4,sargassum:2,manta:1,turtle:2,upwelling:2,plankton:2},waves:[[1,'algae',2,55,2],[2,'net',0,44],[3,'algae',1,44],[4,'cots',2,78,4],[5,'net',0,55],[6,'algae',1,55],[7,'algae',2,94,6],[8,'net',0,67,1],[9,'algae',1,67,1],[10,'cots',2,122,8],[11,'net',0,78,1],[12,'algae',1,78,1]],fresh:['coral','butterfly','cleaner','manta'],foes:['net','cots']}];
+ {n:'长棘海星',heart:12,start:[3,3,2],hand:['anem','clown','urchin','eel'],deck:{anem:3,clown:4,urchin:3,parrot:1,coral:3,butterfly:3,cleaner:1,eel:3,cucumber:2,seagrass:2,fusilier:4,sargassum:2,manta:1,turtle:2,upwelling:2,plankton:2},waves:[[1,'algae',2,55,2],[2,'net',0,44],[3,'algae',1,44],[4,'cots',2,78,4],[5,'net',0,55],[6,'algae',1,55],[7,'algae',2,94,6],[8,'net',0,67,1],[9,'algae',1,67,1],[10,'cots',2,122,8],[11,'net',0,78,1],[12,'algae',1,78,1]],fresh:['coral','butterfly','cleaner','manta'],foes:['net','cots']}];
 const POOL=['parrot','butterfly','turtle','zoox','cleanup','plankton','cleaner','chromis','coral','jack','urchin','clown','anem','seagrass','sargassum','upwelling','manta'];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const mkc=id=>({id,u:++CUID});
@@ -78,9 +79,11 @@ function cgInit(lv,extra){const S={lv:lv||0,extra:extra||[]};cgStage(S);return S
 function cgStage(S){const L=LV[S.lv];S.turn=1;S.over=null;S.heart=S.heartMax=L.heart;S.energy=ENERGY;S.bonus=0;S.auto=false;S.cells=Array.from({length:NS},()=>({coral:0,kind:null,lush:false,cs:[]}));S.total=L.waves.length;S.done=0;S.foes=[];S.queue=L.waves.map(w=>({t:w[0],id:w[1],lane:w[2],h:w[3]||FOE[w[1]].h,arm:w[4]||0,atk:w[5]||FOE[w[1]].atk}));S.drops=[];S.pfx=null;S.gift=0;S.moves=1;
  const d=[];for(const k in L.deck)for(let i=0;i<L.deck[k];i++)d.push(mkc(k));S.extra.forEach(k=>d.push(mkc(k)));S.deck=cshuf(d);S.hand=[];S.dis=[];
  const take=id=>{const i=S.deck.findIndex(k=>k.id===id);return i>=0?S.deck.splice(i,1)[0]:null};(L.hand||[]).forEach(id=>{const k=take(id);if(k)S.hand.push(k)});const top=(L.top||[]).map(take).filter(Boolean);S.deck.push(...top.reverse());
- for(let l=0;l<NL;l++){const i=S.queue.findIndex(q=>q.lane===l);if(i<0)continue;const q=S.queue.splice(i,1)[0];S.foes.push({id:q.id,u:++CUID,hp:q.h,max:q.h,atk:q.atk,arm:q.arm,n:1,step:0,lane:l,p:START})}cgSpawn(S)}
+ for(let l=0;l<NL;l++){const i=S.queue.findIndex(q=>q.lane===l);if(i<0)continue;const q=S.queue.splice(i,1)[0];S.foes.push({id:q.id,u:++CUID,hp:q.h,max:q.h,atk:q.atk,arm:q.arm,n:1,step:0,lane:l,p:(L.start||[START,START,START])[l]})}cgSpawn(S)}
 function cgDraw(S,n){for(let i=0;i<n;i++){if(S.hand.length>=HANDMAX)return;if(!S.deck.length){if(!S.dis.length)return;S.deck=cshuf(S.dis);S.dis=[]}S.hand.push(S.deck.pop())}}
 function cgSpawn(S){const out=[];for(let i=0;i<S.queue.length;i++){const q=S.queue[i];if(q.t>S.turn)continue;const o=foeIn(S,q.lane);if(o){o.hp+=q.h;o.max=Math.max(o.max,o.hp);o.atk=Math.max(o.atk,q.atk)+1;o.n++;o.arm=Math.max(o.arm,q.arm);out.push({u:o.u,grow:q.h})}else{const f={id:q.id,u:++CUID,hp:q.h,max:q.h,atk:q.atk,arm:q.arm,n:1,step:0,lane:q.lane,p:NC};S.foes.push(f);out.push({u:f.u})}S.queue.splice(i,1);i--}return out}
+/* 污染源接下来第 i 个回合打算做什么（只看循环，不看场面） */
+const planAt=(f,i)=>{const P=FOE[f.id].plan;return P[(f.step+i)%P.length]};
 const nextIn=(S,l)=>{const q=S.queue.find(q=>q.lane===l);return q?{id:q.id,n:Math.max(1,q.t-S.turn),h:q.h,arm:q.arm}:null};
 const frontCell=(S,l)=>{for(let col=NC-1;col>=0;col--)if(S.cells[ci(l,col)].cs.length)return ci(l,col);return -1};
 const inReach=(S,l)=>{const f=foeIn(S,l),fc=frontCell(S,l);return !!f&&fc>=0&&f.p-colOf(fc)<=RNG};
@@ -142,7 +145,7 @@ function cgSettle(S){if(S.over)return [];S.auto=true;const out=[];
  for(let l=0;l<NL;l++){if(frontCell(S,l)<0)continue;const f=foeIn(S,l),r=calcLane(S,l);
   for(const st of r.steps){if(st.op==='e')S.bonus=(S.bonus||0)+st.v;else if(st.op==='c')cgDraw(S,st.v);else if(st.op==='re'){const k=S.cells[st.tcell].cs.find(o=>o.u===st.tu);if(k){k.hp=Math.min(CD[k.id].h,k.hp+2);k.net=false;k.netNew=false}}}
   if(!f){if(r.steps.some(st=>st.op==='e'||st.op==='c'||st.op==='re'))out.push({lane:l,u:null,steps:r.steps.filter(st=>st.op!=='+'&&st.op!=='x'&&st.op!=='net')});continue}
-  if(!r.steps.length)continue;const dmg=Math.max(0,r.tot-f.arm),dead=dmg>0?hitFoe(S,S.foes.indexOf(f),dmg):false;let push=0;if(!dead)for(let col=0;col<NC;col++)for(const k of S.cells[ci(l,col)].cs)if(CD[k.id].push&&!k.net&&f.p<NC){f.p++;push++}
+  if(!r.steps.length)continue;const dmg=Math.max(0,r.tot-f.arm),dead=dmg>0?hitFoe(S,S.foes.indexOf(f),dmg):false;let push=0;if(!dead){push=Math.min(NC-f.p,Math.floor(dmg*4/f.max));f.p+=push;for(let col=0;col<NC;col++)for(const k of S.cells[ci(l,col)].cs)if(CD[k.id].push&&!k.net&&f.p<NC){f.p++;push++}}
   out.push({lane:l,u:f.u,steps:r.steps,tot:r.tot,arm:f.arm,dmg,dead,push,p:f.p})}
  cgCheck(S);return out}
 function cgCheck(S){if(!S.over&&!S.foes.length&&!S.queue.length)S.over='win'}
@@ -167,5 +170,5 @@ function cgEnd(S){if(S.over)return null;const ev=[],kill=(c,k)=>{const x=S.cells
    if(x.kind==='seagrass'&&k.hp>0&&k.hp<d.h){k.hp++;ev.push({t:'heal',cell:c,ku:k.u})}
    if(k.netNew)k.netNew=false;else k.net=false}}
  S.turn++;S.moves=1;S.energy=ENERGY+(S.bonus||0);S.bonus=0;S.auto=false;const sp=cgSpawn(S);if(sp.length)ev.push({t:'spawn',us:sp});cgCheck(S);return ev}
-const CG={NL,NC,NS,CD,FOE,POOL,ZN,RNG,cgInit,cgStage,cgTargets,cgPlay,cgDrawAct,cgSettle,cgEnd,cgMove,cgMoveTargets,cgCanMove,cgCanPlace,terAt,bucketOf,hasTer,canLive,spotFor,TCELL,TN,ROWY,X0,CWD,calcLane,valOf,room,limitOf,countOf,inHome,sideKind,intent,frontCell,foeIn,polluted,inReach,nextIn,laneOf,colOf,ci,getLV:()=>LV};
+const CG={NL,NC,NS,CD,FOE,POOL,ZN,RNG,cgInit,cgStage,cgTargets,cgPlay,cgDrawAct,cgSettle,cgEnd,cgMove,cgMoveTargets,cgCanMove,cgCanPlace,terAt,bucketOf,hasTer,canLive,spotFor,TCELL,TN,ROWY,X0,CWD,calcLane,valOf,room,limitOf,countOf,inHome,sideKind,intent,planAt,frontCell,foeIn,polluted,inReach,nextIn,laneOf,colOf,ci,getLV:()=>LV};
 if(typeof module!=='undefined')module.exports=CG;

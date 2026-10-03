@@ -716,6 +716,19 @@ html.land #cScene .z-r0{flex:37.5}html.land #cScene .z-r1{flex:33.33}html.land #
 .foe .it.i-gas{border-color:#b6d35a;color:#d8f08a;background:#26300c}
 .foe .it.i-rest{border-color:#6b7d86;color:#b9c7cd;background:#1a242a;padding:2px 4px}
 .foe.puff .fa{animation:puff .45s}@keyframes puff{40%{transform:scale(1.25);filter:drop-shadow(0 0 12px #b6d35a)}}
+/* ===== 预示与驱散 ===== */
+.dz{position:absolute;top:0;bottom:0;width:14.286%;pointer-events:none;z-index:2}
+.dz.gas{background:radial-gradient(ellipse at 50% 55%,rgba(170,210,60,.5),rgba(170,210,60,.16) 55%,transparent 75%);animation:dzp 1.3s ease-in-out infinite alternate}
+.dz.mvz{background:linear-gradient(270deg,rgba(40,48,14,.6),rgba(40,48,14,0));animation:dzp 1.3s ease-in-out infinite alternate}
+.dz.atkz{background:radial-gradient(ellipse at 50% 55%,rgba(255,80,60,.42),rgba(255,80,60,.12) 55%,transparent 75%);animation:dzp .8s ease-in-out infinite alternate}
+@keyframes dzp{from{opacity:.45}to{opacity:1}}
+.foe .nx2{position:absolute;left:-10px;top:17px;display:flex;gap:1px;z-index:2}
+.foe .nx2 i{width:13px;height:13px;border-radius:50%;background:rgba(10,20,26,.8);color:#b9c7cd;display:block;padding:1.5px;box-sizing:border-box}
+.foe .nx2 i svg{width:100%;height:100%;display:block}
+.foe .nx2 i.n-gas{color:#d8f08a}.foe .nx2 i.n-adv{color:#ffb39f}.foe .nx2 i.n-net{color:#dfe7ea}.foe .nx2 i.n-eat{color:#ffd9b0}
+.heartb.danger{animation:wn .5s infinite alternate}
+.sludge.wash{animation:wash .5s}@keyframes wash{30%{filter:brightness(2.2) saturate(.3)}}
+@media (prefers-reduced-motion:reduce){.dz{animation:none}}
 </style>
 <div id="stage">
 <div id="app">

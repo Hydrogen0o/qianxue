@@ -30,12 +30,13 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  S.foes.forEach(f=>{const it=intent(S,f);if(it[0]==='atk')S.cells[it[2]].cs.forEach(o=>thr.add(o.u));else if(it[0]==='gas')it[2].forEach(c=>S.cells[c].cs.forEach(o=>thr.add(o.u)));else if(it[0]==='net')thr.add(it[2])});
  const act=S.foes.reduce((n,f)=>n+f.n,0);
  $('mInfo').innerHTML=`<button id="cLvB" class="lvb">${S.lv+1}/${LV.length} ${st.n}</button><span class="prog2" role="img" aria-label="这一关的污染源：已净化 ${S.done} 个，共 ${S.total} 个">${Array.from({length:S.total},(_,i)=>`<i class="${i<S.done?'d':i<S.done+act?'a':''}"></i>`).join('')}</span>`;
- let h=`<div class="heartb" id="cHeart"><span>${II.heart}</span><b>${S.heart}</b></div>`;
+ const hdanger=S.foes.some(f=>intent(S,f)[0]==='heart');
+ let h=`<div class="heartb ${hdanger?'danger':''}" id="cHeart"><span>${II.heart}</span><b>${S.heart}</b></div>`;
  for(const l of LORD){const f=foeIn(S,l),fc=frontCell(S,l),nx=nextIn(S,l),reach=inReach(S,l),cl=fc>=0?calcLane(S,l):{tot:0,steps:[]},tot=cl.tot,ge=cl.steps.filter(q=>q.op==='e').length,gc=cl.steps.filter(q=>q.op==='c').length;h+=`<div class="zone ${ZC[l]}">`;
   for(let col=0;col<NC;col++)h+=`<button class="slot" data-cell="${ci(l,col)}" style="left:${fx(col)}%;width:14.286%" aria-label="${ZN[l]}第${col+1}段" tabindex="-1"></button>`;
   if(fc>=0)h+=`<div class="lt ${reach?(f.arm&&tot<=f.arm?'weak':''):'off'} ${cl.kinds>=3?'eco':''}" data-lt="${l}">${II.atk}<b>${tot}</b>${cl.kinds>=3?'<em>×2</em>':`<s>${'●'.repeat(cl.kinds||0)}${'○'.repeat(Math.max(0,3-(cl.kinds||0)))}</s>`}</div>`;
   if(ge||gc)h+=`<div class="lg2" style="left:${fc>=0?92:2}px">${ge?`<span class="ge">+${ge}<i></i></span>`:''}${gc?`<span class="gc">+${gc}<i></i></span>`:''}</div>`;
-  if(f)h+=`<div class="sludge" data-su="${f.u}" style="left:${fx(f.p)}%"></div>`;
+  if(f){const it=intent(S,f),dz=(col,cls)=>col>=0&&col<NC?`<div class="dz ${cls}" style="left:${fx(col)}%"></div>`:'';if(it[0]==='gas')h+=dz(f.p-1,'gas')+dz(f.p-2,'gas');else if(it[0]==='move')h+=dz(f.p-1,'mvz');else if(it[0]==='atk')h+=dz(f.p-1,'atkz');h+=`<div class="sludge" data-su="${f.u}" style="left:${fx(f.p)}%"></div>`}
   if(nx)h+=`<div class="inc"><span>${svg(FART[nx.id]())}</span><b>${nx.n}</b></div>`;
   h+='</div>'}
  for(let c=0;c<NS;c++){const x=S.cells[c],reach=inReach(S,laneOf(c));
@@ -43,7 +44,7 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
   x.cs.forEach(u=>{const d=CD[u.id],a=valOf(S,c,u);h+=`<span class="cr sm k-${u.id} ${reach&&!u.net?'rdy':''} ${u.net?'netted':''} ${d.home&&!inHome(S,c,d.home)?'dry':''} ${thr.has(u.u)?'threat':''} ${cinfo==='u'+u.u?'on':''} ${cmv&&cmv.moved&&cmv.u===u.u?'lift':''}" data-u="${u.u}" style="left:${u.x*100}%;top:${u.y*100}%"><span class="sw" style="animation-duration:${2.6+(u.u%7)*.45}s;animation-delay:-${(u.u%9)*.5}s">${cart(u.id)}</span>${u.net?`<span class="nt">${II.net}</span>`:''}<i class="sa ${a>d.a?'up':''}">${d.clean?'↺':a}</i><i class="sh ${u.hp<d.h?'hurt':''}">${u.hp}</i></span>`})}
  if(hn&&hn.x!=null&&!k&&!(cmv&&cmv.moved))h+=`<i class="hspot" style="left:${hn.x*100}%;top:${hn.y*100}%"></i>`;
  h+='<i id="cSpot" class="spot" hidden></i><i id="cAim" class="aim" hidden></i>';
- S.foes.forEach((f,i)=>{const it=intent(S,f),big=it[0]==='heart';h+=`<button class="foe ${okf.has(i)?'tgt':''} ${cinfo==='f'+f.u?'on':''} ${inReach(S,f.lane)?'inr':''}" data-foe="${i}" data-fu="${f.u}" style="top:${LT[f.lane]}%;left:calc(${fx(f.p)+7}% - 29px)"><span class="it i-${it[0]}">${II[it[0]]}${it[0]==='atk'||it[0]==='gas'||big?`<b>${it[1]}</b>`:''}</span><span class="fa">${svg(FART[f.id]())}</span>${f.arm?`<span class="arm">${II.shield}<b>${f.arm}</b></span>`:''}<span class="hpb"><i style="width:${f.hp/f.max*100}%"></i><b>${f.hp}</b></span></button>`});
+ S.foes.forEach((f,i)=>{const it=intent(S,f),big=it[0]==='heart';h+=`<button class="foe ${okf.has(i)?'tgt':''} ${cinfo==='f'+f.u?'on':''} ${inReach(S,f.lane)?'inr':''}" data-foe="${i}" data-fu="${f.u}" style="top:${LT[f.lane]}%;left:calc(${fx(f.p)+7}% - 29px)"><span class="it i-${it[0]}">${II[it[0]]}${it[0]==='atk'||it[0]==='gas'||big?`<b>${it[1]}</b>`:''}</span><span class="nx2">${[1,2].map(q=>{const k=planAt(f,q);return `<i class="n-${k}">${II[k==='adv'?'move':k]}</i>`}).join('')}</span><span class="fa">${svg(FART[f.id]())}</span>${f.arm?`<span class="arm">${II.shield}<b>${f.arm}</b></span>`:''}<span class="hpb"><i style="width:${f.hp/f.max*100}%"></i><b>${f.hp}</b></span></button>`});
  if(any)h+='<button class="anyt" data-any="1" aria-label="使用"></button>';
  $('cScene').innerHTML=h;
  const nwc=csel==null&&!cinfo&&!cbusy?S.hand.find(c=>!cSeen[c.id]):null;
@@ -109,7 +110,7 @@ async function csettle(){const R=cgSettle(S),slide=(u,p)=>{const fe=foeEl(u),sl=
   if(!r.dmg){pop(fr,'挡住','bad');if(ab){ab.classList.remove('bump');void ab.offsetWidth;ab.classList.add('bump')}tone(240,.12,'square',.06);tone(180,.18,'square',.05);await cwait(380);continue}
   const big=r.dmg>=10;fe.classList.add('hit');pop(fr,'−'+r.dmg,big?'dmg crit':'dmg');burst(fr,big?16:7,'g');tone(big?110:200,big?.3:.14,'square',.08);if(big){shake($('cScene'));tone(70,.35,'sawtooth',.07)}
   if(r.dead){await cwait(130);fe.classList.add('dying');burst(fr,14,'g');SFX.die();const sl=document.querySelector(`#cScene .sludge[data-su="${r.u}"]`);if(sl)sl.style.left='100%';for(const d of S.drops.filter(d=>d.u===r.u)){await cwait(90);flyTo(fr,d.drop==='energy'?$('cOrbs'):$('cDeck'),d.drop==='energy'?'en':'cd');tone(d.drop==='energy'?880:660,.12,'sine',.08)}await cwait(320)}
-  else{if(r.push){await cwait(120);slide(r.u,r.p);tone(160,.15,'sine',.07)}await cwait(260)}}
+  else{if(r.push){await cwait(120);slide(r.u,r.p);pop([fr[0],fr[1]-(ROT?0:26)],'驱散 '+'›'.repeat(r.push),'add');tone(392,.14,'sine',.08);tone(587,.2,'sine',.07);const sl=document.querySelector(`#cScene .sludge[data-su="${r.u}"]`);if(sl){sl.classList.remove('wash');void sl.offsetWidth;sl.classList.add('wash')}await cwait(200)}await cwait(260)}}
  S.drops.length=0}
 const cbusyOn=v=>{cbusy=v;document.documentElement.classList.toggle('busy',v)};
 async function cend(){if(cbusy||S.over)return;cbusyOn(true);csel=null;cact=null;cinfo=null;crender();await csettle();crender();if(S.over){cbusyOn(false);cfinish();return}
