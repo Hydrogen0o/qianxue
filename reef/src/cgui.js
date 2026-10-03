@@ -21,7 +21,8 @@ addEventListener('resize',()=>{applyLand();if(mode==='cg'&&S&&!cbusy)crender()})
 const LT=[16.5,50,85],ZC=['z-top','z-reef','z-sand'],fx=p=>9.5+p*14.6;
 /* 一格里几条鱼时各自的位置：[左%, 上%] 与大小 */
 const CPOS={1:[[50,34]],2:[[27,36],[73,36]],3:[[27,24],[73,24],[50,66]]},CSZ={1:46,2:40,3:36};
-function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.moved?S.hand[cdrag.i]:null),T=k&&S.energy>=CD[k.id].e?cgTargets(S,k.id):[],okc=new Set(T.filter(t=>t.cell!=null).map(t=>t.cell)),swp=new Set(T.filter(t=>t.swap).map(t=>t.cell)),okf=new Set(T.filter(t=>t.foe!=null).map(t=>t.foe)),any=T.some(t=>t.any),hn=chint(),thr=new Set();
+let cmv=null;
+function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.moved?S.hand[cdrag.i]:null),T=cmv&&cmv.moved?cgMoveTargets(S,cmv.u):k&&S.energy>=CD[k.id].e?cgTargets(S,k.id):[],okc=new Set(T.filter(t=>t.cell!=null).map(t=>t.cell)),swp=new Set(T.filter(t=>t.swap).map(t=>t.cell)),okf=new Set(T.filter(t=>t.foe!=null).map(t=>t.foe)),any=T.some(t=>t.any),hn=chint(),thr=new Set();
  if(hn&&hn.lock&&k){okc.clear();if(S.hand.indexOf(k)===hn.card)okc.add(hn.cell)}
  S.foes.forEach(f=>{const it=intent(S,f);if(it[0]==='atk')S.cells[it[2]].cs.forEach(o=>thr.add(o.u));else if(it[0]==='net')thr.add(it[2])});
  const act=S.foes.reduce((n,f)=>n+f.n,0);
@@ -30,7 +31,7 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  for(let l=0;l<NL;l++){const f=foeIn(S,l),fc=frontCell(S,l),nx=nextIn(S,l),reach=inReach(S,l),tot=fc>=0?calcLane(S,l).tot:0;h+=`<div class="zone ${ZC[l]}">`;
   for(let col=0;col<NC;col++){const c=ci(l,col),x=S.cells[c],n=x.cs.length,cap=capOf(S,c),side=x.coral?null:sideKind(S,c);
    h+=`<button class="slot ${okc.has(c)?(swp.has(c)?'tgt swp':'tgt'):''} ${hn&&hn.cell===c&&!k?'hintt':''}" data-cell="${c}" style="left:${fx(col)}%" aria-label="${ZN[l]}第${col+1}格">${x.coral||side?`<span class="cor k-${x.coral?x.kind:side} l${x.coral} ${x.coral?'':'side'} ${x.lush?'lush':''}">${cart(x.coral?x.kind:side)}</span>`:''}`;
-   x.cs.forEach((u,i)=>{const d=CD[u.id],a=valOf(S,c,u),ps=CPOS[Math.min(3,n)][i]||[50,50],sz=CSZ[Math.min(3,n)];h+=`<span class="cr ${n>1?'sm':''} ${reach&&!u.net?'rdy':''} ${u.net?'netted':''} ${d.home&&!inHome(S,c,d.home)?'dry':''} ${thr.has(u.u)?'threat':''} ${cinfo==='u'+u.u?'on':''}" data-u="${u.u}" style="width:${sz}px;height:${sz}px;left:${ps[0]}%;top:${ps[1]}%;margin:${-sz/2}px 0 0 ${-sz/2}px"><span class="sw" style="animation-duration:${2.6+(u.u%7)*.45}s;animation-delay:-${(u.u%9)*.5}s">${cart(u.id)}</span>${u.net?`<span class="nt">${II.net}</span>`:''}<i class="sa ${a>d.a?'up':''}">${d.clean?'↺':a}</i><i class="sh ${u.hp<d.h?'hurt':''}">${u.hp}</i></span>`});
+   x.cs.forEach((u,i)=>{const d=CD[u.id],a=valOf(S,c,u),ps=CPOS[Math.min(3,n)][i]||[50,50],sz=CSZ[Math.min(3,n)];h+=`<span class="cr ${n>1?'sm':''} ${reach&&!u.net?'rdy':''} ${u.net?'netted':''} ${d.home&&!inHome(S,c,d.home)?'dry':''} ${thr.has(u.u)?'threat':''} ${cinfo==='u'+u.u?'on':''} ${cmv&&cmv.moved&&cmv.u===u.u?'lift':''}" data-u="${u.u}" style="width:${sz}px;height:${sz}px;left:${ps[0]}%;top:${ps[1]}%;margin:${-sz/2}px 0 0 ${-sz/2}px"><span class="sw" style="animation-duration:${2.6+(u.u%7)*.45}s;animation-delay:-${(u.u%9)*.5}s">${cart(u.id)}</span>${u.net?`<span class="nt">${II.net}</span>`:''}<i class="sa ${a>d.a?'up':''}">${d.clean?'↺':a}</i><i class="sh ${u.hp<d.h?'hurt':''}">${u.hp}</i></span>`});
    if(cap>1)h+=`<span class="cap">${Array.from({length:cap},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
    if(c===fc&&f)h+='<i class="fr"></i>';
    h+='</button>'}
@@ -45,9 +46,10 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  let tx='';if(nwc){const d=CD[nwc.id];tx=`<b>${d.n}</b><i>${d.lg}</i>`}
  if(csel!=null){const d=CD[S.hand[csel].id];tx=`<b>${d.n}</b><i>${d.lg}</i>${S.energy<d.e?`<br><u>能量不够：要 ${d.e} 点。</u>`:!T.length?'<br><u>现在没有能用它的地方。</u>':''}`}
  else if(cinfo&&String(cinfo)[0]==='f'){const f=S.foes.find(x=>'f'+x.u===cinfo);if(f)tx=`<b>${FOE[f.id].n}</b><i>${FOE[f.id].lg}</i>`}
- else if(cinfo&&String(cinfo)[0]==='u'){let u=null;S.cells.forEach(x=>x.cs.forEach(o=>{if('u'+o.u===cinfo)u=o}));if(u){const d=CD[u.id];tx=`<b>${d.n}</b><i>${d.lg}</i>${u.net?'<br><u>被渔网缠住了，这回合不结算。</u>':''}`}}
+ else if(cinfo&&String(cinfo)[0]==='u'){let u=null;S.cells.forEach(x=>x.cs.forEach(o=>{if('u'+o.u===cinfo)u=o}));if(u){const d=CD[u.id];tx=`<b>${d.n}</b><i>${d.lg}</i>${u.net?'<br><u>被渔网缠住了，这回合不结算。</u>':S.moves>0?'<br>可以把它拖到别的格子，每回合挪 1 次。':'<br>这回合已经挪过一次了。'}`}}
  $('cText').innerHTML=tx;
  $('cOrbs').innerHTML=Array.from({length:Math.max(3,S.energy)},(_,i)=>`<i class="${i<S.energy?'on':''}"></i>`).join('');
+ $('cMv').className='mv'+(S.moves>0?' on':'')+(S.moves>0&&!cbusy&&!S.over&&S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length&&cgTargets(S,c.id).every(t=>t.swap))?' hintb':'');
  $('cDeck').textContent=S.deck.length;$('cDisP').textContent=S.dis.length;
  const n=S.hand.length;$('cHand').style.setProperty('--ov',n>5?((n*19-96)/(n-1)).toFixed(2)+'%':'0%');$('cHand').innerHTML=S.hand.map((c,i)=>{const d=CD[c.id],dead=S.energy<d.e||!cgTargets(S,c.id).length,onlySwap=!dead&&cgTargets(S,c.id).every(t=>t.swap),rot=(i-(n-1)/2)*2.4;return handCard(c,`data-h="${i}" style="--r:${rot}deg;--y:${Math.abs(i-(n-1)/2)*5}px"`,(csel===i?'sel ':'')+(dead?'dead':onlySwap?'oswap':'')+(hn&&hn.card===i&&csel!==i?' hintc':''))}).join('');
  if(!$('cDis').firstChild)$('cDis').innerHTML='<span class="dk"><i></i><i></i></span><b>+2</b>';
@@ -136,7 +138,7 @@ function cplay(i,t){const k=S.hand[i];if(!k)return false;const u=k.u,rects={};S.
  if(t&&t.cell!=null){const d=CD[kid],cor=document.querySelector(`#cScene .slot[data-cell="${t.cell}"] .cor`),me=crEl(u);if(d.home&&me&&inHome(S,t.cell,d.home)){pop(rectOf(me),'+'+d.hb,'add');if(cor)cor.classList.add('hug');burst(rectOf(me),6,'w');tone(784,.14,'triangle',.07)}else if(d.terr&&cor){S.cells[t.cell].cs.forEach(o=>{if(CD[o.id].home===d.terr){const e=crEl(o.u);if(e)e.classList.add('drop')}});document.querySelectorAll('#cHand .cc').forEach((c,j)=>{if(S.hand[j]&&CD[S.hand[j].id].home===d.terr)c.classList.add('drop')})}}
  const el=t&&t.cell!=null?(crEl(u)||document.querySelector(`#cScene .slot[data-cell="${t.cell}"] .cor`)):$('cOrbs');if(el)el.classList.add(el.id==='cOrbs'?'bump':'drop');if(S.over)cfinish();return true}
 function cwhy(k,t){const d=CD[k.id];if(S.energy<d.e)return '能量不够：它要 '+d.e+' 点';if(d.fx==='cleanup')return '净滩要拖到一个污染源身上';if(!t||t.cell==null)return '拖到一个格子上';const x=S.cells[t.cell],l=laneOf(t.cell);if(polluted(S,t.cell))return '这格被污染盖住了';if(d.fx==='zoox')return x.lush?'这格已经很茂盛了':'虫黄藻要用在一格珊瑚上';if(d.terr)return l!==1?d.n+'只能长在礁石上':x.coral&&x.kind!==d.terr?'这格已经长了别的':d.n+'最多 3 级';if(!d.z.includes(l))return d.n+'只生活在'+d.z.map(z=>ZN[z]).join('、');return '放不了'}
-const targetAt=(x,y)=>{for(const n of document.elementsFromPoint(x,y)){if(!n.closest||!n.closest('#cScene'))continue;const f=n.closest('.foe');if(f)return {foe:+f.dataset.foe};const s=n.closest('.slot');if(s)return {cell:+s.dataset.cell};}const r=$('cScene').getBoundingClientRect();return x>r.left&&x<r.right&&y>r.top&&y<r.bottom?{any:1}:null};
+const targetAt=(x,y)=>{let ru=null;for(const n of document.elementsFromPoint(x,y)){if(!n.closest||!n.closest('#cScene'))continue;const f=n.closest('.foe');if(f)return {foe:+f.dataset.foe};const cr=n.closest('.cr');if(cr&&ru==null)ru=+cr.dataset.u;const s=n.closest('.slot');if(s)return {cell:+s.dataset.cell,ru};}const r=$('cScene').getBoundingClientRect();return x>r.left&&x<r.right&&y>r.top&&y<r.bottom?{any:1}:null};
 document.addEventListener('pointerdown',e=>{if(mode!=='cg'||cbusy||!S||S.over)return;const c=e.target.closest('#cHand .cc');if(!c)return;cdrag={i:+c.dataset.h,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,pid:e.pointerId};try{c.setPointerCapture(e.pointerId)}catch(_){}
  clearTimeout(lpT);const i=cdrag.i;lpT=setTimeout(()=>{if(cdrag&&!cdrag.moved&&cdrag.i===i){const id=S.hand[i].id;cdrag=null;showCard(id)}},480)});
 document.addEventListener('pointermove',e=>{if(!cdrag||e.pointerId!==cdrag.pid)return;if(!cdrag.moved){if(Math.hypot(e.clientX-cdrag.x0,e.clientY-cdrag.y0)<9)return;cdrag.moved=true;clearTimeout(lpT);csel=null;cact=null;cinfo=null;const src=document.querySelector(`#cHand .cc[data-h="${cdrag.i}"]`),g=src.cloneNode(true);g.classList.add('ghost');g.classList.remove('sel','dead');g.removeAttribute('data-h');g.style.cssText='';document.body.appendChild(g);cdrag.ghost=g;crender();const s2=document.querySelector(`#cHand .cc[data-h="${cdrag.i}"]`);if(s2)s2.classList.add('lift')}
@@ -146,6 +148,13 @@ function cdrop(e){clearTimeout(lpT);if(!cdrag||e.pointerId!==cdrag.pid)return;co
  const k=S.hand[d.i],t=targetAt(...upPt(e.clientX,e.clientY,56));if(!t){crender();return}
  if(CD[k.id].fx==='plankton'){if(!cplay(d.i,{any:1})){csay('能量不够',1);crender()}return}
  const r=cplay(d.i,t);if(r)return;csay(cwhy(k,t),1);tone(140,.12,'square',.04);csel=d.i;crender()}
+document.addEventListener('pointerdown',e=>{if(mode!=='cg'||cbusy||!S||S.over||cdrag)return;const c=e.target.closest&&e.target.closest('#cScene .cr');if(!c)return;const u=+c.dataset.u;if(!cgMoveTargets(S,u).length)return;cmv={u,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,pid:e.pointerId,html:c.querySelector('.sw').innerHTML}});
+document.addEventListener('pointermove',e=>{if(!cmv||e.pointerId!==cmv.pid)return;if(!cmv.moved){if(Math.hypot(e.clientX-cmv.x0,e.clientY-cmv.y0)<9)return;cmv.moved=true;csel=null;cinfo=null;const g=document.createElement('div');g.className='mghost';g.innerHTML=cmv.html;document.body.appendChild(g);cmv.ghost=g;crender()}
+ cmv.ghost.style.transform=`translate(${e.clientX}px,${e.clientY}px) translate(-50%,-50%)${RS()} translateY(-30px)`;e.preventDefault()},{passive:false});
+function cmvEnd(e,cancel){if(!cmv||e.pointerId!==cmv.pid)return;const m=cmv;cmv=null;if(m.ghost)m.ghost.remove();if(!m.moved)return;const t=cancel?null:targetAt(...upPt(e.clientX,e.clientY,30));
+ if(t&&t.cell!=null&&cgMove(S,m.u,t.cell,t.ru===m.u?null:t.ru)){SFX.place();crender();const el=crEl(m.u);if(el)el.classList.add('drop');return}
+ if(t&&t.cell!=null)tone(140,.12,'square',.04);crender()}
+document.addEventListener('pointerup',e=>cmvEnd(e));document.addEventListener('pointercancel',e=>cmvEnd(e,1));
 document.addEventListener('pointerup',cdrop);document.addEventListener('pointercancel',e=>{clearTimeout(lpT);if(cdrag&&e.pointerId===cdrag.pid){if(cdrag.ghost)cdrag.ghost.remove();cdrag=null;crender()}});
 document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('#cHand'))e.preventDefault()});
 function cstart(lv){cwarnT=-1;cLv=lv;if(lv===0)cExtra=[];csave();S=cgInit(lv,cExtra);csel=cact=cinfo=null;$('ov').hidden=true;LV[lv].foes.forEach(id=>cSeen['f_'+id]=1);crender()}
@@ -164,7 +173,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)r
  if(d.any&&csel!=null){if(!cplay(csel,{any:1}))csay('能量不够',1);return}
  if(d.foe!=null){const fi=+d.foe;if(csel!=null){if(!cplay(csel,{foe:fi})){csay(cwhy(S.hand[csel],{foe:fi}),1)}return}
   const key='f'+S.foes[fi].u;cinfo=cinfo===key?null:key;crender();return}
- if(d.cell!=null){const c=+d.cell,x=S.cells[c];if(csel!=null){if(cplay(csel,{cell:c}))return;csay(cwhy(S.hand[csel],{cell:c}),1);tone(140,.12,'square',.04);return}
+ if(d.cell!=null){const c=+d.cell,x=S.cells[c];if(csel!=null){const crr=e.target.closest('.cr');if(cplay(csel,{cell:c,ru:crr?+crr.dataset.u:null}))return;csay(cwhy(S.hand[csel],{cell:c}),1);tone(140,.12,'square',.04);return}
   const cr=e.target.closest('.cr');if(cr){const key='u'+cr.dataset.u;cinfo=cinfo===key?null:key;crender()}else if(x.cs.length){const key='u'+x.cs[0].u;cinfo=cinfo===key?null:key;crender()}return}});
 applyLand();cstart(cLv);
 try{if(localStorage.getItem('reefMode')==='td')$('mB').click()}catch(e){}

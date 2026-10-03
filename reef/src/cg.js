@@ -1,6 +1,7 @@
 /* 牌局 v8：三条道，污染源往礁心推进；一格可以住好几条鱼，结算时从左到右一条条把净化叠起来，最后一击打出去。规则层，无界面。
    · 生物只能放在它真正生活的地方；珊瑚只能长在礁石上，可以叠到 3 级。
-   · 一格住满了还往里放：换掉里面最残的那条（它回弃牌堆）。
+   · 一格住满了还往里放：换掉你指的那条（没指就换最残的），它回弃牌堆。
+   · 每回合可以免费挪一次：把场上一条鱼拖到另一格，满了就对换。
    · 空格住 1 条；1 级珊瑚住 2 条；2 级住 3 条；3 级住 3 条，并且左右两格也算“在珊瑚里”、能住 2 条。
    · 你的回合：花能量放牌 / 抽牌（1 点抽 2 张）。有些牌放下时立刻有效果。
    · 结束回合：有污染源、也有生物的道就结算——从左到右每条鱼把自己的净化加进去（有的会翻倍、有的让左边的鱼再算一次），总数一击打在污染源上。
@@ -49,7 +50,7 @@ const inHome=(S,c,kind)=>{const x=S.cells[c];return laneOf(c)===1&&(x.coral>0?x.
 const sideKind=(S,c)=>{const q=nb(c).find(q=>S.cells[q].coral>=3);return q==null?null:S.cells[q].kind};
 const capOf=(S,c)=>laneOf(c)!==1?1:Math.max(CAPS[S.cells[c].coral],nb(c).some(q=>S.cells[q].coral>=3)?2:1);
 function cgInit(lv,extra){const S={lv:lv||0,extra:extra||[]};cgStage(S);return S}
-function cgStage(S){const L=LV[S.lv];S.turn=1;S.over=null;S.heart=S.heartMax=L.heart;S.energy=ENERGY;S.bonus=0;S.auto=false;S.cells=Array.from({length:NS},()=>({coral:0,kind:null,lush:false,cs:[]}));S.total=L.waves.length;S.done=0;S.foes=[];S.queue=L.waves.map(w=>({t:w[0],id:w[1],lane:w[2],h:w[3]||FOE[w[1]].h,arm:w[4]||0,atk:w[5]||FOE[w[1]].atk}));S.drops=[];S.pfx=null;S.gift=0;
+function cgStage(S){const L=LV[S.lv];S.turn=1;S.over=null;S.heart=S.heartMax=L.heart;S.energy=ENERGY;S.bonus=0;S.auto=false;S.cells=Array.from({length:NS},()=>({coral:0,kind:null,lush:false,cs:[]}));S.total=L.waves.length;S.done=0;S.foes=[];S.queue=L.waves.map(w=>({t:w[0],id:w[1],lane:w[2],h:w[3]||FOE[w[1]].h,arm:w[4]||0,atk:w[5]||FOE[w[1]].atk}));S.drops=[];S.pfx=null;S.gift=0;S.moves=1;
  const d=[];for(const k in L.deck)for(let i=0;i<L.deck[k];i++)d.push(mkc(k));S.extra.forEach(k=>d.push(mkc(k)));S.deck=cshuf(d);S.hand=[];S.dis=[];
  const take=id=>{const i=S.deck.findIndex(k=>k.id===id);return i>=0?S.deck.splice(i,1)[0]:null};(L.hand||[]).forEach(id=>{const k=take(id);if(k)S.hand.push(k)});const top=(L.top||[]).map(take).filter(Boolean);S.deck.push(...top.reverse());cgSpawn(S)}
 function cgDraw(S,n){for(let i=0;i<n;i++){if(S.hand.length>=HANDMAX)return;if(!S.deck.length){if(!S.dis.length)return;S.deck=cshuf(S.dis);S.dis=[]}S.hand.push(S.deck.pop())}}
@@ -78,12 +79,17 @@ function cgTargets(S,id){const d=CD[id],o=[];if(d.fx==='plankton')return [{any:1
   if(d.terr){if(l===1&&(x.coral===0||(x.kind===d.terr&&x.coral<3)))o.push({cell:c})}
   else if(d.fx==='zoox'){if(x.coral>0&&!x.lush)o.push({cell:c})}
   else if(d.z.includes(l))o.push(x.cs.length<capOf(S,c)?{cell:c}:{cell:c,swap:1})}return o}
+const weakest=x=>x.cs.slice().sort((a,b)=>a.hp/CD[a.id].h-b.hp/CD[b.id].h||a.hp-b.hp)[0];
+const findCr=(S,u)=>{for(let c=0;c<NS;c++){const k=S.cells[c].cs.find(o=>o.u===u);if(k)return {c,k}}return null};
+/* 挪位：每回合 1 次，不花能量。把场上一条鱼拖到它能住的另一格；那格满了就和你指的那条（或最残的那条）对换 */
+function cgMoveTargets(S,u){const r=findCr(S,u);if(!r||S.over||S.moves<=0||r.k.net)return [];const d=CD[r.k.id],o=[];for(let c=0;c<NS;c++){if(c===r.c||polluted(S,c)||!d.z.includes(laneOf(c)))continue;const x=S.cells[c];if(x.cs.length<capOf(S,c))o.push({cell:c});else if(x.cs.some(v=>CD[v.id].z.includes(laneOf(r.c))))o.push({cell:c,swap:1})}return o}
+function cgMove(S,u,cell,ru){const r=findCr(S,u),T=cgMoveTargets(S,u).find(t=>t.cell===cell);if(!r||!T)return false;const a=S.cells[r.c],b=S.cells[cell];a.cs.splice(a.cs.indexOf(r.k),1);if(T.swap){const ok=b.cs.filter(v=>CD[v.id].z.includes(laneOf(r.c))),v=ok.find(v=>v.u===ru)||weakest({cs:ok});b.cs.splice(b.cs.indexOf(v),1);a.cs.push(v)}b.cs.push(r.k);S.moves--;return true}
 function cgPlay(S,i,t){const k=S.hand[i];if(S.over||!k)return false;const d=CD[k.id];if(S.energy<d.e)return false;const T=cgTargets(S,k.id);S.pfx=null;
  if(d.fx==='plankton'){S.energy+=2}
  else if(d.fx==='cleanup'){if(!t||t.foe==null||!S.foes[t.foe])return false;hitFoe(S,t.foe,4)}
  else{if(!t||t.cell==null||!T.some(q=>q.cell===t.cell))return false;const x=S.cells[t.cell],l=laneOf(t.cell);
   if(d.terr){x.coral++;x.kind=d.terr}else if(d.fx==='zoox')x.lush=true;
-  else{S.swapped=null;if(x.cs.length>=capOf(S,t.cell)){const o=x.cs.slice().sort((a,b)=>a.hp/CD[a.id].h-b.hp/CD[b.id].h||a.hp-b.hp)[0];x.cs.splice(x.cs.indexOf(o),1);S.dis.push({id:o.id,u:o.u});S.swapped=o.id}x.cs.push({id:k.id,u:k.u,hp:d.h,net:false});const fi=S.foes.findIndex(f=>f.lane===l),f=S.foes[fi];
+  else{S.swapped=null;if(x.cs.length>=capOf(S,t.cell)){const o=x.cs.find(o=>o.u===t.ru)||weakest(x);x.cs.splice(x.cs.indexOf(o),1);S.dis.push({id:o.id,u:o.u});S.swapped=o.id}x.cs.push({id:k.id,u:k.u,hp:d.h,net:false});const fi=S.foes.findIndex(f=>f.lane===l),f=S.foes[fi];
    if(d.play==='graze'&&f){S.pfx={t:'hit',u:f.u,dmg:2};hitFoe(S,fi,2)}
    else if(d.play==='push'&&f&&f.p<NC){f.p++;S.pfx={t:'push',u:f.u}}
    else if(d.play==='heart'&&S.heart<S.heartMax){S.heart++;S.pfx={t:'heart'}}
@@ -121,6 +127,6 @@ function cgEnd(S){if(S.over)return null;const ev=[],kill=(c,k)=>{const x=S.cells
  /* 回合末：珊瑚鱼回血 / 掉血，解开上回合的网 */
  for(let c=0;c<NS;c++){const x=S.cells[c];for(const k of x.cs.slice()){const d=CD[k.id];if(d.home){if(inHome(S,c,d.home)){if(k.hp<d.h){k.hp=Math.min(d.h,k.hp+(x.lush?2:1));ev.push({t:'heal',cell:c,ku:k.u})}}else{k.hp--;const e={t:'dry',cell:c,ku:k.u,dead:k.hp<=0};if(k.hp<=0)kill(c,k);ev.push(e)}}
    if(k.netNew)k.netNew=false;else k.net=false}}
- S.turn++;S.energy=ENERGY+(S.bonus||0);S.bonus=0;S.auto=false;const sp=cgSpawn(S);if(sp.length)ev.push({t:'spawn',us:sp});cgCheck(S);return ev}
-const CG={NL,NC,NS,CD,FOE,POOL,ZN,RNG,cgInit,cgStage,cgTargets,cgPlay,cgDrawAct,cgSettle,cgEnd,calcLane,valOf,capOf,inHome,sideKind,intent,frontCell,foeIn,polluted,inReach,nextIn,laneOf,colOf,ci,getLV:()=>LV};
+ S.turn++;S.moves=1;S.energy=ENERGY+(S.bonus||0);S.bonus=0;S.auto=false;const sp=cgSpawn(S);if(sp.length)ev.push({t:'spawn',us:sp});cgCheck(S);return ev}
+const CG={NL,NC,NS,CD,FOE,POOL,ZN,RNG,cgInit,cgStage,cgTargets,cgPlay,cgDrawAct,cgSettle,cgEnd,cgMove,cgMoveTargets,calcLane,valOf,capOf,inHome,sideKind,intent,frontCell,foeIn,polluted,inReach,nextIn,laneOf,colOf,ci,getLV:()=>LV};
 if(typeof module!=='undefined')module.exports=CG;

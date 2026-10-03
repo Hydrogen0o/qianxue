@@ -620,6 +620,17 @@ html.busy .slot.tgt,html.busy .slot.hintt{animation:none;border:1.5px dashed rgb
 .inc.arm b::after{content:""}
 .slot.tgt.swp{border-color:#ff9a59;background:rgba(255,122,89,.16);animation:none}
 .chand .cc.oswap{filter:saturate(.75)}
+
+/* ===== 挪位与换下 ===== */
+.mv{display:inline-flex;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;border:1.5px solid #3d5560;color:#3d5560;flex:none}
+.mv svg{width:16px;height:16px}
+.mv.on{border-color:#5fe3d0;color:#5fe3d0;background:rgba(95,227,208,.12)}
+.mghost{position:fixed;left:0;top:0;width:52px;height:52px;z-index:70;pointer-events:none;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+.mghost svg{width:100%;height:100%;overflow:visible}
+#cScene .cr{touch-action:none}
+#cScene .cr.lift{opacity:.3}
+.chand .cc.oswap::after{content:"换";position:absolute;right:-3px;bottom:26px;z-index:4;font:800 11px/18px var(--ui);width:18px;height:18px;border-radius:50%;background:#ff9a59;color:#2a0d05;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.chand .cc.oswap{filter:none}
 </style>
 <div id="stage">
 <div id="app">
@@ -627,7 +638,7 @@ html.busy .slot.tgt,html.busy .slot.hintt{animation:none;border:1.5px dashed rgb
  <div id="mCG" class="mode">
   <div class="lmain"><div class="scene3" id="cScene"></div><div class="chand" id="cHand"></div></div>
   <div class="lside"><div class="ctext" id="cText"></div>
-   <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="piles"><span class="pile" aria-label="牌库"><i id="cDeck">0</i></span><span class="pile dis" aria-label="弃牌"><i id="cDisP">0</i></span></span></div>
+   <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="mv" id="cMv" role="img" aria-label="每回合可以把场上一条鱼挪一次位置"><svg viewBox="0 0 24 24"><path d="M4 8 H18 M14 4 L18 8 L14 12 M20 16 H6 M10 12 L6 16 L10 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="piles"><span class="pile" aria-label="牌库"><i id="cDeck">0</i></span><span class="pile dis" aria-label="弃牌"><i id="cDisP">0</i></span></span></div>
    <div class="foot"><button id="cUndo" aria-label="撤销" class="icb"></button><button id="cDis" aria-label="花 1 点能量抽 2 张牌" class="icb drawb"></button><button class="pri" id="cEnd">结束回合</button></div></div>
  </div>
  <div id="mTD" class="mode" hidden>
