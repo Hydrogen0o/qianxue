@@ -53,6 +53,7 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  const idle=!cbusy&&!S.over&&!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length),drawHint=idle&&cgCanDraw()&&S.hand.length<5&&!(S.lv===0&&S.turn===1&&!cSeen.tutDone);$('cDis').classList.toggle('hintb',drawHint);$('cEnd').classList.toggle('ready',idle&&!drawHint);cdemo(hn)}
 /* 第一关的画面引导：该拿哪张牌、放到哪。lock=第一回合只认这一步，放错不花任何东西 */
 function chint(){if(!S||S.lv!==0||S.over||cbusy||cSeen.tutDone)return null;const f=foeIn(S,1),p=f?f.p:NC,hi=id=>S.hand.findIndex(k=>k.id===id&&CD[id].e<=S.energy),reef=Array.from({length:NC},(_,col)=>ci(1,col)).filter(c=>!polluted(S,c)),an=reef.filter(c=>S.cells[c].coral>0&&S.cells[c].kind==='anem'),lock=false,demo=S.turn===1;let i;
+ const stray=reef.find(c=>!S.cells[c].coral&&S.cells[c].cs.some(o=>o.id==='clown')&&!inHome(S,c,'anem'));if(stray!=null&&(i=hi('anem'))>=0)return {card:i,cell:stray,lock,demo};
  if(!an.length&&(i=hi('anem'))>=0)return {card:i,cell:ci(1,Math.max(0,Math.min(NC-1,p-2))),lock,demo};
  if((i=hi('clown'))>=0){const c=an.filter(c=>S.cells[c].cs.length<capOf(S,c)).sort((a,b)=>b-a)[0];if(c!=null)return {card:i,cell:c,lock,demo};const j=hi('anem'),u=an.filter(c=>S.cells[c].coral<3).sort((a,b)=>b-a)[0];if(j>=0&&u!=null)return {card:j,cell:u}}
  if((i=hi('urchin'))>=0&&f&&p-1>=0){const c=ci(1,p-1);if(S.cells[c].cs.length<capOf(S,c)&&!S.cells[c].cs.some(o=>o.id==='urchin'))return {card:i,cell:c}}
