@@ -669,6 +669,27 @@ html.busy #cScene .slot.tgt,html.busy #cScene .slot.hintt{background:none;animat
 .cc.ghost.spr .art{background:none;height:62px;margin:0;filter:drop-shadow(0 10px 10px rgba(0,0,0,.5))}
 .cc.ghost.spr .art svg{width:100%;height:100%}
 @media (prefers-reduced-motion:reduce){#cScene .z-top::after,.cr.k-eel .sw{animation:none}}
+
+/* ===== 背景图 + 隐形网格 ===== */
+#cScene{background:#1b6fa8 url(BGDATA) center/100% 100% no-repeat}
+#cScene .zone,#cScene .z-top,#cScene .z-reef,#cScene .z-sand{background:none}
+#cScene .zone::before,#cScene .zone::after{display:none!important}
+html.land #cScene .z-top{flex:1}html.land #cScene .z-sand{flex:1.1}html.land #cScene .z-reef{flex:1.45}
+#cScene .slot.tgt,#cScene .slot.tgt.swp{background:none;animation:none}
+#cScene .zone.okz{box-shadow:inset 0 0 0 100px rgba(255,255,255,.07)}
+#cScene .slot.hov::after{content:"";position:absolute;left:22%;right:22%;bottom:6%;height:16%;border-radius:50%;background:radial-gradient(ellipse,rgba(255,255,255,.75),rgba(255,255,255,0) 70%);pointer-events:none}
+#cScene .slot.hov.hswp::after{background:radial-gradient(ellipse,rgba(255,154,89,.85),rgba(255,154,89,0) 70%)}
+#cScene .slot.hintt{background:none;animation:none}
+#cScene .slot.hintt::before{content:"";position:absolute;left:26%;right:26%;bottom:8%;height:16%;border-radius:50%;background:radial-gradient(ellipse,rgba(255,224,130,.95),rgba(255,214,102,0) 70%);animation:hpulse2 1.2s ease-in-out infinite;pointer-events:none}
+.cc.ghost.bad .art{filter:grayscale(.8) drop-shadow(0 10px 10px rgba(0,0,0,.5));opacity:.7}
+.cc.ghost{transition:transform .06s linear}
+.cr .sw{filter:drop-shadow(0 3px 3px rgba(0,20,40,.55))}
+.slot .cor{filter:drop-shadow(0 3px 3px rgba(0,20,40,.45))}
+.sludge{background:linear-gradient(90deg,rgba(40,48,14,0),rgba(40,48,14,.72) 22px,rgba(28,34,10,.86))}
+#cScene .slot,#cScene .slot.tgt,#cScene .slot.tgt.swp,#cScene .slot.hintt{box-shadow:none!important;animation:none!important;background:none!important;outline:0}
+#cScene::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(4,26,46,.12),rgba(4,26,46,.26))}
+.cr .sw{filter:drop-shadow(0 2px 1px rgba(0,15,30,.75)) drop-shadow(0 4px 5px rgba(0,20,40,.45))}
+.cr .sw{filter:drop-shadow(0 0 1.5px rgba(255,255,255,.85)) drop-shadow(0 3px 3px rgba(0,15,30,.6))}
 </style>
 <div id="stage">
 <div id="app">
