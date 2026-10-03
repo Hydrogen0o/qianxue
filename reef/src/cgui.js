@@ -1,5 +1,5 @@
 /* ---------- 牌局界面 v6：你指挥生物打敌人 ---------- */
-let mode='cg',S,csel=null,cact=null,cinfo=null,cbusy=false,ctT=0,tdStarted=false,cdrag=null,cLv=0,cExtra=[],cSeen={},lpT=0;
+mode='cg';let S,csel=null,cact=null,cinfo=null,cbusy=false,ctT=0,tdStarted=false,cdrag=null,cLv=0,cExtra=[],cSeen={},lpT=0;
 try{const s=JSON.parse(localStorage.getItem('reefCG6')||'{}');if(s.lv)cLv=Math.min(LV.length-1,s.lv);if(s.seen)cSeen=s.seen;if(s.extra)cExtra=s.extra}catch(e){}
 const csave=()=>{try{localStorage.setItem('reefCG6',JSON.stringify({lv:cLv,seen:cSeen,extra:cExtra}))}catch(e){}};
 const cart=id=>CD[id].art?svg(P[CD[id].art]()):'';
@@ -30,14 +30,18 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  else if(actor)tx=cleanMode?`<b>${CD[actor.id].n}</b><i>点一个同伴：回 2 血、解网，并让它再行动一次。</i>`:`<b>${CD[actor.id].n}</b><i>点一个敌人，打它 ${atkOf(S,cact)} 点。</i>`;
  else if(cinfo&&String(cinfo)[0]==='f'){const f=S.foes.find(x=>'f'+x.u===cinfo);if(f)tx=`<b>${FOE[f.id].n}</b><i>${FOE[f.id].lg}</i>`}
  else if(cinfo!=null&&S.cells[cinfo]&&S.cells[cinfo].c){const u=S.cells[cinfo].c,d=CD[u.id];tx=`<b>${d.n}</b><i>${d.lg}</i>${u.net?'<br><u>被渔网缠住了，这回合动不了。</u>':!u.ready?'<br><u>这回合已经行动过了。</u>':''}`}
+ if(!tx&&S.lv===0&&!S.over){const hasCr=S.cells.some(x=>x.c),playable=S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length);
+  tx='<em class="coach">'+(!hasCr&&playable?'把牌拖到礁石上':ccanAct()?'点发光的鱼，再点敌人':playable?'还能放牌，或者结束回合':cgCanDraw()?'能量还有剩：点牌堆抽 2 张':'结束回合')+'</em>'}
  $('cText').innerHTML=tx;
  $('cOrbs').innerHTML=Array.from({length:Math.max(3,S.energy)},(_,i)=>`<i class="${i<S.energy?'on':''}"></i>`).join('');
  $('cDeck').textContent=S.deck.length;$('cDisP').textContent=S.dis.length;
  const n=S.hand.length;$('cHand').innerHTML=S.hand.map((c,i)=>{const d=CD[c.id],dead=S.energy<d.e||!cgTargets(S,c.id).length,rot=(i-(n-1)/2)*2.4;return handCard(c,`data-h="${i}" style="--r:${rot}deg;--y:${Math.abs(i-(n-1)/2)*5}px"`,(csel===i?'sel ':'')+(dead?'dead':''))}).join('');
  if(!$('cDis').firstChild)$('cDis').innerHTML='<span class="dk"><i></i><i></i></span><b>+2</b>';
  $('cUndo').hidden=true;$('cDis').disabled=S.energy<1||S.hand.length>=7||(!S.deck.length&&!S.dis.length);
- const canAct=S.cells.some((x,c)=>cgCanAct(S,c)&&(CD[x.c.id].clean?S.cells.some((y,q)=>q!==c&&y.c):S.foes.length));
+ const canAct=ccanAct();
  $('cEnd').classList.toggle('ready',!canAct&&!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length))}
+const cgCanDraw=()=>!(S.energy<1||S.hand.length>=7||(!S.deck.length&&!S.dis.length));
+const ccanAct=()=>S.cells.some((x,c)=>cgCanAct(S,c)&&(CD[x.c.id].clean?S.cells.some((y,q)=>q!==c&&y.c):S.foes.length));let cwarnT=-1;
 const cwait=ms=>new Promise(r=>setTimeout(r,window.__fast?0:ms));
 const rectOf=el=>{const r=el.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]};
 const crEl=u=>document.querySelector(`#cScene .cr[data-u="${u}"]`),foeEl=u=>document.querySelector(`#cScene .foe[data-fu="${u}"]`);
@@ -85,7 +89,7 @@ function cdrop(e){clearTimeout(lpT);if(!cdrag||e.pointerId!==cdrag.pid)return;co
  if(cplay(d.i,t))return;csay(cwhy(k,t),1);tone(140,.12,'square',.04);csel=d.i;crender()}
 document.addEventListener('pointerup',cdrop);document.addEventListener('pointercancel',e=>{clearTimeout(lpT);if(cdrag&&e.pointerId===cdrag.pid){if(cdrag.ghost)cdrag.ghost.remove();cdrag=null;crender()}});
 document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('#cHand'))e.preventDefault()});
-function cstart(lv){cLv=lv;if(lv===0)cExtra=[];csave();S=cgInit(lv,cExtra);csel=cact=cinfo=null;$('ov').hidden=true;crender();intro()}
+function cstart(lv){cwarnT=-1;cLv=lv;if(lv===0)cExtra=[];csave();S=cgInit(lv,cExtra);csel=cact=cinfo=null;$('ov').hidden=true;crender();intro()}
 document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
  if(t.id==='mA'||t.id==='mB'){mode=t.id==='mA'?'cg':'td';$('mA').className=mode==='cg'?'on':'';$('mB').className=mode==='td'?'on':'';$('mCG').hidden=mode!=='cg';$('mTD').hidden=mode!=='td';$('ov').hidden=true;try{localStorage.setItem('reefMode',mode)}catch(e){}
   if(mode==='td'){$('mInfo').textContent='';if(!tdStarted){tdStarted=true;start()}}else crender();return}
@@ -97,7 +101,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)r
  if(t.id==='cLvB'){ov(`<h1 style="font-size:20px">选关</h1><div class="lvs">${LV.map((l,i)=>`<button class="go ${i===S.lv?'':'alt'}" data-golv="${i}">${i+1}　${l.n}</button>`).join('')}</div><button class="go alt" data-cact="close">返回</button>`);return}
  if(cbusy||S.over)return;
  if(t.id==='cDis'){const n0=S.hand.length;if(cgDrawAct(S)){csel=null;SFX.sun();crender();document.querySelectorAll('#cHand .cc').forEach((c,i)=>{if(i>=n0)c.classList.add('drop')})}return}
- if(t.id==='cEnd'){cend();return}
+ if(t.id==='cEnd'){if(ccanAct()&&cwarnT!==S.turn){cwarnT=S.turn;csay('还有鱼没出手：点发光的鱼，再点敌人',1);document.querySelectorAll('#cScene .cr.rdy').forEach(e=>{e.classList.remove('nudge');void e.offsetWidth;e.classList.add('nudge')});return}cend();return}
  if(d.any&&csel!=null){if(!cplay(csel,{any:1}))csay('能量不够',1);return}
  if(d.foe!=null){const fi=+d.foe;if(csel!=null){if(!cplay(csel,{foe:fi})){csay(cwhy(S.hand[csel],{foe:fi}),1)}return}
   if(cact!=null&&cgCanAct(S,cact)&&!CD[S.cells[cact].c.id].clean){doAttack(cact,fi);return}cact=null;const key='f'+S.foes[fi].u;cinfo=cinfo===key?null:key;crender();return}

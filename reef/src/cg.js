@@ -18,13 +18,13 @@ const CD={
  cleanup:{n:'净滩',e:1,fx:'cleanup',art:'',lg:'选一个敌人，直接清掉它 3 点血。',fact:'人把垃圾和渔网清走，礁才有机会自己恢复。'}};
 /* 敌人：plan 是它轮流要做的事 */
 const FOE={
- algae:{n:'藻团',h:9,plan:[['atk',3]],lg:'每回合打你的前排 3 点。打穿了，多出来的伤害落在礁心上。'},
- net:{n:'幽灵渔网',h:8,plan:[['net'],['atk',2]],lg:'缠住你净化最高的生物，让它下回合动不了。'},
- cots:{n:'长棘海星',h:14,plan:[['eat'],['atk',4]],lg:'专吃珊瑚：一口吃掉最靠前的一格珊瑚。'}};
+ algae:{n:'藻团',h:7,plan:[['atk',2]],lg:'每回合打你的前排 2 点。前面没人就打礁心；打穿了，多出来的伤害也落在礁心上。'},
+ net:{n:'幽灵渔网',h:7,plan:[['net'],['atk',2]],lg:'缠住你净化最高的生物，让它下回合动不了。'},
+ cots:{n:'长棘海星',h:13,plan:[['eat'],['atk',3]],lg:'专吃珊瑚：一口吃掉最靠前的一格珊瑚。'}};
 let LV=[
- {n:'藻团来了',heart:10,deck:{coral:4,clown:5,urchin:3},waves:[[1,'algae'],[1,'algae'],[2,'algae'],[3,'algae'],[4,'algae'],[4,'algae'],[5,'algae'],[6,'algae'],[7,'algae']],fresh:['coral','clown','urchin'],foes:['algae']},
- {n:'幽灵渔网',heart:10,deck:{coral:4,clown:4,urchin:3,chromis:4,plankton:2},waves:[[1,'algae'],[1,'net'],[2,'algae'],[3,'net'],[3,'algae'],[4,'algae'],[5,'net'],[6,'algae'],[6,'algae'],[7,'net'],[8,'algae']],fresh:['chromis','plankton'],foes:['net']},
- {n:'长棘海星',heart:10,deck:{coral:5,clown:4,urchin:3,chromis:4,plankton:2,cleaner:2},waves:[[1,'algae'],[2,'cots'],[3,'net'],[4,'algae'],[6,'cots'],[7,'algae'],[8,'net'],[9,'algae'],[10,'cots']],fresh:['cleaner'],foes:['cots']}];
+ {n:'藻团来了',heart:12,deck:{coral:4,clown:5,urchin:3},waves:[[1,'algae'],[3,'algae'],[5,'algae'],[7,'algae']],fresh:['coral','clown','urchin'],foes:['algae']},
+ {n:'幽灵渔网',heart:12,deck:{coral:4,clown:4,urchin:3,chromis:4,plankton:2},waves:[[1,'algae'],[3,'net'],[4,'algae'],[6,'algae'],[7,'net'],[9,'algae'],[10,'algae']],fresh:['chromis','plankton'],foes:['net']},
+ {n:'长棘海星',heart:12,deck:{coral:5,clown:4,urchin:3,chromis:4,plankton:2,cleaner:2},waves:[[1,'algae'],[3,'cots'],[4,'net'],[6,'algae'],[7,'algae'],[9,'cots'],[10,'net'],[11,'algae']],fresh:['cleaner'],foes:['cots']}];
 const POOL=['parrot','butterfly','turtle','zoox','cleanup','plankton','cleaner','urchin','clown'];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const mkc=id=>({id,u:++CUID});

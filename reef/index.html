@@ -462,6 +462,8 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .cr svg{width:100%;height:100%;display:block;overflow:visible}
 .cr .sa{position:absolute;left:-1px;bottom:-12px;z-index:2}.cr .sh{position:absolute;right:-1px;bottom:-12px;z-index:2}
 .cr .sa.up{background:#fff;box-shadow:0 0 0 2px #5fe3d0}.cr .sh.hurt{background:#ffd0d8}
+.coach{display:inline-block;font-style:normal;font-weight:700;font-size:15px;color:#06262b;background:var(--sun,#ffd166);padding:5px 14px;border-radius:999px}
+.cr.nudge{animation:nudge .5s 2}@keyframes nudge{50%{transform:scale(1.3)}}
 .cr.rdy::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(95,227,208,.9);animation:rdy2 1s infinite alternate}
 @keyframes rdy2{to{transform:scale(1.12);opacity:.35}}
 .cr.act::before{border-color:var(--sun);border-width:3px;animation:none;box-shadow:0 0 10px rgba(255,201,60,.8)}
@@ -674,7 +676,8 @@ Object.assign(P,{
  sardine:()=>fishBody('#b9c8d6',{d:'M10 50 C24 40 58 39 80 45 C88 47 92 49 92 50 C92 51 88 53 80 55 C58 61 24 60 10 50Z',tail:'M13 50 L2 40 L6 50 L2 60Z',pattern:'<path d="M8 40 C36 38 66 40 94 46 L94 38 L8 36Z" fill="#4d7fa8"/><path d="M20 49 H70" stroke="#e9d27a" stroke-width="1.6"/>',ex:83,ey:48})});
 
 </script>
-<script>/* 守礁：水道防守（规则层，无界面；浏览器与 node 共用）。x 以“格”为单位，0=礁石一侧，COLS=外海一侧 */
+<script>var mode='cg';
+/* 守礁：水道防守（规则层，无界面；浏览器与 node 共用）。x 以“格”为单位，0=礁石一侧，COLS=外海一侧 */
 const COLS=6;
 const UNITS={
  parrot:{n:'鹦嘴鱼',cost:100,hp:70,cd:5,art:'parrot',shoot:1.4,dmg:{algae:20,big:20,cots:5},role:'啃藻',fact:'鹦嘴鱼用鸟喙一样的牙刮食礁石上的藻类，磨碎的石灰质排出来就是白沙。'},
@@ -746,13 +749,13 @@ const CD={
  cleanup:{n:'净滩',e:1,fx:'cleanup',art:'',lg:'选一个敌人，直接清掉它 3 点血。',fact:'人把垃圾和渔网清走，礁才有机会自己恢复。'}};
 /* 敌人：plan 是它轮流要做的事 */
 const FOE={
- algae:{n:'藻团',h:9,plan:[['atk',3]],lg:'每回合打你的前排 3 点。打穿了，多出来的伤害落在礁心上。'},
- net:{n:'幽灵渔网',h:8,plan:[['net'],['atk',2]],lg:'缠住你净化最高的生物，让它下回合动不了。'},
- cots:{n:'长棘海星',h:14,plan:[['eat'],['atk',4]],lg:'专吃珊瑚：一口吃掉最靠前的一格珊瑚。'}};
+ algae:{n:'藻团',h:7,plan:[['atk',2]],lg:'每回合打你的前排 2 点。前面没人就打礁心；打穿了，多出来的伤害也落在礁心上。'},
+ net:{n:'幽灵渔网',h:7,plan:[['net'],['atk',2]],lg:'缠住你净化最高的生物，让它下回合动不了。'},
+ cots:{n:'长棘海星',h:13,plan:[['eat'],['atk',3]],lg:'专吃珊瑚：一口吃掉最靠前的一格珊瑚。'}};
 let LV=[
- {n:'藻团来了',heart:10,deck:{coral:4,clown:5,urchin:3},waves:[[1,'algae'],[1,'algae'],[2,'algae'],[3,'algae'],[4,'algae'],[4,'algae'],[5,'algae'],[6,'algae'],[7,'algae']],fresh:['coral','clown','urchin'],foes:['algae']},
- {n:'幽灵渔网',heart:10,deck:{coral:4,clown:4,urchin:3,chromis:4,plankton:2},waves:[[1,'algae'],[1,'net'],[2,'algae'],[3,'net'],[3,'algae'],[4,'algae'],[5,'net'],[6,'algae'],[6,'algae'],[7,'net'],[8,'algae']],fresh:['chromis','plankton'],foes:['net']},
- {n:'长棘海星',heart:10,deck:{coral:5,clown:4,urchin:3,chromis:4,plankton:2,cleaner:2},waves:[[1,'algae'],[2,'cots'],[3,'net'],[4,'algae'],[6,'cots'],[7,'algae'],[8,'net'],[9,'algae'],[10,'cots']],fresh:['cleaner'],foes:['cots']}];
+ {n:'藻团来了',heart:12,deck:{coral:4,clown:5,urchin:3},waves:[[1,'algae'],[3,'algae'],[5,'algae'],[7,'algae']],fresh:['coral','clown','urchin'],foes:['algae']},
+ {n:'幽灵渔网',heart:12,deck:{coral:4,clown:4,urchin:3,chromis:4,plankton:2},waves:[[1,'algae'],[3,'net'],[4,'algae'],[6,'algae'],[7,'net'],[9,'algae'],[10,'algae']],fresh:['chromis','plankton'],foes:['net']},
+ {n:'长棘海星',heart:12,deck:{coral:5,clown:4,urchin:3,chromis:4,plankton:2,cleaner:2},waves:[[1,'algae'],[3,'cots'],[4,'net'],[6,'algae'],[7,'algae'],[9,'cots'],[10,'net'],[11,'algae']],fresh:['cleaner'],foes:['cots']}];
 const POOL=['parrot','butterfly','turtle','zoox','cleanup','plankton','cleaner','urchin','clown'];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const mkc=id=>({id,u:++CUID});
@@ -850,7 +853,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t||
 requestAnimationFrame(loop);
 </script>
 <script>/* ---------- 牌局界面 v6：你指挥生物打敌人 ---------- */
-let mode='cg',S,csel=null,cact=null,cinfo=null,cbusy=false,ctT=0,tdStarted=false,cdrag=null,cLv=0,cExtra=[],cSeen={},lpT=0;
+mode='cg';let S,csel=null,cact=null,cinfo=null,cbusy=false,ctT=0,tdStarted=false,cdrag=null,cLv=0,cExtra=[],cSeen={},lpT=0;
 try{const s=JSON.parse(localStorage.getItem('reefCG6')||'{}');if(s.lv)cLv=Math.min(LV.length-1,s.lv);if(s.seen)cSeen=s.seen;if(s.extra)cExtra=s.extra}catch(e){}
 const csave=()=>{try{localStorage.setItem('reefCG6',JSON.stringify({lv:cLv,seen:cSeen,extra:cExtra}))}catch(e){}};
 const cart=id=>CD[id].art?svg(P[CD[id].art]()):'';
@@ -881,14 +884,18 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  else if(actor)tx=cleanMode?`<b>${CD[actor.id].n}</b><i>点一个同伴：回 2 血、解网，并让它再行动一次。</i>`:`<b>${CD[actor.id].n}</b><i>点一个敌人，打它 ${atkOf(S,cact)} 点。</i>`;
  else if(cinfo&&String(cinfo)[0]==='f'){const f=S.foes.find(x=>'f'+x.u===cinfo);if(f)tx=`<b>${FOE[f.id].n}</b><i>${FOE[f.id].lg}</i>`}
  else if(cinfo!=null&&S.cells[cinfo]&&S.cells[cinfo].c){const u=S.cells[cinfo].c,d=CD[u.id];tx=`<b>${d.n}</b><i>${d.lg}</i>${u.net?'<br><u>被渔网缠住了，这回合动不了。</u>':!u.ready?'<br><u>这回合已经行动过了。</u>':''}`}
+ if(!tx&&S.lv===0&&!S.over){const hasCr=S.cells.some(x=>x.c),playable=S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length);
+  tx='<em class="coach">'+(!hasCr&&playable?'把牌拖到礁石上':ccanAct()?'点发光的鱼，再点敌人':playable?'还能放牌，或者结束回合':cgCanDraw()?'能量还有剩：点牌堆抽 2 张':'结束回合')+'</em>'}
  $('cText').innerHTML=tx;
  $('cOrbs').innerHTML=Array.from({length:Math.max(3,S.energy)},(_,i)=>`<i class="${i<S.energy?'on':''}"></i>`).join('');
  $('cDeck').textContent=S.deck.length;$('cDisP').textContent=S.dis.length;
  const n=S.hand.length;$('cHand').innerHTML=S.hand.map((c,i)=>{const d=CD[c.id],dead=S.energy<d.e||!cgTargets(S,c.id).length,rot=(i-(n-1)/2)*2.4;return handCard(c,`data-h="${i}" style="--r:${rot}deg;--y:${Math.abs(i-(n-1)/2)*5}px"`,(csel===i?'sel ':'')+(dead?'dead':''))}).join('');
  if(!$('cDis').firstChild)$('cDis').innerHTML='<span class="dk"><i></i><i></i></span><b>+2</b>';
  $('cUndo').hidden=true;$('cDis').disabled=S.energy<1||S.hand.length>=7||(!S.deck.length&&!S.dis.length);
- const canAct=S.cells.some((x,c)=>cgCanAct(S,c)&&(CD[x.c.id].clean?S.cells.some((y,q)=>q!==c&&y.c):S.foes.length));
+ const canAct=ccanAct();
  $('cEnd').classList.toggle('ready',!canAct&&!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length))}
+const cgCanDraw=()=>!(S.energy<1||S.hand.length>=7||(!S.deck.length&&!S.dis.length));
+const ccanAct=()=>S.cells.some((x,c)=>cgCanAct(S,c)&&(CD[x.c.id].clean?S.cells.some((y,q)=>q!==c&&y.c):S.foes.length));let cwarnT=-1;
 const cwait=ms=>new Promise(r=>setTimeout(r,window.__fast?0:ms));
 const rectOf=el=>{const r=el.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]};
 const crEl=u=>document.querySelector(`#cScene .cr[data-u="${u}"]`),foeEl=u=>document.querySelector(`#cScene .foe[data-fu="${u}"]`);
@@ -936,7 +943,7 @@ function cdrop(e){clearTimeout(lpT);if(!cdrag||e.pointerId!==cdrag.pid)return;co
  if(cplay(d.i,t))return;csay(cwhy(k,t),1);tone(140,.12,'square',.04);csel=d.i;crender()}
 document.addEventListener('pointerup',cdrop);document.addEventListener('pointercancel',e=>{clearTimeout(lpT);if(cdrag&&e.pointerId===cdrag.pid){if(cdrag.ghost)cdrag.ghost.remove();cdrag=null;crender()}});
 document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('#cHand'))e.preventDefault()});
-function cstart(lv){cLv=lv;if(lv===0)cExtra=[];csave();S=cgInit(lv,cExtra);csel=cact=cinfo=null;$('ov').hidden=true;crender();intro()}
+function cstart(lv){cwarnT=-1;cLv=lv;if(lv===0)cExtra=[];csave();S=cgInit(lv,cExtra);csel=cact=cinfo=null;$('ov').hidden=true;crender();intro()}
 document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
  if(t.id==='mA'||t.id==='mB'){mode=t.id==='mA'?'cg':'td';$('mA').className=mode==='cg'?'on':'';$('mB').className=mode==='td'?'on':'';$('mCG').hidden=mode!=='cg';$('mTD').hidden=mode!=='td';$('ov').hidden=true;try{localStorage.setItem('reefMode',mode)}catch(e){}
   if(mode==='td'){$('mInfo').textContent='';if(!tdStarted){tdStarted=true;start()}}else crender();return}
@@ -948,7 +955,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)r
  if(t.id==='cLvB'){ov(`<h1 style="font-size:20px">选关</h1><div class="lvs">${LV.map((l,i)=>`<button class="go ${i===S.lv?'':'alt'}" data-golv="${i}">${i+1}　${l.n}</button>`).join('')}</div><button class="go alt" data-cact="close">返回</button>`);return}
  if(cbusy||S.over)return;
  if(t.id==='cDis'){const n0=S.hand.length;if(cgDrawAct(S)){csel=null;SFX.sun();crender();document.querySelectorAll('#cHand .cc').forEach((c,i)=>{if(i>=n0)c.classList.add('drop')})}return}
- if(t.id==='cEnd'){cend();return}
+ if(t.id==='cEnd'){if(ccanAct()&&cwarnT!==S.turn){cwarnT=S.turn;csay('还有鱼没出手：点发光的鱼，再点敌人',1);document.querySelectorAll('#cScene .cr.rdy').forEach(e=>{e.classList.remove('nudge');void e.offsetWidth;e.classList.add('nudge')});return}cend();return}
  if(d.any&&csel!=null){if(!cplay(csel,{any:1}))csay('能量不够',1);return}
  if(d.foe!=null){const fi=+d.foe;if(csel!=null){if(!cplay(csel,{foe:fi})){csay(cwhy(S.hand[csel],{foe:fi}),1)}return}
   if(cact!=null&&cgCanAct(S,cact)&&!CD[S.cells[cact].c.id].clean){doAttack(cact,fi);return}cact=null;const key='f'+S.foes[fi].u;cinfo=cinfo===key?null:key;crender();return}

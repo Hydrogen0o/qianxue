@@ -1,3 +1,4 @@
+var mode='cg';
 /* 守礁：水道防守（规则层，无界面；浏览器与 node 共用）。x 以“格”为单位，0=礁石一侧，COLS=外海一侧 */
 const COLS=6;
 const UNITS={
