@@ -8,26 +8,26 @@
    · 结束回合：有污染源、也有生物的道就结算——从左到右每条鱼把自己的净化加进去（有的会翻倍、有的让左边的鱼再算一次），总数一击打在污染源上。
    · 污染源每回合往前推一格，盖到珊瑚珊瑚就死；有生物挡着就打那一格里的每一个，打空了就顺势压上来；推到头撞礁心。 */
 const AMAX=6,RNG=99,NL=3,NC=5,NS=NL*NC,ENERGY=3,HAND0=4,HANDMAX=7,DRAWCOST=1,DRAWN=2,CAPS=[1,2,3,3];
-const ZN=['开阔水域','礁石','沙地'];
+const ZN=['上层','中层','下层'],TN={water:'开阔水域',reef:'礁石',sand:'沙地'};
 /* a 净化 h 血；home 珊瑚鱼（在珊瑚里 +hb、每回合回 1 血，不在珊瑚里每回合掉 1 血）；school 左边每有一条同类 +1；
    play 放下时的效果；pair 成对翻倍；algae 对藻团翻倍；clean 让左边的鱼再算一次；push 撞退；thorn 反刺 */
 const CD={
- anem:{n:'海葵',e:1,terr:'anem',z:[1],art:'anemone',lg:'只能长在礁石上，是小丑鱼的家。种下就一直在，被污染毁掉后这张牌会回到弃牌堆。同一格可以叠到 3 级：1 级住 2 条，2 级住 3 条；3 级时左右两格也算家、能住 2 条。',fact:'海葵用带刺细胞的触手捕食，小丑鱼身上有一层黏液不怕它，一家子就住在同一丛海葵里。'},
- coral:{n:'珊瑚',e:1,terr:'coral',z:[1],art:'coral',lg:'只能长在礁石上，是光鳃鱼、蝴蝶鱼这些珊瑚鱼的家。同一格可以叠到 3 级，规则和海葵一样。',fact:'珊瑚幼体要附着在坚硬的礁石上才能生长，所以沙地和开阔水域里没有珊瑚。珊瑚丛越大，能藏身的鱼越多。'},
- clown:{n:'小丑鱼',g:1,hab:'anem',e:1,a:2,h:3,home:'anem',hb:2,z:[1],art:'clown',lg:'住在礁石上。待在海葵里净化 +2、每回合回 1 血；不在海葵里每回合掉 1 血。',fact:'小丑鱼一生都守着自己的海葵：海葵的毒触手替它挡天敌，它替海葵赶走啃触手的鱼。'},
- urchin:{n:'海胆',g:1,e:1,a:1,h:6,thorn:1,play:'graze',z:[1],art:'urchin',lg:'住在礁石上，血厚。放下时：啃藻，立刻清掉这条道污染源 2 点。污染源打它会被刺扎掉 1 血。',fact:'海胆夜里出来啃藻。海胆大量死亡的礁区，藻类很快就会盖过珊瑚。'},
- chromis:{n:'光鳃鱼',g:3,hab:'coral',e:1,a:1,h:2,home:'coral',hb:1,school:1,z:[1],art:'chromis',lg:'住在礁石的珊瑚里。结算时，它左边每有一条光鳃鱼，净化 +1。',fact:'光鳃鱼成群悬在鹿角珊瑚上方，一有危险就整群缩回枝杈里。'},
- cleaner:{n:'裂唇鱼',g:1,e:2,a:0,h:3,clean:1,z:[1],art:'cleaner',lg:'住在礁石上。结算时：给它左边那条鱼回 2 血、解开渔网，并让它再算一次。',fact:'裂唇鱼在固定的“清洁站”替别的鱼吃掉寄生虫，大鱼会排队等它。'},
- parrot:{n:'鹦嘴鱼',g:1,e:2,a:2,h:5,algae:1,z:[1],art:'parrot',lg:'住在礁石上。结算时，如果污染源是藻团：把它左边已经叠起来的净化 ×2。所以要放在别的鱼右边。',fact:'鹦嘴鱼刮食礁石上的藻类，磨碎的石灰质排出来就是白沙。'},
- butterfly:{n:'蝴蝶鱼',g:2,hab:'coral',e:2,a:2,h:3,home:'coral',hb:1,pair:1,z:[1],art:'butterfly',lg:'住在礁石的珊瑚里。结算时，如果它左边已经有一条蝴蝶鱼：把已经叠起来的净化 ×2。',fact:'很多蝴蝶鱼终生成对活动，一起巡视同一片珊瑚。珊瑚死了，它们也跟着消失。'},
- eel:{n:'花园鳗',g:3,hab:'seagrass',e:1,a:1,h:3,gen:'e',z:[2],art:'gardeneel',lg:'只住在沙地。结算时：滤食浮游生物，下回合多 1 点能量。',fact:'花园鳗成群把尾巴插在沙里，迎着水流吃漂来的浮游生物，一受惊就整片缩回洞里。'},
- cucumber:{n:'海参',g:1,hab:'seagrass',e:1,a:1,h:7,play:'heart',z:[2],art:'cucumber',lg:'只住在沙地，血厚。放下时：把沙滤干净，礁心 +1。',fact:'海参一边爬一边吞沙，把沙里的有机碎屑消化掉，排出来的沙更干净。'},
- fusilier:{n:'乌尾鮗',g:3,hab:'sargassum',e:1,a:1,h:3,school:1,gen:'c',z:[0],art:'fusilier',lg:'只在开阔水域。结算时，它左边每有一条乌尾鮗，净化 +1；每凑齐 2 条，抽 1 张牌。',fact:'乌尾鮗成大群在礁外的水层里巡游，白天吃浮游生物，晚上才回礁石缝里睡觉。'},
- jack:{n:'鲹',g:1,hab:'sargassum',e:2,a:3,h:4,play:'draw',z:[0],art:'jack',lg:'只在开阔水域，净化高。放下时：抽 1 张牌。',fact:'鲹是开阔水域里的快速猎手，常成群围着礁外的鱼群打转。'},
- turtle:{n:'绿海龟',g:1,e:3,a:2,h:9,play:'push',z:[0,1,2],art:'turtle',lg:'三条道都能去，血最厚。放下时：把这条道的污染源撞退一格。',fact:'绿海龟到水面换气，到礁石上休息，到海草床吃草，三处都能见到它。'},
- seagrass:{n:'海草',e:1,terr:'seagrass',z:[2],art:'seagrass',lg:'只能长在沙地上，可以叠到 3 级，让这一格多住几条（规则和海葵一样）。住在海草里的生物每回合回 1 血。',fact:'海草是真正开花的植物，根扎在沙里连成海草床，是幼鱼的育儿所，也是绿海龟和儒艮的食堂。'},
- sargassum:{n:'马尾藻',e:1,terr:'sargassum',z:[0],art:'sargassum',lg:'只能漂在开阔水域，可以叠到 3 级，让这一格多住几条。躲在马尾藻里的鱼不会被渔网缠住。',fact:'马尾藻靠气囊漂在海面，连成一片“漂浮的森林”，幼鱼和小海龟都躲在里面。'},
- manta:{n:'蝠鲼',g:1,e:2,a:2,h:5,play:'draw2',z:[0],art:'manta',lg:'只在开阔水域。放下时：抽 2 张牌。',fact:'蝠鲼张着大嘴滤食浮游生物，食物多的时候会一圈圈翻着筋斗吃。'},
+ anem:{n:'海葵',e:1,terr:'anem',ter:['reef'],art:'anemone',lg:'长在礁石上，是小丑鱼的家。每升一级，这一片能多住 1 条小丑鱼（最多 3 级）；把海葵牌放到已有的海葵旁边就是升级。被污染毁掉后牌回弃牌堆。',fact:'海葵用带刺细胞的触手捕食，小丑鱼身上有一层黏液不怕它，一家子就住在同一丛海葵里。'},
+ coral:{n:'珊瑚',e:1,terr:'coral',ter:['reef'],art:'coral',lg:'长在礁石上，是蝴蝶鱼、光鳃鱼的家。每升一级，这一片能多住 1 条（最多 3 级）；放到已有的珊瑚旁边就是升级。',fact:'珊瑚幼体要附着在坚硬的礁石上才能生长，所以沙地和开阔水域里没有珊瑚。珊瑚丛越大，能藏身的鱼越多。'},
+ clown:{n:'小丑鱼',g:1,hab:'anem',e:1,a:2,h:3,home:'anem',hb:2,ter:['reef'],art:'clown',lg:'住在礁石上。待在海葵里净化 +2、每回合回 1 血；不在海葵里每回合掉 1 血。',fact:'小丑鱼一生都守着自己的海葵：海葵的毒触手替它挡天敌，它替海葵赶走啃触手的鱼。'},
+ urchin:{n:'海胆',g:1,e:1,a:1,h:6,thorn:1,play:'graze',ter:['reef'],art:'urchin',lg:'住在礁石上，血厚。放下时：啃藻，立刻清掉这条道污染源 2 点。污染源打它会被刺扎掉 1 血。',fact:'海胆夜里出来啃藻。海胆大量死亡的礁区，藻类很快就会盖过珊瑚。'},
+ chromis:{n:'光鳃鱼',g:3,hab:'coral',e:1,a:1,h:2,home:'coral',hb:1,school:1,ter:['reef'],art:'chromis',lg:'住在礁石的珊瑚里。结算时，它左边每有一条光鳃鱼，净化 +1。',fact:'光鳃鱼成群悬在鹿角珊瑚上方，一有危险就整群缩回枝杈里。'},
+ cleaner:{n:'裂唇鱼',g:1,e:2,a:0,h:3,clean:1,ter:['reef'],art:'cleaner',lg:'住在礁石上。结算时：给它左边那条鱼回 2 血、解开渔网，并让它再算一次。',fact:'裂唇鱼在固定的“清洁站”替别的鱼吃掉寄生虫，大鱼会排队等它。'},
+ parrot:{n:'鹦嘴鱼',g:1,e:2,a:2,h:5,algae:1,ter:['reef'],art:'parrot',lg:'住在礁石上。结算时，如果污染源是藻团：把它左边已经叠起来的净化 ×2。所以要放在别的鱼右边。',fact:'鹦嘴鱼刮食礁石上的藻类，磨碎的石灰质排出来就是白沙。'},
+ butterfly:{n:'蝴蝶鱼',g:2,hab:'coral',e:2,a:2,h:3,home:'coral',hb:1,pair:1,ter:['reef'],art:'butterfly',lg:'住在礁石的珊瑚里。结算时，如果它左边已经有一条蝴蝶鱼：把已经叠起来的净化 ×2。',fact:'很多蝴蝶鱼终生成对活动，一起巡视同一片珊瑚。珊瑚死了，它们也跟着消失。'},
+ eel:{n:'花园鳗',g:3,hab:'seagrass',e:1,a:1,h:3,gen:'e',ter:['sand'],art:'gardeneel',lg:'只住在沙地。结算时：滤食浮游生物，下回合多 1 点能量。',fact:'花园鳗成群把尾巴插在沙里，迎着水流吃漂来的浮游生物，一受惊就整片缩回洞里。'},
+ cucumber:{n:'海参',g:1,hab:'seagrass',e:1,a:1,h:7,play:'heart',ter:['sand'],art:'cucumber',lg:'只住在沙地，血厚。放下时：把沙滤干净，礁心 +1。',fact:'海参一边爬一边吞沙，把沙里的有机碎屑消化掉，排出来的沙更干净。'},
+ fusilier:{n:'乌尾鮗',g:3,hab:'sargassum',e:1,a:1,h:3,school:1,gen:'c',ter:['water'],art:'fusilier',lg:'只在开阔水域。结算时，它左边每有一条乌尾鮗，净化 +1；每凑齐 2 条，抽 1 张牌。',fact:'乌尾鮗成大群在礁外的水层里巡游，白天吃浮游生物，晚上才回礁石缝里睡觉。'},
+ jack:{n:'鲹',g:1,hab:'sargassum',e:2,a:3,h:4,play:'draw',ter:['water'],art:'jack',lg:'只在开阔水域，净化高。放下时：抽 1 张牌。',fact:'鲹是开阔水域里的快速猎手，常成群围着礁外的鱼群打转。'},
+ turtle:{n:'绿海龟',g:1,e:3,a:2,h:9,play:'push',ter:['water','reef','sand'],art:'turtle',lg:'水里、礁石、沙地都能去，血最厚。放下时：把这条道的污染源撞退一格。',fact:'绿海龟到水面换气，到礁石上休息，到海草床吃草，三处都能见到它。'},
+ seagrass:{n:'海草',e:1,terr:'seagrass',ter:['sand'],art:'seagrass',lg:'长在沙地上。每升一级，这一片能多住 1 条花园鳗和海参（最多 3 级）；住在海草旁的生物每回合回 1 血。',fact:'海草是真正开花的植物，根扎在沙里连成海草床，是幼鱼的育儿所，也是绿海龟和儒艮的食堂。'},
+ sargassum:{n:'马尾藻',e:1,terr:'sargassum',ter:['water'],art:'sargassum',lg:'漂在开阔水域。每升一级，这一片能多住 1 条乌尾鮗和鲹（最多 3 级）；躲在马尾藻旁的鱼不会被渔网缠住。',fact:'马尾藻靠气囊漂在海面，连成一片“漂浮的森林”，幼鱼和小海龟都躲在里面。'},
+ manta:{n:'蝠鲼',g:1,e:2,a:2,h:5,play:'draw2',ter:['water'],art:'manta',lg:'只在开阔水域。放下时：抽 2 张牌。',fact:'蝠鲼张着大嘴滤食浮游生物，食物多的时候会一圈圈翻着筋斗吃。'},
  upwelling:{n:'上升流',e:0,fx:'upwelling',any:1,art:'',lg:'抽 2 张牌。这一关里用掉就没有了。',fact:'上升流把深处又冷又有营养的海水带到表层，浮游生物暴增，整条食物链都跟着热闹起来。'},
  plankton:{n:'浮游生物',e:0,fx:'plankton',any:1,art:'',lg:'这回合多 2 点能量。这一关里用掉就没有了。',fact:'浮游生物是整片海的口粮。光鳃鱼、花园鳗、乌尾鮗，甚至鲸鲨，都靠滤食它们为生。'},
  zoox:{n:'虫黄藻',e:1,fx:'zoox',art:'',lg:'选一格海葵或珊瑚，让它变茂盛：这一格里的每条鱼净化 +1，每回合回 2 血。',fact:'珊瑚和海葵体内都住着虫黄藻，它们晒太阳制造养分，珊瑚九成的能量来自它们。'},
@@ -41,14 +41,27 @@ const FOE={
 /* waves：[第几回合出现, 哪种, 哪条道, 血量, 厚度]；厚度=每次结算的那一击先被挡掉这么多；第 6 项可以单独给攻击力；hand 开局手牌；top 牌堆顶（按抽到的先后） */
 let LV=[
  {n:'浅礁',heart:10,hand:['anem','clown'],top:['clown','anem','urchin','eel','clown','cucumber','parrot','fusilier','eel','fusilier','anem','clown'],deck:{anem:4,clown:6,urchin:3,parrot:2,eel:3,cucumber:2,fusilier:4,upwelling:1},
-  waves:[[1,'algae',1,4],[2,'algae',1,11],[4,'algae',2,8],[5,'algae',1,25,2],[6,'algae',0,6],[7,'algae',2,13],[8,'algae',1,42,4,3],[9,'algae',0,10],[10,'algae',2,17,1],[11,'algae',1,83,6,3],[12,'algae',0,14]],fresh:['anem','clown','urchin','eel','cucumber','parrot','fusilier','upwelling'],foes:['algae']},
+  waves:[[1,'algae',2,4],[2,'algae',2,11],[4,'algae',1,6],[5,'algae',2,20,2],[6,'algae',0,5],[7,'algae',1,10],[8,'algae',2,34,4,3],[9,'algae',0,8],[10,'algae',1,14,1],[11,'algae',2,66,6,3],[12,'algae',0,11]],fresh:['anem','clown','urchin','eel','cucumber','parrot','fusilier','upwelling'],foes:['algae']},
  {n:'幽灵渔网',heart:12,hand:['anem','clown','urchin','eel'],deck:{anem:4,clown:5,urchin:3,parrot:2,eel:4,cucumber:2,fusilier:4,seagrass:2,sargassum:2,jack:2,upwelling:2,plankton:2,turtle:1},
-  waves:[[1,'algae',1,16,2],[2,'algae',2,13],[3,'net',0,10],[4,'algae',1,22,3],[5,'algae',2,16],[6,'net',0,13],[7,'algae',1,29,5],[8,'algae',2,21,1],[9,'net',0,16,1],[10,'algae',1,37,7],[11,'algae',2,22,1],[12,'net',0,18,1]],fresh:['seagrass','sargassum','upwelling','jack','plankton','turtle'],foes:['net']},
- {n:'长棘海星',heart:12,hand:['anem','clown','urchin','eel'],deck:{anem:3,clown:4,urchin:3,parrot:1,coral:3,butterfly:3,cleaner:1,eel:3,cucumber:2,seagrass:2,fusilier:4,sargassum:2,manta:1,turtle:2,upwelling:2,plankton:2},waves:[[1,'algae',1,20,2],[2,'net',0,16],[3,'algae',2,16],[4,'cots',1,28,4],[5,'net',0,20],[6,'algae',2,20],[7,'algae',1,34,6],[8,'net',0,24,1],[9,'algae',2,24,1],[10,'cots',1,44,8],[11,'net',0,28,1],[12,'algae',2,28,1]],fresh:['coral','butterfly','cleaner','manta'],foes:['net','cots']}];
+  waves:[[1,'algae',2,16,2],[2,'algae',1,13],[3,'net',0,10],[4,'algae',2,22,3],[5,'algae',1,16],[6,'net',0,13],[7,'algae',2,29,5],[8,'algae',1,21,1],[9,'net',0,16,1],[10,'algae',2,37,7],[11,'algae',1,22,1],[12,'net',0,18,1]],fresh:['seagrass','sargassum','upwelling','jack','plankton','turtle'],foes:['net']},
+ {n:'长棘海星',heart:12,hand:['anem','clown','urchin','eel'],deck:{anem:3,clown:4,urchin:3,parrot:1,coral:3,butterfly:3,cleaner:1,eel:3,cucumber:2,seagrass:2,fusilier:4,sargassum:2,manta:1,turtle:2,upwelling:2,plankton:2},waves:[[1,'algae',2,24,2],[2,'net',0,19],[3,'algae',1,19],[4,'cots',2,34,4],[5,'net',0,24],[6,'algae',1,24],[7,'algae',2,41,6],[8,'net',0,29,1],[9,'algae',1,29,1],[10,'cots',2,53,8],[11,'net',0,34,1],[12,'algae',1,34,1]],fresh:['coral','butterfly','cleaner','manta'],foes:['net','cots']}];
 const POOL=['parrot','butterfly','turtle','zoox','cleanup','plankton','cleaner','chromis','coral','jack','urchin','clown','anem','seagrass','sargassum','upwelling','manta'];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const mkc=id=>({id,u:++CUID});
 const laneOf=c=>Math.floor(c/NC),colOf=c=>c%NC,ci=(l,col)=>l*NC+col;
+/* 地形来自背景图：把画面切成很细的小格（56×24），每一小格是 水 w / 沙 s / 礁 r。生物放在哪一小格都行，只要那里是它能住的地形。
+   推进和结算仍按“三层 × 5 段”的大区域算：一个位置属于哪一层看它的高度，属于哪一段看它的左右。 */
+const MASK=["wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", "sssssssssssssssssssssssssssrrrrrrwwwwwwwwwwwwwwwwwwwwwww", "ssssssssssssssssssssssssssssrrrrrrrrwwwwwwwwwwwwwwwwwwww", "ssssssssssssssssssssssssssrrrrrrrrrrwwwwwwwwwwwwwwwwwwww", "sssssssssssssssssssssssrrrrrrrrrrrrrrwwwwwwwwwwwwwwwwwww", "sssssssssssssssssssrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwwwwww", "sssssssssssssssssrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwwwwww", "sssssssssssssssrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwwwww", "sssssssssssrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwwwww", "sssssssssrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwwwww", "ssssssrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwwww", "ssrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwwww", "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwww", "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwww", "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwww", "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwww"],TW=56,TH=24,ROWY=[0,.375,.69,1],X0=.095,CWD=.146,TK={w:'water',s:'sand',r:'reef'};
+const terAt=(x,y)=>{const i=Math.floor(x*TW),j=Math.floor(y*TH);return i<0||j<0||i>=TW||j>=TH?null:TK[MASK[j][i]]};
+const bucketOf=(x,y)=>{const col=Math.floor((x-X0)/CWD),l=y<ROWY[1]?0:y<ROWY[2]?1:2;return col<0||col>=NC||y<0||y>=1?-1:ci(l,col)};
+const TCELL=Array.from({length:NS},()=>({water:[],sand:[],reef:[]}));
+for(let j=0;j<TH;j++)for(let i=0;i<TW;i++){const x=(i+.5)/TW,y=(j+.5)/TH,b=bucketOf(x,y);if(b>=0&&y>.07&&y<.9)TCELL[b][terAt(x,y)].push([x,y])}
+const hasTer=(c,ter)=>TCELL[c][ter].length>=4,canLive=(c,id)=>CD[id].ter.some(t=>hasTer(c,t));
+const D2=(a,b)=>Math.hypot((a[0]-b[0])*2.38,a[1]-b[1]);
+const RING=[[-.03,-.07],[.03,-.07],[0,-.13],[-.055,-.01],[.055,-.01],[0,.05]];
+/* 在区域 c 里，给一只住在 ters 地形上的生物找落点：离想要的位置最近、又不压着别人的小格 */
+function spotFor(S,c,ters,x,y,skipU){const pts=[];ters.forEach(t=>pts.push(...TCELL[c][t]));if(!pts.length)return null;let w=[x,y];if(x==null){w=[0,0];pts.forEach(p=>{w[0]+=p[0]/pts.length;w[1]+=p[1]/pts.length})}
+ const occ=S?S.cells[c].cs.filter(o=>o.u!==skipU&&o.x!=null).map(o=>[o.x,o.y]):[],srt=pts.slice().sort((a,b)=>D2(a,w)-D2(b,w));for(const q of srt)if(occ.every(o=>D2(o,q)>=.15))return q;return srt[0]}
 const foeIn=(S,l)=>S.foes.find(f=>f.lane===l)||null;
 const polluted=(S,c)=>{const f=foeIn(S,laneOf(c));return !!f&&f.p<=colOf(c)};
 const nb=c=>[colOf(c)-1,colOf(c)+1].filter(q=>q>=0&&q<NC).map(q=>ci(laneOf(c),q));
@@ -87,21 +100,27 @@ function calcLane(S,l){const f=foeIn(S,l),steps=[],seen={};let tot=0,last=null;
 /* 手牌能打到哪：{cell} 或 {foe} 或 {any:1} */
 function cgTargets(S,id){const d=CD[id],o=[];if(d.any)return [{any:1}];if(d.fx==='cleanup')return S.foes.map((f,i)=>({foe:i}));
  for(let c=0;c<NS;c++){const x=S.cells[c],l=laneOf(c);if(polluted(S,c))continue;
-  if(d.terr){if(d.z.includes(l)&&(x.coral===0||(x.kind===d.terr&&x.coral<3)))o.push({cell:c})}
+  if(d.terr){if(canLive(c,id)&&(x.coral===0||(x.kind===d.terr&&x.coral<3)))o.push({cell:c})}
   else if(d.fx==='zoox'){if(x.coral>0&&!x.lush)o.push({cell:c})}
-  else if(d.z.includes(l))o.push(room(S,c,id)>0?{cell:c}:{cell:c,swap:1})}return o}
+  else if(canLive(c,id))o.push(room(S,c,id)>0?{cell:c}:{cell:c,swap:1})}return o}
+/* 这张牌能不能落在这个具体位置（x,y 是画面上的比例坐标）。返回 null 或 {cell,swap} */
+function cgCanPlace(S,id,x,y){const d=CD[id],c=bucketOf(x,y);if(c<0)return null;const t=cgTargets(S,id).find(q=>q.cell===c);if(!t)return null;if(d.fx)return t;return d.ter.includes(terAt(x,y))?t:null}
 const weakest=x=>x.cs.slice().sort((a,b)=>a.hp/CD[a.id].h-b.hp/CD[b.id].h||a.hp-b.hp)[0];
 const findCr=(S,u)=>{for(let c=0;c<NS;c++){const k=S.cells[c].cs.find(o=>o.u===u);if(k)return {c,k}}return null};
 /* 挪位：每回合 1 次，不花能量。把场上一条鱼拖到它能住的另一格；那格满了就和你指的那条（或最残的那条）对换 */
-function cgMoveTargets(S,u){const r=findCr(S,u);if(!r||S.over||S.moves<=0||r.k.net)return [];const d=CD[r.k.id],o=[];for(let c=0;c<NS;c++){if(c===r.c||polluted(S,c)||!d.z.includes(laneOf(c)))continue;if(room(S,c,r.k.id)>0)o.push({cell:c});else if(S.cells[c].cs.some(v=>v.id===r.k.id||CD[v.id].z.includes(laneOf(r.c))))o.push({cell:c,swap:1})}return o}
-function cgMove(S,u,cell,ru){const r=findCr(S,u),T=cgMoveTargets(S,u).find(t=>t.cell===cell);if(!r||!T)return false;const a=S.cells[r.c],b=S.cells[cell];if(T.swap){const same=b.cs.filter(v=>v.id===r.k.id),pool=(same.length>=limitOf(S,cell,r.k.id)?same:b.cs).filter(v=>v.id===r.k.id||CD[v.id].z.includes(laneOf(r.c))),v=pool.find(v=>v.u===ru)||weakest({cs:pool});if(!v)return false;b.cs.splice(b.cs.indexOf(v),1);a.cs.splice(a.cs.indexOf(r.k),1);a.cs.push(v)}else a.cs.splice(a.cs.indexOf(r.k),1);b.cs.push(r.k);S.moves--;fixCap(S,[]);return true}
+function cgMoveTargets(S,u){const r=findCr(S,u);if(!r||S.over||r.k.net)return [];const o=[{cell:r.c,same:1}];if(S.moves<=0)return o;for(let c=0;c<NS;c++){if(c===r.c||polluted(S,c)||!canLive(c,r.k.id))continue;if(room(S,c,r.k.id)>0)o.push({cell:c});else if(S.cells[c].cs.some(v=>v.id===r.k.id||canLive(r.c,v.id)))o.push({cell:c,swap:1})}return o}
+function cgCanMove(S,u,x,y){const r=findCr(S,u),c=bucketOf(x,y);if(!r||c<0)return null;const t=cgMoveTargets(S,u).find(q=>q.cell===c);return t&&CD[r.k.id].ter.includes(terAt(x,y))?t:null}
+function cgMove(S,u,cell,ru,px,py){const r=findCr(S,u),T=cgMoveTargets(S,u).find(t=>t.cell===cell);if(!r||!T)return false;const d=CD[r.k.id];if(px!=null&&(bucketOf(px,py)!==cell||!d.ter.includes(terAt(px,py))))return false;const a=S.cells[r.c],b=S.cells[cell],ox=r.k.x,oy=r.k.y;
+ if(T.same){const q=spotFor(S,cell,d.ter,px,py,u);r.k.x=q[0];r.k.y=q[1];a.cs.sort((m,n)=>m.x-n.x);return true}
+ if(T.swap){const same=b.cs.filter(v=>v.id===r.k.id),pool=(same.length>=limitOf(S,cell,r.k.id)?same:b.cs).filter(v=>v.id===r.k.id||canLive(r.c,v.id)),v=pool.find(v=>v.u===ru)||weakest({cs:pool});if(!v)return false;b.cs.splice(b.cs.indexOf(v),1);a.cs.splice(a.cs.indexOf(r.k),1);const q=spotFor(S,r.c,CD[v.id].ter,ox,oy);v.x=q[0];v.y=q[1];a.cs.push(v);a.cs.sort((m,n)=>m.x-n.x)}else a.cs.splice(a.cs.indexOf(r.k),1);
+ const q=spotFor(S,cell,d.ter,px,py,u);r.k.x=q[0];r.k.y=q[1];b.cs.push(r.k);b.cs.sort((m,n)=>m.x-n.x);S.moves--;fixCap(S,[]);return true}
 function cgPlay(S,i,t){const k=S.hand[i];if(S.over||!k)return false;const d=CD[k.id];if(S.energy<d.e)return false;const T=cgTargets(S,k.id);S.pfx=null;
  if(d.fx==='plankton'){S.energy+=2}
  else if(d.fx==='upwelling'){S.energy-=d.e;S.hand.splice(i,1);cgDraw(S,2);S.pfx={t:'draw',n:2};return true}
  else if(d.fx==='cleanup'){if(!t||t.foe==null||!S.foes[t.foe])return false;hitFoe(S,t.foe,4)}
- else{if(!t||t.cell==null||!T.some(q=>q.cell===t.cell))return false;const x=S.cells[t.cell],l=laneOf(t.cell);
-  if(d.terr){x.coral++;x.kind=d.terr}else if(d.fx==='zoox')x.lush=true;
-  else{S.swapped=null;if(room(S,t.cell,k.id)<=0){const same=x.cs.filter(o=>o.id===k.id),pool=same.length>=limitOf(S,t.cell,k.id)?same:x.cs,o=pool.find(o=>o.u===t.ru)||weakest({cs:pool});x.cs.splice(x.cs.indexOf(o),1);S.dis.push({id:o.id,u:o.u});S.swapped=o.id}x.cs.push({id:k.id,u:k.u,hp:d.h,net:false});const fi=S.foes.findIndex(f=>f.lane===l),f=S.foes[fi];
+ else{if(!t||t.cell==null||!T.some(q=>q.cell===t.cell))return false;if(t.x!=null&&!d.fx&&(bucketOf(t.x,t.y)!==t.cell||!d.ter.includes(terAt(t.x,t.y))))return false;const x=S.cells[t.cell],l=laneOf(t.cell);
+  if(d.terr){if(!x.coral){const q=spotFor(null,t.cell,d.ter,t.x,t.y);x.hx=q[0];x.hy=q[1]}x.coral++;x.kind=d.terr}else if(d.fx==='zoox')x.lush=true;
+  else{S.swapped=null;if(room(S,t.cell,k.id)<=0){const same=x.cs.filter(o=>o.id===k.id),pool=same.length>=limitOf(S,t.cell,k.id)?same:x.cs,o=pool.find(o=>o.u===t.ru)||weakest({cs:pool});x.cs.splice(x.cs.indexOf(o),1);S.dis.push({id:o.id,u:o.u});S.swapped=o.id}{let wx=t.x,wy=t.y;if(d.home&&x.coral&&x.kind===d.home&&x.hx!=null){const r=RING[countOf(S,t.cell,k.id)%RING.length];wx=x.hx+r[0];wy=x.hy+r[1]}const q=spotFor(S,t.cell,d.ter,wx,wy);x.cs.push({id:k.id,u:k.u,hp:d.h,net:false,x:q[0],y:q[1]});x.cs.sort((a,b)=>a.x-b.x)}const fi=S.foes.findIndex(f=>f.lane===l),f=S.foes[fi];
    if(d.play==='graze'&&f){S.pfx={t:'hit',u:f.u,dmg:2};hitFoe(S,fi,2)}
    else if(d.play==='push'&&f&&f.p<NC){f.p++;S.pfx={t:'push',u:f.u}}
    else if(d.play==='heart'&&S.heart<S.heartMax){S.heart++;S.pfx={t:'heart'}}
@@ -141,5 +160,5 @@ function cgEnd(S){if(S.over)return null;const ev=[],kill=(c,k)=>{const x=S.cells
    if(x.kind==='seagrass'&&k.hp>0&&k.hp<d.h){k.hp++;ev.push({t:'heal',cell:c,ku:k.u})}
    if(k.netNew)k.netNew=false;else k.net=false}}
  S.turn++;S.moves=1;S.energy=ENERGY+(S.bonus||0);S.bonus=0;S.auto=false;const sp=cgSpawn(S);if(sp.length)ev.push({t:'spawn',us:sp});cgCheck(S);return ev}
-const CG={NL,NC,NS,CD,FOE,POOL,ZN,RNG,cgInit,cgStage,cgTargets,cgPlay,cgDrawAct,cgSettle,cgEnd,cgMove,cgMoveTargets,calcLane,valOf,room,limitOf,countOf,inHome,sideKind,intent,frontCell,foeIn,polluted,inReach,nextIn,laneOf,colOf,ci,getLV:()=>LV};
+const CG={NL,NC,NS,CD,FOE,POOL,ZN,RNG,cgInit,cgStage,cgTargets,cgPlay,cgDrawAct,cgSettle,cgEnd,cgMove,cgMoveTargets,cgCanMove,cgCanPlace,terAt,bucketOf,hasTer,canLive,spotFor,TCELL,TN,ROWY,X0,CWD,calcLane,valOf,room,limitOf,countOf,inHome,sideKind,intent,frontCell,foeIn,polluted,inReach,nextIn,laneOf,colOf,ci,getLV:()=>LV};
 if(typeof module!=='undefined')module.exports=CG;
