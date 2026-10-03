@@ -1,9 +1,10 @@
 /* 牌局 v5：三个数值（费用 / 净化 / 血量）+ 珊瑚。规则层，无界面。
+   · 手牌开局 3 张，不会自己补；花 1 点能量抽 2 张。
    · 任何牌都能放进任何一条道里干净的空格，一格一个生物。珊瑚是地形，铺在格子上。
    · 回合结束，每条道：够得着污染的生物把净化加起来。≥ 污染值 → 污染退一格（变浓）。
      不够 → 差多少，紧挨污染的那个生物就掉多少血；它死了，或者那格没人，污染进一格。
    · 珊瑚鱼在珊瑚上：净化 +1、每回合回 1 血；不在珊瑚上：每回合掉 1 血。 */
-const NC=6,HANDN=5,SWAPCOST=1;
+const NC=6,HAND0=3,HANDMAX=7,DRAWCOST=1,DRAWN=2;
 const CD={
  coral:{n:'珊瑚',e:1,terr:1,art:'coral',lg:'铺在一格上。再打一张在已有的珊瑚上，它会长到上下左右的格子里。',fact:'珊瑚搭起了整片礁的骨架。礁只占海底不到 1%，却养活了约四分之一的海洋鱼类。'},
  clown:{n:'小丑鱼',e:1,a:2,h:3,r:2,reef:2,art:'clown',lg:'珊瑚鱼。在珊瑚上净化 +2、每回合回 1 血；离开珊瑚每回合掉 1 血。',fact:'小丑鱼离不开礁上的海葵和珊瑚：那里是它的家，也是它躲避天敌的地方。'},
@@ -19,20 +20,22 @@ const CD={
  flow:{n:'水流',e:1,fx:'flow',art:'',lg:'选一条道：这条道的生物全部被冲到最前面，紧贴污染排好。',fact:'洋流给礁带来浮游生物，也把鱼卵和幼体带到新的地方。'}};
 /* 关卡：一关只加一两样新东西 */
 let LV=[
- {n:'一丛珊瑚',lanes:1,p0:2,up:2,turns:9,deck:{coral:4,clown:6},fresh:['coral','clown']},
- {n:'鱼群',lanes:1,p0:2,up:2,turns:12,deck:{coral:4,clown:4,chromis:5,urchin:2},fresh:['chromis','urchin']},
- {n:'三条水道',lanes:3,p0:2,up:2,turns:10,deck:{coral:5,clown:4,chromis:4,urchin:3,jack:3,flow:2},fresh:['jack','flow']},
- {n:'啃藻的鱼',lanes:3,p0:3,up:2,turns:11,deck:{coral:5,clown:4,chromis:4,urchin:2,jack:3,flow:2,parrot:2,butterfly:2,breed:2},fresh:['parrot','butterfly','breed']},
- {n:'大潮',lanes:3,p0:4,up:2,turns:13,deck:{coral:5,clown:4,chromis:4,urchin:2,jack:2,flow:2,parrot:2,butterfly:2,breed:2,turtle:1,cleaner:2,shark:1},fresh:['turtle','cleaner','shark']}];
+ {n:'一丛珊瑚',pl:[1],p0:2,up:2,turns:9,deck:{coral:4,clown:6},fresh:['coral','clown']},
+ {n:'鱼群',pl:[1],p0:2,up:2,turns:12,deck:{coral:4,clown:4,chromis:5,urchin:2},fresh:['chromis','urchin']},
+ {n:'三条水道',pl:[0,1,2],p0:2,up:1,turns:12,deck:{coral:5,clown:4,chromis:4,urchin:3,jack:3,flow:2},fresh:['jack','flow']},
+ {n:'啃藻的鱼',pl:[0,1,2],p0:2,up:2,turns:12,deck:{coral:5,clown:4,chromis:4,urchin:2,jack:3,flow:2,parrot:2,butterfly:2,breed:2},fresh:['parrot','butterfly','breed']},
+ {n:'大潮',pl:[0,1,2],p0:3,up:2,turns:14,deck:{coral:5,clown:4,chromis:4,urchin:2,jack:2,flow:2,parrot:2,butterfly:2,breed:2,turtle:1,cleaner:2,shark:1},fresh:['turtle','cleaner','shark']}];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const mkc=id=>({id,u:++CUID});
 function cgInit(lv){const S={lv:lv||0};cgStage(S);return S}
-function cgStage(S){const L=LV[S.lv];S.turn=0;S.over=null;S.lanes=Array.from({length:L.lanes},(_,li)=>({li,front:3,P:L.p0,cells:Array.from({length:NC},()=>({coral:false,c:null}))}));
+function cgStage(S){const L=LV[S.lv];S.turn=0;S.over=null;S.lanes=Array.from({length:3},(_,li)=>({li,pol:L.pl.includes(li),front:L.pl.includes(li)?3:NC,P:L.p0,cells:Array.from({length:NC},()=>({coral:false,c:null}))}));
  const d=[];for(const k in L.deck)for(let i=0;i<L.deck[k];i++)d.push(mkc(k));S.deck=cshuf(d);S.hand=[];S.dis=[];
- ['coral','clown'].forEach(id=>{const i=S.deck.findIndex(k=>k.id===id);if(i>=0)S.hand.push(S.deck.splice(i,1)[0])});cgTurn(S)}
+ ['coral','clown'].forEach(id=>{const i=S.deck.findIndex(k=>k.id===id);if(i>=0)S.hand.push(S.deck.splice(i,1)[0])});cgDraw(S,HAND0-S.hand.length);cgTurn(S)}
 function cgDraw(S,n){for(let i=0;i<n;i++){if(!S.deck.length){if(!S.dis.length)return;S.deck=cshuf(S.dis);S.dis=[]}S.hand.push(S.deck.pop())}}
 const cgEnergy=t=>Math.min(6,3+Math.floor((t-1)/2));
-function cgTurn(S){S.turn++;S.energy=cgEnergy(S.turn);cgDraw(S,Math.max(0,HANDN-S.hand.length))}
+function cgTurn(S){S.turn++;S.energy=cgEnergy(S.turn)}
+/* 手牌不会自己补：花能量才能抽 2 张 */
+function cgDrawAct(S){if(S.over||S.energy<DRAWCOST||S.hand.length>=HANDMAX||(!S.deck.length&&!S.dis.length))return false;S.energy-=DRAWCOST;cgDraw(S,Math.min(DRAWN,HANDMAX-S.hand.length));return true}
 const nb=(S,l,c)=>[[l,c-1],[l,c+1],[l-1,c],[l+1,c]].filter(([a,b])=>S.lanes[a]&&b>=0&&b<S.lanes[a].front);
 /* 一张牌能打到哪些格子 */
 function cgTargets(S,id){const d=CD[id],o=[];if(d.fx==='flow'){S.lanes.forEach((L,l)=>{if(L.front<NC)o.push({l,c:Math.max(0,L.front-1)})});return o}
@@ -52,7 +55,6 @@ function cgPlay(S,i,l,c){const k=S.hand[i];if(S.over||!k)return false;const d=CD
  else if(d.fx==='flow'){const us=[];for(let q=0;q<L.front;q++)if(L.cells[q].c){us.push(L.cells[q].c);L.cells[q].c=null}us.reverse().forEach((u,n)=>{L.cells[L.front-1-n].c=u})}
  else x.c={id:k.id,u:k.u,hp:d.h};
  S.energy-=d.e;S.hand.splice(i,1);if(d.terr||d.fx)S.dis.push(k);return true}
-function cgSwap(S,i){if(S.over||!S.hand[i]||S.energy<SWAPCOST)return false;S.energy-=SWAPCOST;S.dis.push(S.hand.splice(i,1)[0]);cgDraw(S,1);return true}
 function cgEnd(S){if(S.over)return null;const cf=LV[S.lv],sc=cgScore(S),ev={sc,lanes:[]};
  S.lanes.forEach((L,l)=>{const r=sc[l],e={move:0,hit:null,dead:[],heal:[],wither:[]};ev.lanes.push(e);if(r.done)return;
   if(r.win){L.front++;L.P+=cf.up;e.move=1}else{if(r.front){r.front.k.hp-=r.short;e.hit=[r.front.col,r.short];if(r.front.k.hp<=0){L.cells[r.front.col].c=null;S.dis.push({id:r.front.k.id,u:r.front.k.u});e.dead.push(r.front.col)}}
@@ -63,5 +65,5 @@ function cgEnd(S){if(S.over)return null;const cf=LV[S.lv],sc=cgScore(S),ev={sc,l
  if(S.lanes.some(L=>L.front<=0)){S.over='lose';return ev}
  if(S.lanes.every(L=>L.front>=NC)){S.over='win';return ev}
  if(S.turn>=cf.turns){S.over='lose';ev.timeout=1;return ev}cgTurn(S);return ev}
-const CG={NC,CD,cgInit,cgStage,cgTargets,cgCan,cgLane,cgScore,cgPlay,cgSwap,cgEnd,cgEnergy,getLV:()=>LV};
+const CG={NC,CD,cgInit,cgStage,cgTargets,cgCan,cgLane,cgScore,cgPlay,cgDrawAct,cgEnd,cgEnergy,getLV:()=>LV};
 if(typeof module!=='undefined')module.exports=CG;

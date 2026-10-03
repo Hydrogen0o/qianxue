@@ -412,6 +412,14 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .lvs{display:flex;flex-direction:column;gap:2px}
 .sheet .go.alt{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
 .chand .cc{height:104px}
+
+.drawb{display:flex;align-items:center;justify-content:center;gap:3px}
+.drawb b{font:800 15px var(--num);color:var(--ink)}
+.dk{position:relative;width:16px;height:22px;display:inline-block}
+.dk i{position:absolute;inset:0;border-radius:3px;background:linear-gradient(#1f6072,#134556);border:1.5px solid #5fa0b0}
+.dk i:first-child{transform:translate(3px,-3px)}
+#mCG .foot .icb.drawb{flex:0 0 76px}
+.chand .cc.drop{animation:dropc .35s cubic-bezier(.3,1.6,.5,1)}
 @media (prefers-reduced-motion:reduce){.sp .sw,.cell.tgt{animation:none}}
 @media (prefers-reduced-motion:reduce){.tgt,.home.warn,.table.shake{animation:none}}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
@@ -423,7 +431,7 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
   <div class="ctext" id="cText"></div>
   <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="piles"><span class="pile" aria-label="牌库"><i id="cDeck">0</i></span><span class="pile dis" aria-label="弃牌"><i id="cDisP">0</i></span></span></div>
   <div class="chand" id="cHand"></div>
-  <div class="foot"><button id="cUndo" aria-label="撤销" class="icb"></button><button id="cDis" aria-label="换牌，花 1 点能量" class="icb"></button><button class="pri" id="cEnd">结束回合</button></div>
+  <div class="foot"><button id="cUndo" aria-label="撤销" class="icb"></button><button id="cDis" aria-label="花 1 点能量抽 2 张牌" class="icb drawb"></button><button class="pri" id="cEnd">结束回合</button></div>
  </div>
  <div id="mTD" class="mode" hidden>
  <div class="hud"><div class="en" id="enBox"><i></i><b id="en">0</b></div><div class="prog"><i id="pg"></i><s id="pgf"></s></div><span class="lv" id="lv"></span><button class="sm" id="bPrev" aria-label="上一关">‹</button><button class="sm" id="bNext" aria-label="下一关">›</button><button class="sm" id="bSnd" aria-label="声音">声</button></div>
@@ -633,11 +641,12 @@ const TD={COLS,UNITS,FOES,TDL,tdNew,tdCan,tdPlace,tdSun,tdStep,unitAt};
 
 </script>
 <script>/* 牌局 v5：三个数值（费用 / 净化 / 血量）+ 珊瑚。规则层，无界面。
+   · 手牌开局 3 张，不会自己补；花 1 点能量抽 2 张。
    · 任何牌都能放进任何一条道里干净的空格，一格一个生物。珊瑚是地形，铺在格子上。
    · 回合结束，每条道：够得着污染的生物把净化加起来。≥ 污染值 → 污染退一格（变浓）。
      不够 → 差多少，紧挨污染的那个生物就掉多少血；它死了，或者那格没人，污染进一格。
    · 珊瑚鱼在珊瑚上：净化 +1、每回合回 1 血；不在珊瑚上：每回合掉 1 血。 */
-const NC=6,HANDN=5,SWAPCOST=1;
+const NC=6,HAND0=3,HANDMAX=7,DRAWCOST=1,DRAWN=2;
 const CD={
  coral:{n:'珊瑚',e:1,terr:1,art:'coral',lg:'铺在一格上。再打一张在已有的珊瑚上，它会长到上下左右的格子里。',fact:'珊瑚搭起了整片礁的骨架。礁只占海底不到 1%，却养活了约四分之一的海洋鱼类。'},
  clown:{n:'小丑鱼',e:1,a:2,h:3,r:2,reef:2,art:'clown',lg:'珊瑚鱼。在珊瑚上净化 +2、每回合回 1 血；离开珊瑚每回合掉 1 血。',fact:'小丑鱼离不开礁上的海葵和珊瑚：那里是它的家，也是它躲避天敌的地方。'},
@@ -653,20 +662,22 @@ const CD={
  flow:{n:'水流',e:1,fx:'flow',art:'',lg:'选一条道：这条道的生物全部被冲到最前面，紧贴污染排好。',fact:'洋流给礁带来浮游生物，也把鱼卵和幼体带到新的地方。'}};
 /* 关卡：一关只加一两样新东西 */
 let LV=[
- {n:'一丛珊瑚',lanes:1,p0:2,up:2,turns:9,deck:{coral:4,clown:6},fresh:['coral','clown']},
- {n:'鱼群',lanes:1,p0:2,up:2,turns:12,deck:{coral:4,clown:4,chromis:5,urchin:2},fresh:['chromis','urchin']},
- {n:'三条水道',lanes:3,p0:2,up:2,turns:10,deck:{coral:5,clown:4,chromis:4,urchin:3,jack:3,flow:2},fresh:['jack','flow']},
- {n:'啃藻的鱼',lanes:3,p0:3,up:2,turns:11,deck:{coral:5,clown:4,chromis:4,urchin:2,jack:3,flow:2,parrot:2,butterfly:2,breed:2},fresh:['parrot','butterfly','breed']},
- {n:'大潮',lanes:3,p0:4,up:2,turns:13,deck:{coral:5,clown:4,chromis:4,urchin:2,jack:2,flow:2,parrot:2,butterfly:2,breed:2,turtle:1,cleaner:2,shark:1},fresh:['turtle','cleaner','shark']}];
+ {n:'一丛珊瑚',pl:[1],p0:2,up:2,turns:9,deck:{coral:4,clown:6},fresh:['coral','clown']},
+ {n:'鱼群',pl:[1],p0:2,up:2,turns:12,deck:{coral:4,clown:4,chromis:5,urchin:2},fresh:['chromis','urchin']},
+ {n:'三条水道',pl:[0,1,2],p0:2,up:1,turns:12,deck:{coral:5,clown:4,chromis:4,urchin:3,jack:3,flow:2},fresh:['jack','flow']},
+ {n:'啃藻的鱼',pl:[0,1,2],p0:2,up:2,turns:12,deck:{coral:5,clown:4,chromis:4,urchin:2,jack:3,flow:2,parrot:2,butterfly:2,breed:2},fresh:['parrot','butterfly','breed']},
+ {n:'大潮',pl:[0,1,2],p0:3,up:2,turns:14,deck:{coral:5,clown:4,chromis:4,urchin:2,jack:2,flow:2,parrot:2,butterfly:2,breed:2,turtle:1,cleaner:2,shark:1},fresh:['turtle','cleaner','shark']}];
 const cshuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 let CUID=0;const mkc=id=>({id,u:++CUID});
 function cgInit(lv){const S={lv:lv||0};cgStage(S);return S}
-function cgStage(S){const L=LV[S.lv];S.turn=0;S.over=null;S.lanes=Array.from({length:L.lanes},(_,li)=>({li,front:3,P:L.p0,cells:Array.from({length:NC},()=>({coral:false,c:null}))}));
+function cgStage(S){const L=LV[S.lv];S.turn=0;S.over=null;S.lanes=Array.from({length:3},(_,li)=>({li,pol:L.pl.includes(li),front:L.pl.includes(li)?3:NC,P:L.p0,cells:Array.from({length:NC},()=>({coral:false,c:null}))}));
  const d=[];for(const k in L.deck)for(let i=0;i<L.deck[k];i++)d.push(mkc(k));S.deck=cshuf(d);S.hand=[];S.dis=[];
- ['coral','clown'].forEach(id=>{const i=S.deck.findIndex(k=>k.id===id);if(i>=0)S.hand.push(S.deck.splice(i,1)[0])});cgTurn(S)}
+ ['coral','clown'].forEach(id=>{const i=S.deck.findIndex(k=>k.id===id);if(i>=0)S.hand.push(S.deck.splice(i,1)[0])});cgDraw(S,HAND0-S.hand.length);cgTurn(S)}
 function cgDraw(S,n){for(let i=0;i<n;i++){if(!S.deck.length){if(!S.dis.length)return;S.deck=cshuf(S.dis);S.dis=[]}S.hand.push(S.deck.pop())}}
 const cgEnergy=t=>Math.min(6,3+Math.floor((t-1)/2));
-function cgTurn(S){S.turn++;S.energy=cgEnergy(S.turn);cgDraw(S,Math.max(0,HANDN-S.hand.length))}
+function cgTurn(S){S.turn++;S.energy=cgEnergy(S.turn)}
+/* 手牌不会自己补：花能量才能抽 2 张 */
+function cgDrawAct(S){if(S.over||S.energy<DRAWCOST||S.hand.length>=HANDMAX||(!S.deck.length&&!S.dis.length))return false;S.energy-=DRAWCOST;cgDraw(S,Math.min(DRAWN,HANDMAX-S.hand.length));return true}
 const nb=(S,l,c)=>[[l,c-1],[l,c+1],[l-1,c],[l+1,c]].filter(([a,b])=>S.lanes[a]&&b>=0&&b<S.lanes[a].front);
 /* 一张牌能打到哪些格子 */
 function cgTargets(S,id){const d=CD[id],o=[];if(d.fx==='flow'){S.lanes.forEach((L,l)=>{if(L.front<NC)o.push({l,c:Math.max(0,L.front-1)})});return o}
@@ -686,7 +697,6 @@ function cgPlay(S,i,l,c){const k=S.hand[i];if(S.over||!k)return false;const d=CD
  else if(d.fx==='flow'){const us=[];for(let q=0;q<L.front;q++)if(L.cells[q].c){us.push(L.cells[q].c);L.cells[q].c=null}us.reverse().forEach((u,n)=>{L.cells[L.front-1-n].c=u})}
  else x.c={id:k.id,u:k.u,hp:d.h};
  S.energy-=d.e;S.hand.splice(i,1);if(d.terr||d.fx)S.dis.push(k);return true}
-function cgSwap(S,i){if(S.over||!S.hand[i]||S.energy<SWAPCOST)return false;S.energy-=SWAPCOST;S.dis.push(S.hand.splice(i,1)[0]);cgDraw(S,1);return true}
 function cgEnd(S){if(S.over)return null;const cf=LV[S.lv],sc=cgScore(S),ev={sc,lanes:[]};
  S.lanes.forEach((L,l)=>{const r=sc[l],e={move:0,hit:null,dead:[],heal:[],wither:[]};ev.lanes.push(e);if(r.done)return;
   if(r.win){L.front++;L.P+=cf.up;e.move=1}else{if(r.front){r.front.k.hp-=r.short;e.hit=[r.front.col,r.short];if(r.front.k.hp<=0){L.cells[r.front.col].c=null;S.dis.push({id:r.front.k.id,u:r.front.k.u});e.dead.push(r.front.col)}}
@@ -697,7 +707,7 @@ function cgEnd(S){if(S.over)return null;const cf=LV[S.lv],sc=cgScore(S),ev={sc,l
  if(S.lanes.some(L=>L.front<=0)){S.over='lose';return ev}
  if(S.lanes.every(L=>L.front>=NC)){S.over='win';return ev}
  if(S.turn>=cf.turns){S.over='lose';ev.timeout=1;return ev}cgTurn(S);return ev}
-const CG={NC,CD,cgInit,cgStage,cgTargets,cgCan,cgLane,cgScore,cgPlay,cgSwap,cgEnd,cgEnergy,getLV:()=>LV};
+const CG={NC,CD,cgInit,cgStage,cgTargets,cgCan,cgLane,cgScore,cgPlay,cgDrawAct,cgEnd,cgEnergy,getLV:()=>LV};
 
 </script>
 <script>
@@ -770,12 +780,12 @@ const artOf=id=>CD[id].fx?FXART[CD[id].fx]:cart(id);
 const dots=r=>r>=6?'<i class="rg far"></i>':`<i class="rg">${'<s></s>'.repeat(r)}</i>`;
 const handCard=(k,attr,extra)=>{const id=k.id||k,d=CD[id];return `<button class="cc ${d.fx?'h-fx':d.terr?'h-terr':d.reef?'h-reef':'h-free'} ${extra||''}" ${attr||''}><span class="orb">${d.e}</span><span class="art">${svg(artOf(id).replace(/^<svg[^>]*>|<\/svg>$/g,''))}</span><b>${d.n}</b>${d.a!=null?`<span class="st"><i class="sa">${d.a}</i><i class="sh">${d.h}</i>${dots(d.r)}</span>`:'<span class="st"></span>'}</button>`};
 function csay(t,bad){document.querySelectorAll('.ctoast').forEach(e=>e.remove());const d=document.createElement('div');d.className='ctoast'+(bad?' bad':'');d.textContent=t;document.body.appendChild(d);clearTimeout(ctT);ctT=setTimeout(()=>d.remove(),2000)}
-const LHs=()=>S.lanes.length===1?150:104;
-function laneHTML(L,l,r,ok,opt){const LH=opt&&opt.h||LHs();let h=`<div class="lane ln-${S.lanes.length===1?1:l}" data-l="${l}" style="height:${LH}px">`;
+const LHs=()=>104;
+function laneHTML(L,l,r,ok,opt){const LH=opt&&opt.h||LHs();let h=`<div class="lane ln-${l}" data-l="${l}" style="height:${LH}px">`;
  for(let c=0;c<NC;c++){const x=L.cells[c],pol=c>=L.front;h+=`<button class="cell ${pol?'pol':''} ${ok&&ok.has(l+','+c)?'tgt':''}" data-l="${l}" data-c="${c}" style="left:${c/NC*100}%" aria-label="第${l+1}道第${c+1}格">${x.coral&&!pol?`<span class="cor">${cart('coral')}</span>`:''}</button>`}
  r.U.forEach(u=>{const s=LH>120?54:42,on=cinfo===u.k.u,max=u.d.h;h+=`<button class="sp ${u.inr?'':'far'} ${on?'on':''} ${u.d.reef&&!u.on?'dry':''}" data-u="${u.k.u}" style="left:calc(${(u.col+.5)/NC*100}% - ${s/2}px);top:${LH*.5-s/2-4}px;width:${s}px;height:${s}px"><span class="sw" style="--dx:${3+u.k.u%4}px;--dy:${2+u.k.u%3}px;animation-duration:${2.6+(u.k.u%7)*.45}s;animation-delay:-${(u.k.u%9)*.5}s">${cart(u.k.id)}</span><i class="sa ${u.a>u.d.a?'up':''}">${u.inr?u.a:0}</i><i class="sh ${u.k.hp<max?'hurt':''}">${u.k.hp}</i></button>`});
  if(L.front<NC)h+=`<div class="mass" style="left:${L.front/NC*100}%"></div><div class="duel ${r.win?'w':'l'}" style="left:${L.front/NC*100}%"><b class="pw">${r.power}</b><i>${r.win?'▶':'◀'}</i><b class="pp">${r.need}</b></div>${!r.win&&r.front?`<span class="dmg" style="left:${(r.front.col+.5)/NC*100}%">−${r.short}</span>`:''}`;
- else h+='<div class="clear">✓</div>';return h+'</div>'}
+ else if(L.pol)h+='<div class="clear">✓</div>';return h+'</div>'}
 function crender(){const st=LV[S.lv],sc=cgScore(S),k=csel!=null?S.hand[csel]:(cdrag&&cdrag.moved?S.hand[cdrag.i]:null);
  const ok=new Set(k&&S.energy>=CD[k.id].e?cgTargets(S,k.id).flatMap(t=>CD[k.id].fx==='flow'?Array.from({length:S.lanes[t.l].front},(_,c)=>t.l+','+c):[t.l+','+t.c]):[]);
  $('mInfo').innerHTML=`<button id="cLvB" class="lvb">${S.lv+1}/${LV.length} ${st.n}</button> <span class="pips">${Array.from({length:st.turns},(_,i)=>`<i class="${i<S.turn-1?'d':i===S.turn-1?'c':''}"></i>`).join('')}</span>`;
@@ -786,23 +796,15 @@ function crender(){const st=LV[S.lv],sc=cgScore(S),k=csel!=null?S.hand[csel]:(cd
  $('cOrbs').innerHTML=Array.from({length:cgEnergy(S.turn)},(_,i)=>`<i class="${i<S.energy?'on':''}"></i>`).join('');
  $('cDeck').textContent=S.deck.length;$('cDisP').textContent=S.dis.length;
  const n=S.hand.length;$('cHand').innerHTML=S.hand.map((c,i)=>{const d=CD[c.id],dead=S.energy<d.e||!cgTargets(S,c.id).length,rot=(i-(n-1)/2)*2.4;return handCard(c,`data-h="${i}" style="--r:${rot}deg;--y:${Math.abs(i-(n-1)/2)*5}px"`,(csel===i?'sel ':'')+(dead?'dead':''))}).join('');
- if(!$('cUndo').firstChild){$('cUndo').innerHTML=IC.undo;$('cDis').innerHTML=IC.swap}
- $('cDis').disabled=csel==null||S.energy<1;$('cUndo').disabled=!cundo.length;$('cEnd').classList.toggle('ready',!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length))}
+ if(!$('cUndo').firstChild){$('cUndo').innerHTML=IC.undo;$('cDis').innerHTML='<span class="dk"><i></i><i></i></span><b>+2</b>'}
+ $('cDis').disabled=S.energy<1||S.hand.length>=7||(!S.deck.length&&!S.dis.length);$('cUndo').disabled=!cundo.length;$('cEnd').classList.toggle('ready',S.energy<1||(!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length)&&$('cDis').disabled))}
 const cwait=ms=>new Promise(r=>setTimeout(r,window.__fast?0:ms));
 const rectOf=el=>{const r=el.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]};
 const spEl=u=>document.querySelector(`#cScene .sp[data-u="${u}"]`);
 function pop(at,txt,cls){const f=document.createElement('span');f.className='pop '+(cls||'');f.textContent=txt;f.style.left=at[0]+'px';f.style.top=at[1]+'px';document.body.appendChild(f);setTimeout(()=>f.remove(),window.__fast?0:800)}
 function shoot(from,to,cls){const f=document.createElement('i');f.className='shot '+(cls||'');f.style.transform=`translate(${from[0]}px,${from[1]}px)`;document.body.appendChild(f);requestAnimationFrame(()=>requestAnimationFrame(()=>{f.style.transform=`translate(${to[0]}px,${to[1]}px)`}));setTimeout(()=>f.remove(),window.__fast?0:330)}
 function dash(el,to,ms){if(!el||!el.animate||window.__fast)return;const a=rectOf(el);el.animate([{transform:'translate(0,0)'},{transform:`translate(${to[0]-a[0]}px,${to[1]-a[1]}px) scale(1.15)`,offset:.5},{transform:'translate(0,0)'}],{duration:ms||520,easing:'ease-in-out'})}
-function chint(){document.querySelectorAll('.hand-hint').forEach(e=>e.remove());if(S.lv!==0||S.turn>2||cdrag||csel!=null||cbusy||!$('ov').hidden)return;
- const sc=cgScore(S),f=document.createElement('span');f.className='hand-hint';f.textContent='👆';
- /* 第一关的示范：先铺珊瑚，再把小丑鱼放到珊瑚上 */
- let i=-1,t=null;const L=S.lanes[0],hasC=L.cells.some((x,c)=>c<L.front&&x.coral&&!x.c);
- if(!hasC){i=S.hand.findIndex(c=>c.id==='coral'&&S.energy>=1);t={l:0,c:L.front-1}}
- if(i<0){i=S.hand.findIndex(c=>c.id==='clown'&&S.energy>=1);const c=L.cells.findIndex((x,c)=>c<L.front&&x.coral&&!x.c);t=c>=0?{l:0,c}:null}
- if(i<0||!t){if(S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length))return;const b=rectOf($('cEnd'));f.classList.add('tap');f.style.left=b[0]+'px';f.style.top=b[1]+'px';document.body.appendChild(f);return}
- const c=document.querySelector(`#cHand .cc[data-h="${i}"]`),g=document.querySelector(`#cScene .cell[data-l="${t.l}"][data-c="${t.c}"]`);if(!c||!g||!c.animate)return;const a=rectOf(c),b=rectOf(g);f.style.left=a[0]+'px';f.style.top=a[1]+'px';document.body.appendChild(f);
- f.animate([{transform:'translate(0,0)',opacity:0},{transform:'translate(0,0)',opacity:1,offset:.15},{transform:`translate(${b[0]-a[0]}px,${b[1]-a[1]}px)`,opacity:1,offset:.8},{transform:`translate(${b[0]-a[0]}px,${b[1]-a[1]}px)`,opacity:0}],{duration:1900,iterations:Infinity,easing:'ease-in-out'})}
+function chint(){document.querySelectorAll('.hand-hint').forEach(e=>e.remove())}
 /* 回合结算：一条道一条道演 */
 async function cend(){if(cbusy||S.over)return;cbusy=true;csel=null;cinfo=null;cundo=[];crender();document.querySelectorAll('.hand-hint').forEach(e=>e.remove());const sc=cgScore(S),ev=cgEnd(S);
  for(let l=0;l<sc.length;l++){const r=sc[l],e=ev.lanes[l];if(r.done)continue;const lane=document.querySelector(`#cScene .lane[data-l="${l}"]`),duel=lane.querySelector('.duel'),pw=duel.querySelector('.pw'),pp=duel.querySelector('.pp'),front=rectOf(duel),cw=lane.getBoundingClientRect().width/NC;
@@ -818,7 +820,7 @@ async function cend(){if(cbusy||S.over)return;cbusy=true;csel=null;cinfo=null;cu
   r.U.forEach(u=>{const el=spEl(u.k.u);if(!el)return;if(e.wither.includes(u.col)){pop(rectOf(el),'−1','bad');el.classList.add('hurt');if(e.dead.includes(u.col)&&!(e.hit&&u.col===e.hit[0]))el.classList.add('die')}else if(e.heal.includes(u.col))pop(rectOf(el),'+♥','heal')});
   if(e.wither.length||e.heal.length)await cwait(420);lane.classList.remove('act')}
  if(S.over){await cwait(300);cbusy=false;cfinish();return}crender();cbusy=false;chint()}
-function cfinish(){const st=LV[S.lv];if(S.over==='lose'){SFX.lose();ov(`<h1>${S.lanes.some(L=>L.front<=0)?'一条水道被污染占满了':'回合用完了'}</h1><p>紧挨污染的那个生物替大家挨打，选血厚的顶在前面。够不着污染的生物不出力，记得往前补。</p><button class="go" data-cact="again">再试一次</button>`);return}
+function cfinish(){const st=LV[S.lv];if(S.over==='lose'){SFX.lose();ov(`<h1>${S.lanes.some(L=>L.front<=0)?'一条水道被污染占满了':'回合用完了'}</h1><p>紧挨污染的那个生物替大家挨打，选血厚的顶在前面。够不着污染的生物不出力，记得往前补。手牌不会自己来，留 1 点能量抽牌。</p><button class="go" data-cact="again">再试一次</button>`);return}
  SFX.win();const last=S.lv>=LV.length-1;ov(`<h1>${last?'整片礁净化完成':'净化完成'}</h1><button class="go" data-cact="${last?'again':'next'}">${last?'再玩一次':'下一关'}</button>`)}
 function intro(){const st=LV[S.lv],fr=st.fresh.filter(id=>!cSeen[id]);if(!fr.length){chint();return}fr.forEach(id=>cSeen[id]=1);csave();ov(`<h1 style="font-size:20px">新的记忆卡</h1><div class="newc">${fr.map(id=>`<div>${handCard(id)}${demoHTML(id)}<p>${CD[id].lg}</p></div>`).join('')}</div><button class="go" data-cact="close">开始</button>`);demoRun()}
 /* ---- 长按看效果：一小条水道，循环演示这张牌做什么 ---- */
@@ -871,7 +873,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)r
  if(t.id==='cLvB'){ov(`<h1 style="font-size:20px">选关</h1><div class="lvs">${LV.map((l,i)=>`<button class="go ${i===S.lv?'':'alt'}" data-golv="${i}">${i+1}　${l.n}</button>`).join('')}</div><button class="go alt" data-cact="close">返回</button>`);return}
  if(cbusy||S.over)return;
  if(t.id==='cUndo'){if(cundo.length){S=JSON.parse(cundo.pop());csel=cinfo=null;crender()}return}
- if(t.id==='cDis'){if(csel!=null&&cgSwap(S,csel)){csel=null;cundo=[];crender()}return}
+ if(t.id==='cDis'){const n0=S.hand.length;if(cgDrawAct(S)){csel=null;cundo=[];SFX.sun();crender();document.querySelectorAll('#cHand .cc').forEach((c,i)=>{if(i>=n0)c.classList.add('drop')})}return}
  if(t.id==='cEnd'){cend();return}
  if(d.u&&t.closest('#cScene')){const u=+d.u;if(csel!=null){const el=t.getBoundingClientRect(),q=cellAt(el.left+el.width/2,el.top+el.height/2);if(q&&cplay(csel,q.l,q.c))return}csel=null;cinfo=cinfo===u?null:u;crender();return}
  if(d.c!=null&&d.l!=null&&t.closest('#cScene')){const l=+d.l,c=+d.c;if(csel!=null){const k=S.hand[csel];if(cplay(csel,l,c))return;csay(cwhy(k,l,c),1);tone(140,.12,'square',.04)}else if(cinfo){cinfo=null;crender()}}});

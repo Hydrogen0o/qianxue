@@ -13,12 +13,12 @@ const artOf=id=>CD[id].fx?FXART[CD[id].fx]:cart(id);
 const dots=r=>r>=6?'<i class="rg far"></i>':`<i class="rg">${'<s></s>'.repeat(r)}</i>`;
 const handCard=(k,attr,extra)=>{const id=k.id||k,d=CD[id];return `<button class="cc ${d.fx?'h-fx':d.terr?'h-terr':d.reef?'h-reef':'h-free'} ${extra||''}" ${attr||''}><span class="orb">${d.e}</span><span class="art">${svg(artOf(id).replace(/^<svg[^>]*>|<\/svg>$/g,''))}</span><b>${d.n}</b>${d.a!=null?`<span class="st"><i class="sa">${d.a}</i><i class="sh">${d.h}</i>${dots(d.r)}</span>`:'<span class="st"></span>'}</button>`};
 function csay(t,bad){document.querySelectorAll('.ctoast').forEach(e=>e.remove());const d=document.createElement('div');d.className='ctoast'+(bad?' bad':'');d.textContent=t;document.body.appendChild(d);clearTimeout(ctT);ctT=setTimeout(()=>d.remove(),2000)}
-const LHs=()=>S.lanes.length===1?150:104;
-function laneHTML(L,l,r,ok,opt){const LH=opt&&opt.h||LHs();let h=`<div class="lane ln-${S.lanes.length===1?1:l}" data-l="${l}" style="height:${LH}px">`;
+const LHs=()=>104;
+function laneHTML(L,l,r,ok,opt){const LH=opt&&opt.h||LHs();let h=`<div class="lane ln-${l}" data-l="${l}" style="height:${LH}px">`;
  for(let c=0;c<NC;c++){const x=L.cells[c],pol=c>=L.front;h+=`<button class="cell ${pol?'pol':''} ${ok&&ok.has(l+','+c)?'tgt':''}" data-l="${l}" data-c="${c}" style="left:${c/NC*100}%" aria-label="第${l+1}道第${c+1}格">${x.coral&&!pol?`<span class="cor">${cart('coral')}</span>`:''}</button>`}
  r.U.forEach(u=>{const s=LH>120?54:42,on=cinfo===u.k.u,max=u.d.h;h+=`<button class="sp ${u.inr?'':'far'} ${on?'on':''} ${u.d.reef&&!u.on?'dry':''}" data-u="${u.k.u}" style="left:calc(${(u.col+.5)/NC*100}% - ${s/2}px);top:${LH*.5-s/2-4}px;width:${s}px;height:${s}px"><span class="sw" style="--dx:${3+u.k.u%4}px;--dy:${2+u.k.u%3}px;animation-duration:${2.6+(u.k.u%7)*.45}s;animation-delay:-${(u.k.u%9)*.5}s">${cart(u.k.id)}</span><i class="sa ${u.a>u.d.a?'up':''}">${u.inr?u.a:0}</i><i class="sh ${u.k.hp<max?'hurt':''}">${u.k.hp}</i></button>`});
  if(L.front<NC)h+=`<div class="mass" style="left:${L.front/NC*100}%"></div><div class="duel ${r.win?'w':'l'}" style="left:${L.front/NC*100}%"><b class="pw">${r.power}</b><i>${r.win?'▶':'◀'}</i><b class="pp">${r.need}</b></div>${!r.win&&r.front?`<span class="dmg" style="left:${(r.front.col+.5)/NC*100}%">−${r.short}</span>`:''}`;
- else h+='<div class="clear">✓</div>';return h+'</div>'}
+ else if(L.pol)h+='<div class="clear">✓</div>';return h+'</div>'}
 function crender(){const st=LV[S.lv],sc=cgScore(S),k=csel!=null?S.hand[csel]:(cdrag&&cdrag.moved?S.hand[cdrag.i]:null);
  const ok=new Set(k&&S.energy>=CD[k.id].e?cgTargets(S,k.id).flatMap(t=>CD[k.id].fx==='flow'?Array.from({length:S.lanes[t.l].front},(_,c)=>t.l+','+c):[t.l+','+t.c]):[]);
  $('mInfo').innerHTML=`<button id="cLvB" class="lvb">${S.lv+1}/${LV.length} ${st.n}</button> <span class="pips">${Array.from({length:st.turns},(_,i)=>`<i class="${i<S.turn-1?'d':i===S.turn-1?'c':''}"></i>`).join('')}</span>`;
@@ -29,23 +29,15 @@ function crender(){const st=LV[S.lv],sc=cgScore(S),k=csel!=null?S.hand[csel]:(cd
  $('cOrbs').innerHTML=Array.from({length:cgEnergy(S.turn)},(_,i)=>`<i class="${i<S.energy?'on':''}"></i>`).join('');
  $('cDeck').textContent=S.deck.length;$('cDisP').textContent=S.dis.length;
  const n=S.hand.length;$('cHand').innerHTML=S.hand.map((c,i)=>{const d=CD[c.id],dead=S.energy<d.e||!cgTargets(S,c.id).length,rot=(i-(n-1)/2)*2.4;return handCard(c,`data-h="${i}" style="--r:${rot}deg;--y:${Math.abs(i-(n-1)/2)*5}px"`,(csel===i?'sel ':'')+(dead?'dead':''))}).join('');
- if(!$('cUndo').firstChild){$('cUndo').innerHTML=IC.undo;$('cDis').innerHTML=IC.swap}
- $('cDis').disabled=csel==null||S.energy<1;$('cUndo').disabled=!cundo.length;$('cEnd').classList.toggle('ready',!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length))}
+ if(!$('cUndo').firstChild){$('cUndo').innerHTML=IC.undo;$('cDis').innerHTML='<span class="dk"><i></i><i></i></span><b>+2</b>'}
+ $('cDis').disabled=S.energy<1||S.hand.length>=7||(!S.deck.length&&!S.dis.length);$('cUndo').disabled=!cundo.length;$('cEnd').classList.toggle('ready',S.energy<1||(!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length)&&$('cDis').disabled))}
 const cwait=ms=>new Promise(r=>setTimeout(r,window.__fast?0:ms));
 const rectOf=el=>{const r=el.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]};
 const spEl=u=>document.querySelector(`#cScene .sp[data-u="${u}"]`);
 function pop(at,txt,cls){const f=document.createElement('span');f.className='pop '+(cls||'');f.textContent=txt;f.style.left=at[0]+'px';f.style.top=at[1]+'px';document.body.appendChild(f);setTimeout(()=>f.remove(),window.__fast?0:800)}
 function shoot(from,to,cls){const f=document.createElement('i');f.className='shot '+(cls||'');f.style.transform=`translate(${from[0]}px,${from[1]}px)`;document.body.appendChild(f);requestAnimationFrame(()=>requestAnimationFrame(()=>{f.style.transform=`translate(${to[0]}px,${to[1]}px)`}));setTimeout(()=>f.remove(),window.__fast?0:330)}
 function dash(el,to,ms){if(!el||!el.animate||window.__fast)return;const a=rectOf(el);el.animate([{transform:'translate(0,0)'},{transform:`translate(${to[0]-a[0]}px,${to[1]-a[1]}px) scale(1.15)`,offset:.5},{transform:'translate(0,0)'}],{duration:ms||520,easing:'ease-in-out'})}
-function chint(){document.querySelectorAll('.hand-hint').forEach(e=>e.remove());if(S.lv!==0||S.turn>2||cdrag||csel!=null||cbusy||!$('ov').hidden)return;
- const sc=cgScore(S),f=document.createElement('span');f.className='hand-hint';f.textContent='👆';
- /* 第一关的示范：先铺珊瑚，再把小丑鱼放到珊瑚上 */
- let i=-1,t=null;const L=S.lanes[0],hasC=L.cells.some((x,c)=>c<L.front&&x.coral&&!x.c);
- if(!hasC){i=S.hand.findIndex(c=>c.id==='coral'&&S.energy>=1);t={l:0,c:L.front-1}}
- if(i<0){i=S.hand.findIndex(c=>c.id==='clown'&&S.energy>=1);const c=L.cells.findIndex((x,c)=>c<L.front&&x.coral&&!x.c);t=c>=0?{l:0,c}:null}
- if(i<0||!t){if(S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length))return;const b=rectOf($('cEnd'));f.classList.add('tap');f.style.left=b[0]+'px';f.style.top=b[1]+'px';document.body.appendChild(f);return}
- const c=document.querySelector(`#cHand .cc[data-h="${i}"]`),g=document.querySelector(`#cScene .cell[data-l="${t.l}"][data-c="${t.c}"]`);if(!c||!g||!c.animate)return;const a=rectOf(c),b=rectOf(g);f.style.left=a[0]+'px';f.style.top=a[1]+'px';document.body.appendChild(f);
- f.animate([{transform:'translate(0,0)',opacity:0},{transform:'translate(0,0)',opacity:1,offset:.15},{transform:`translate(${b[0]-a[0]}px,${b[1]-a[1]}px)`,opacity:1,offset:.8},{transform:`translate(${b[0]-a[0]}px,${b[1]-a[1]}px)`,opacity:0}],{duration:1900,iterations:Infinity,easing:'ease-in-out'})}
+function chint(){document.querySelectorAll('.hand-hint').forEach(e=>e.remove())}
 /* 回合结算：一条道一条道演 */
 async function cend(){if(cbusy||S.over)return;cbusy=true;csel=null;cinfo=null;cundo=[];crender();document.querySelectorAll('.hand-hint').forEach(e=>e.remove());const sc=cgScore(S),ev=cgEnd(S);
  for(let l=0;l<sc.length;l++){const r=sc[l],e=ev.lanes[l];if(r.done)continue;const lane=document.querySelector(`#cScene .lane[data-l="${l}"]`),duel=lane.querySelector('.duel'),pw=duel.querySelector('.pw'),pp=duel.querySelector('.pp'),front=rectOf(duel),cw=lane.getBoundingClientRect().width/NC;
@@ -61,7 +53,7 @@ async function cend(){if(cbusy||S.over)return;cbusy=true;csel=null;cinfo=null;cu
   r.U.forEach(u=>{const el=spEl(u.k.u);if(!el)return;if(e.wither.includes(u.col)){pop(rectOf(el),'−1','bad');el.classList.add('hurt');if(e.dead.includes(u.col)&&!(e.hit&&u.col===e.hit[0]))el.classList.add('die')}else if(e.heal.includes(u.col))pop(rectOf(el),'+♥','heal')});
   if(e.wither.length||e.heal.length)await cwait(420);lane.classList.remove('act')}
  if(S.over){await cwait(300);cbusy=false;cfinish();return}crender();cbusy=false;chint()}
-function cfinish(){const st=LV[S.lv];if(S.over==='lose'){SFX.lose();ov(`<h1>${S.lanes.some(L=>L.front<=0)?'一条水道被污染占满了':'回合用完了'}</h1><p>紧挨污染的那个生物替大家挨打，选血厚的顶在前面。够不着污染的生物不出力，记得往前补。</p><button class="go" data-cact="again">再试一次</button>`);return}
+function cfinish(){const st=LV[S.lv];if(S.over==='lose'){SFX.lose();ov(`<h1>${S.lanes.some(L=>L.front<=0)?'一条水道被污染占满了':'回合用完了'}</h1><p>紧挨污染的那个生物替大家挨打，选血厚的顶在前面。够不着污染的生物不出力，记得往前补。手牌不会自己来，留 1 点能量抽牌。</p><button class="go" data-cact="again">再试一次</button>`);return}
  SFX.win();const last=S.lv>=LV.length-1;ov(`<h1>${last?'整片礁净化完成':'净化完成'}</h1><button class="go" data-cact="${last?'again':'next'}">${last?'再玩一次':'下一关'}</button>`)}
 function intro(){const st=LV[S.lv],fr=st.fresh.filter(id=>!cSeen[id]);if(!fr.length){chint();return}fr.forEach(id=>cSeen[id]=1);csave();ov(`<h1 style="font-size:20px">新的记忆卡</h1><div class="newc">${fr.map(id=>`<div>${handCard(id)}${demoHTML(id)}<p>${CD[id].lg}</p></div>`).join('')}</div><button class="go" data-cact="close">开始</button>`);demoRun()}
 /* ---- 长按看效果：一小条水道，循环演示这张牌做什么 ---- */
@@ -114,7 +106,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)r
  if(t.id==='cLvB'){ov(`<h1 style="font-size:20px">选关</h1><div class="lvs">${LV.map((l,i)=>`<button class="go ${i===S.lv?'':'alt'}" data-golv="${i}">${i+1}　${l.n}</button>`).join('')}</div><button class="go alt" data-cact="close">返回</button>`);return}
  if(cbusy||S.over)return;
  if(t.id==='cUndo'){if(cundo.length){S=JSON.parse(cundo.pop());csel=cinfo=null;crender()}return}
- if(t.id==='cDis'){if(csel!=null&&cgSwap(S,csel)){csel=null;cundo=[];crender()}return}
+ if(t.id==='cDis'){const n0=S.hand.length;if(cgDrawAct(S)){csel=null;cundo=[];SFX.sun();crender();document.querySelectorAll('#cHand .cc').forEach((c,i)=>{if(i>=n0)c.classList.add('drop')})}return}
  if(t.id==='cEnd'){cend();return}
  if(d.u&&t.closest('#cScene')){const u=+d.u;if(csel!=null){const el=t.getBoundingClientRect(),q=cellAt(el.left+el.width/2,el.top+el.height/2);if(q&&cplay(csel,q.l,q.c))return}csel=null;cinfo=cinfo===u?null:u;crender();return}
  if(d.c!=null&&d.l!=null&&t.closest('#cScene')){const l=+d.l,c=+d.c;if(csel!=null){const k=S.hand[csel];if(cplay(csel,l,c))return;csay(cwhy(k,l,c),1);tone(140,.12,'square',.04)}else if(cinfo){cinfo=null;crender()}}});

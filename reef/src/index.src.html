@@ -412,6 +412,14 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
 .lvs{display:flex;flex-direction:column;gap:2px}
 .sheet .go.alt{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
 .chand .cc{height:104px}
+
+.drawb{display:flex;align-items:center;justify-content:center;gap:3px}
+.drawb b{font:800 15px var(--num);color:var(--ink)}
+.dk{position:relative;width:16px;height:22px;display:inline-block}
+.dk i{position:absolute;inset:0;border-radius:3px;background:linear-gradient(#1f6072,#134556);border:1.5px solid #5fa0b0}
+.dk i:first-child{transform:translate(3px,-3px)}
+#mCG .foot .icb.drawb{flex:0 0 76px}
+.chand .cc.drop{animation:dropc .35s cubic-bezier(.3,1.6,.5,1)}
 @media (prefers-reduced-motion:reduce){.sp .sw,.cell.tgt{animation:none}}
 @media (prefers-reduced-motion:reduce){.tgt,.home.warn,.table.shake{animation:none}}
 @media (prefers-reduced-motion:reduce){.sunb,.field .mw,.finger{animation:none}}
@@ -423,7 +431,7 @@ button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
   <div class="ctext" id="cText"></div>
   <div class="hbar"><div class="orbs" id="cOrbs"></div><span class="piles"><span class="pile" aria-label="牌库"><i id="cDeck">0</i></span><span class="pile dis" aria-label="弃牌"><i id="cDisP">0</i></span></span></div>
   <div class="chand" id="cHand"></div>
-  <div class="foot"><button id="cUndo" aria-label="撤销" class="icb"></button><button id="cDis" aria-label="换牌，花 1 点能量" class="icb"></button><button class="pri" id="cEnd">结束回合</button></div>
+  <div class="foot"><button id="cUndo" aria-label="撤销" class="icb"></button><button id="cDis" aria-label="花 1 点能量抽 2 张牌" class="icb drawb"></button><button class="pri" id="cEnd">结束回合</button></div>
  </div>
  <div id="mTD" class="mode" hidden>
  <div class="hud"><div class="en" id="enBox"><i></i><b id="en">0</b></div><div class="prog"><i id="pg"></i><s id="pgf"></s></div><span class="lv" id="lv"></span><button class="sm" id="bPrev" aria-label="上一关">‹</button><button class="sm" id="bNext" aria-label="下一关">›</button><button class="sm" id="bSnd" aria-label="声音">声</button></div>
