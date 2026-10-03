@@ -51,13 +51,13 @@ function crender(){const st=LV[S.lv],k=csel!=null?S.hand[csel]:(cdrag&&cdrag.mov
  $('cUndo').hidden=true;$('cDis').disabled=!cgCanDraw();
  const idle=!cbusy&&!S.over&&!S.hand.some(c=>CD[c.id].e<=S.energy&&cgTargets(S,c.id).length),drawHint=idle&&cgCanDraw()&&S.hand.length<5&&!(S.lv===0&&S.turn===1&&!cSeen.tutDone);$('cDis').classList.toggle('hintb',drawHint);$('cEnd').classList.toggle('ready',idle&&!drawHint);cdemo(hn)}
 /* 第一关的画面引导：该拿哪张牌、放到哪。lock=第一回合只认这一步，放错不花任何东西 */
-function chint(){if(!S||S.lv!==0||S.over||cbusy||cSeen.tutDone)return null;const f=foeIn(S,1),p=f?f.p:NC,hi=id=>S.hand.findIndex(k=>k.id===id&&CD[id].e<=S.energy),reef=Array.from({length:NC},(_,col)=>ci(1,col)).filter(c=>!polluted(S,c)),an=reef.filter(c=>S.cells[c].coral>0&&S.cells[c].kind==='anem'),lock=S.turn===1;let i;
- if(!an.length&&(i=hi('anem'))>=0)return {card:i,cell:ci(1,Math.max(0,Math.min(NC-1,p-2))),lock};
- if((i=hi('clown'))>=0){const c=an.filter(c=>S.cells[c].cs.length<capOf(S,c)).sort((a,b)=>b-a)[0];if(c!=null)return {card:i,cell:c,lock};const j=hi('anem'),u=an.filter(c=>S.cells[c].coral<3).sort((a,b)=>b-a)[0];if(j>=0&&u!=null)return {card:j,cell:u}}
+function chint(){if(!S||S.lv!==0||S.over||cbusy||cSeen.tutDone)return null;const f=foeIn(S,1),p=f?f.p:NC,hi=id=>S.hand.findIndex(k=>k.id===id&&CD[id].e<=S.energy),reef=Array.from({length:NC},(_,col)=>ci(1,col)).filter(c=>!polluted(S,c)),an=reef.filter(c=>S.cells[c].coral>0&&S.cells[c].kind==='anem'),lock=false,demo=S.turn===1;let i;
+ if(!an.length&&(i=hi('anem'))>=0)return {card:i,cell:ci(1,Math.max(0,Math.min(NC-1,p-2))),lock,demo};
+ if((i=hi('clown'))>=0){const c=an.filter(c=>S.cells[c].cs.length<capOf(S,c)).sort((a,b)=>b-a)[0];if(c!=null)return {card:i,cell:c,lock,demo};const j=hi('anem'),u=an.filter(c=>S.cells[c].coral<3).sort((a,b)=>b-a)[0];if(j>=0&&u!=null)return {card:j,cell:u}}
  if((i=hi('urchin'))>=0&&f&&p-1>=0){const c=ci(1,p-1);if(S.cells[c].cs.length<capOf(S,c)&&!S.cells[c].cs.some(o=>o.id==='urchin'))return {card:i,cell:c}}
  return null}
 /* 拖动示意：一张半透明的牌从手里滑到落点，最多演 3 遍，放对了立刻停 */
-let cdemoKey='',cdemoEl=null;function cdemo(hn){const key=hn&&hn.lock&&!cdrag&&csel==null?hn.card+':'+hn.cell+':'+S.hand.length:'';if(key===cdemoKey)return;cdemoKey=key;if(cdemoEl){cdemoEl.remove();cdemoEl=null}if(!key||window.__fast)return;
+let cdemoKey='',cdemoEl=null;function cdemo(hn){const key=hn&&hn.demo&&!cdrag&&csel==null?hn.card+':'+hn.cell+':'+S.hand.length:'';if(key===cdemoKey)return;cdemoKey=key;if(cdemoEl){cdemoEl.remove();cdemoEl=null}if(!key||window.__fast)return;
  requestAnimationFrame(()=>{if(cdemoKey!==key)return;const a=document.querySelector(`#cHand .cc[data-h="${hn.card}"]`),b=document.querySelector(`#cScene .slot[data-cell="${hn.cell}"]`);if(!a||!b||!a.animate)return;const A=rectOf(a),B=rectOf(b),g=document.createElement('div');g.className='dghost';g.innerHTML=a.querySelector('.art').innerHTML;document.body.appendChild(g);cdemoEl=g;
   const an=g.animate([{left:A[0]+'px',top:A[1]+'px',opacity:0},{left:A[0]+'px',top:A[1]+'px',opacity:.85,offset:.12},{left:B[0]+'px',top:B[1]+'px',opacity:.85,offset:.7},{left:B[0]+'px',top:B[1]+'px',opacity:0}],{duration:1700,delay:500,iterations:3,easing:'ease-in-out',fill:'both'});an.onfinish=()=>{if(cdemoEl===g){g.remove();cdemoEl=null}}})}
 
@@ -105,7 +105,7 @@ async function cend(){if(cbusy||S.over)return;cbusyOn(true);csel=null;cact=null;
   else if(e.t==='spawn'){await cwait(250);crender();e.us.forEach(o=>{const el=foeEl(o.u);if(!el)return;if(o.grow){pop(rectOf(el),'+'+o.grow,'bad');el.classList.add('hit')}else el.classList.add('enter')});tone(196,.3,'sawtooth',.06);await cwait(350)}
   if(S.over==='lose'&&heart<=0)break}
  await cwait(250);cbusyOn(false);crender();if(S.over)cfinish()}
-function cfinish(){const st=LV[S.lv];if(S.over==='win'&&S.lv===0&&!cSeen.tutDone){cSeen.tutDone=1;csave()}if(S.over==='lose'){SFX.lose();ov(`<h1>礁心被污染吞没了</h1><p>污染源离一条道最前面的生物 2 格以内，这条道才会结算。把血厚的顶到前面；把海葵叠高，让更多鱼挤在一起叠净化。</p><button class="go" data-cact="again">再试一次</button>`);return}
+function cfinish(){const st=LV[S.lv];if(S.over==='win'&&S.lv===0&&!cSeen.tutDone){cSeen.tutDone=1;csave()}if(S.over==='lose'){SFX.lose();ov(`<h1>礁心被污染吞没了</h1><p>污染源会一格格压过来，先打最前面那一格。把血厚的顶到前面；把海葵叠高，让更多鱼挤在一起叠净化。</p><button class="go" data-cact="again">再试一次</button>`);return}
  SFX.win();const last=S.lv>=LV.length-1,offer=cshuf(POOL.slice()).filter((v,i,a)=>a.indexOf(v)===i).slice(0,3);cfinish.offer=offer;cfinish.pick=null;
  ov(`<h1>${last?'这片礁净化完成':'净化完成'}</h1><p style="text-align:center">选 1 张记忆卡加入你的牌组。</p><div class="offer">${offer.map((k,i)=>handCard(k,`data-pick="${i}"`)).join('')}</div><p id="cPickInfo" style="font-size:13px;color:var(--dim);min-height:60px">点一张看说明，再点一次确认。</p>`)}
 function intro(){const st=LV[S.lv],fr=st.fresh.filter(id=>!cSeen[id]),ff=st.foes.filter(id=>!cSeen['f_'+id]);if(!fr.length&&!ff.length)return;fr.forEach(id=>cSeen[id]=1);ff.forEach(id=>cSeen['f_'+id]=1);csave();
