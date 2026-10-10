@@ -1452,6 +1452,18 @@ html:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidde
 .scbox.beach{background:linear-gradient(#e8d7a6,#d5bf86)}
 .scweed{position:absolute;left:0;right:0;height:50px;background:repeating-linear-gradient(100deg,rgba(60,110,70,.5) 0 9px,rgba(84,138,84,.42) 9px 20px);border-top:2px dashed rgba(40,80,50,.5);border-bottom:2px dashed rgba(40,80,50,.5)}
 .scsea{position:absolute;left:0;right:0;top:0;height:70px;background:linear-gradient(#1b8196,#59c0cf);border-radius:0 0 50% 50%/0 0 18px 18px}
+.wkwhere{margin:18px 0 6px;display:flex;flex-direction:column;gap:10px}
+.wkwhere .dmini{height:150px}.wkwhere .dmini svg{width:100%;height:100%;display:block}
+.wkhab{font-size:15.5px;line-height:1.65;margin:0}
+.wkdep{margin:0;font-size:15.5px;line-height:1.6}.wkdep b{display:inline-block;margin-right:8px;font-size:12.5px;color:var(--muted);font-weight:700}
+.wsum{margin:0;font-size:14.5px;line-height:1.6;color:var(--muted)}.wsum b{color:var(--ink)}
+.wgrp{display:flex;flex-direction:column;gap:6px}.wgc{font-size:12.5px;color:var(--muted);letter-spacing:.06em;margin-top:4px}
+.wrow{display:flex;flex-direction:column;gap:3px;text-align:left;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 14px;color:var(--ink)}
+.wrow .wn{display:flex;align-items:center;gap:8px;justify-content:space-between}.wrow .wn b{font-size:16px}
+.wrow .ws{font-size:13.5px;color:var(--muted);line-height:1.45}
+.wl{font-style:normal;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;flex:none;background:rgba(255,255,255,.08);color:var(--muted)}
+.wl-a{background:rgba(79,211,154,.16);color:#4fd39a}.wl-s{background:rgba(245,197,66,.16);color:#f5c542}.wl-d{background:rgba(120,180,255,.14);color:#8fc0ff}
+.wnote{margin:0;font-size:12.5px;color:var(--muted)}
 </style>
 <style>html,body{background:#071a20}</style>
 </head>
@@ -3948,6 +3960,24 @@ function bindWiki(el){const q=el.querySelector('#wkq');if(!q)return;let t;q.addE
  q.addEventListener('keydown',e=>{if(e.key==='Enter')q.blur();if(e.key==='Escape'){q.value='';WK.q='';wkRender()}})}
 
 /* ---- 详情 ---- */
+/* 危险提示：按它到底怎么伤人来写，不再一律“有毒或会蜇伤” */
+function dangerTag(sci,b){const n=b[0],g=b[4],f=b[5]||'';if(!/[vd]/.test(f))return'';if(f.includes('d'))return'大型掠食者，保持距离';
+ if(g==='c')return'会蜇人，别碰';if(g==='r')return/鳄/.test(n)?'会咬人，远离':'有剧毒，别碰';if(/芋螺|豹纹蛸|蓝环/.test(n))return'有剧毒，别碰';
+ if(g==='e')return/海星/.test(n)?'棘刺有毒，别碰':'刺很尖，有的有毒，别碰';if(g==='s')return/魟|鲼|鳐/.test(n)?'尾刺有毒，别惊扰':'会咬人，保持距离';
+ if(/鲉|鳗鲶|篮子鱼|瞻星|鲇/.test(n))return'鳍刺有毒，别碰';if(/鲀/.test(n))return'体内有毒，别碰';if(/刺尾鱼|鼻鱼/.test(n))return'尾柄有利刃，别碰';
+ if(/鳝|鳗|鳞鲀|狼鱼|鮟鱇|金梭|鲛|鲅|石斑|沙蚕|章鱼|乌贼/.test(n)||g==='m')return'会咬人，保持距离';if(/螳螂虾|虾蛄|口足/.test(n))return'出拳很重，别伸手';
+ if(/科尔曼虾/.test(n))return'住在有毒的海胆上，别碰';if(g==='x')return'会夹人，别伸手';if(/江珧/.test(n))return'壳缘锋利，别碰';return'别碰，保持距离'}
+/* 物种页“在哪能看到”：百科里的分布与深度 + 潜学收录潜点里的记录（小地图、按国家分组、记录强弱） */
+const REC_ORD={a:0,s:1,d:2,l:3,r:4};
+function wkWhere(sci,X){const L=typeof DSITES!=='undefined'?DSITES.filter(s=>s.pop!=='closed'&&siteHas(s,sci)):[];
+ const rec=s=>{const x=typeof SITEX!=='undefined'&&SITEX[s.id],r=x&&x.sp.find(q=>q[0]===sci);return r||(s.sp.includes(sci)?[sci,'a','可见','','']:[sci,'r','有记录','',''])};
+ const rows=L.map(s=>({s,r:rec(s)})).sort((a,b)=>(REC_ORD[a.r[1]]??5)-(REC_ORD[b.r[1]]??5)),cn=s=>s.c.split(' · ')[0],cs=[...new Set(rows.map(o=>cn(o.s)))];
+ const hab=X&&X.hab?`<p class="wkhab">${esc(X.hab)}</p>`:'',dep=X&&X.dep?`<p class="wkdep"><b>常见深度</b>${esc(X.dep)}</p>`:'',dist=X&&X.dist?`<p class="wkdep"><b>分布</b>${esc(X.dist)}</p>`:'';
+ if(!rows.length&&!hab&&!dep&&!dist)return'';
+ const row=o=>`<button class="wrow" data-site="${o.s.id}"><span class="wn"><b>${esc(dvSn(o.s))}</b><i class="wl wl-${o.r[1]}">${esc(o.r[2]||'有记录')}</i></span>${o.r[4]||o.r[3]?`<span class="ws">${esc([o.r[4],o.r[3]].filter(Boolean).join(' · '))}</span>`:''}</button>`;
+ const grp=list=>{const g={};list.forEach(o=>(g[cn(o.s)]=g[cn(o.s)]||[]).push(o));return Object.entries(g).map(([c,a])=>`<div class="wgrp"><span class="wgc">${esc(c)}</span>${a.map(row).join('')}</div>`).join('')};
+ const top=rows.slice(0,6),rest=rows.slice(6);
+ return `<section class="wkwhere"><span class="eyebrow">在哪能看到</span>${dist}${dep}${hab}${rows.length?`${miniMap(rows.map(o=>o.s),null,{minw:120})}<p class="wsum">潜学收录的潜点里，<b>${rows.length}</b> 个有它的记录：${esc(cs.slice(0,6).join('、'))}${cs.length>6?` 等 ${cs.length} 个国家和地区`:''}。</p>${grp(top)}${rest.length?`<details class="wkmore"><summary>再看 ${rest.length} 个潜点</summary>${grp(rest)}</details>`:''}<p class="wnote">以上是潜学收录的潜点里的记录，不代表它全部的分布范围。</p>`:'<p class="wnote">潜学收录的潜点里还没有它的记录。</p>'}</section>`}
 function wkBio(sci){const b=BIO[sci];if(!b)return;const k=wkKey(sci),iu=b[6]&&IUCN[b[6]],P=wkPaths()[sci],X=typeof BIOX!=='undefined'&&BIOX[sci];let chain=[],art=null;
  if(P){let n=TREE;P.forEach(i=>{n=n.c[i];if(n.art)art=n.art;chain.push(n)});chain.pop()}
  const d=typeof DSP!=='undefined'&&DSP[sci];if(d&&d[4]&&A[d[4]])art=d[4];const arts=[...new Set([art,...wkArts(sci)].filter(a=>a&&A[a]))].slice(0,3);
@@ -3956,14 +3986,14 @@ function wkBio(sci){const b=BIO[sci];if(!b)return;const k=wkKey(sci),iu=b[6]&&IU
  const names=`<dl class="wknames"><dt>正式名</dt><dd>${esc(b[0])}</dd>${al.length?`<dt>俗名</dt><dd>${al.map(a=>`<span class="nm">${esc(a)}</span>`).join('')}</dd>`:''}${b[3]?`<dt>英文</dt><dd>${esc(b[3]).split(', ').join('<br>')}</dd>`:''}<dt>学名</dt><dd class="sci">${esc(sci)}</dd></dl>`;
  const siteBox=sites?`<section class="wksites"><span class="eyebrow">去哪里看 · ${sites} 个潜点</span><div class="dlist">${DSITES.filter(x=>siteHas(x,sci)&&x.pop!=='closed').sort((x,y)=>dvKeyM(y,sci).m.includes(NOWM)-dvKeyM(x,sci).m.includes(NOWM)||POPORD[x.pop]-POPORD[y.pop]).slice(0,4).map(x=>siteRow(x,sci)).join('')}</div></section>`:'';
  const body=X?`${X.q?`<p class="wkq">${esc(X.q)}</p>`:''}${X.c&&X.c.length?`<div class="wkid">${X.c.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`:''}
-  <div class="wkbadges">${iu?`<span class="iu ${iu[1]}">IUCN：${iu[0]}（${b[6]}）</span>`:''}${b[5].includes('v')?'<span class="tv">有毒或会蜇伤，别碰</span>':''}${b[5].includes('d')?'<span class="tv">大型动物，保持距离</span>':''}${b[5].includes('b')?'<span class="tb">保和常见</span>':''}</div>
-  ${X.w?`<p class="wkwarn">⚠︎ ${esc(X.w)}</p>`:''}${X.lite?'<p class="wklite">简版词条：来自潜点资料的识别要点，详细介绍待补充。</p>':''}${(X.funs&&X.funs.length)||X.fun?`<div class="wkfun"><span class="eyebrow">你知道吗</span>${(X.funs&&X.funs.length?X.funs:[X.fun]).map(f=>`<p>${esc(f)}</p>`).join('')}</div>`:''}
+  <div class="wkbadges">${iu?`<span class="iu ${iu[1]}">IUCN：${iu[0]}（${b[6]}）</span>`:''}${(t=>t?`<span class="tv">${t}</span>`:'')(dangerTag(sci,b))}${b[5].includes('b')?'<span class="tb">保和常见</span>':''}</div>
+  ${X.w?`<p class="wkwarn">⚠︎ ${esc(X.w)}</p>`:''}${X.lite?'<p class="wklite">简版词条：来自潜点资料的识别要点，详细介绍待补充。</p>':''}${wkWhere(sci,X)}${(X.funs&&X.funs.length)||X.fun?`<div class="wkfun"><span class="eyebrow">你知道吗</span>${(X.funs&&X.funs.length?X.funs:[X.fun]).map(f=>`<p>${esc(f)}</p>`).join('')}</div>`:''}
   <div class="wktabs" role="tablist" style="grid-template-columns:repeat(${X.eat||X.rep||X.eco?3:2},1fr)"><button role="tab" data-wktab="0" aria-selected="true">认一认</button>${X.eat||X.rep||X.eco?'<button role="tab" data-wktab="1" aria-selected="false">它的生活</button>':''}<button role="tab" data-wktab="2" aria-selected="false">潜水观察</button></div>
   <div class="wkpan" data-pan="0">${P_(X.id)}${X.sim?`<details class="wkmore"><summary>容易和谁认错？</summary>${P_(X.sim)}</details>`:''}<details class="wkmore"${X.name?' open':''}><summary>名字由来</summary>${X.name?`<p>${esc(X.name)}</p>`:''}${names}</details></div>
   <div class="wkpan" data-pan="1" hidden>${X.eat?`<h4>吃什么、怎么吃</h4>${P_(X.eat)}`:''}${X.rep?`<h4>繁殖与成长</h4>${P_(X.rep)}`:''}${X.eco?`<h4>在海里扮演的角色</h4>${P_(X.eco)}`:''}</div>
-  <div class="wkpan" data-pan="2" hidden>${P_(X.obs)}<dl class="wkkv">${X.size?`<dt>体型</dt><dd>${esc(X.size)}</dd>`:''}${X.hab?`<dt>在哪找</dt><dd>${esc(X.hab)}</dd>`:''}${X.loc?`<dt>在保和</dt><dd>${esc(X.loc)}</dd>`:''}</dl>${siteBox}</div>
+  <div class="wkpan" data-pan="2" hidden>${P_(X.obs)}<dl class="wkkv">${X.size?`<dt>体型</dt><dd>${esc(X.size)}</dd>`:''}${X.loc?`<dt>在保和</dt><dd>${esc(X.loc)}</dd>`:''}</dl></div>
   <details class="wkmore wksrc"><summary>资料来源${X.unc&&X.unc.length?'与待确认':''}</summary>${X.unc&&X.unc.length?`<ul class="wkunc">${X.unc.map(u=>`<li>${esc(u)}</li>`).join('')}</ul>`:''}${X.scope?`<p class="dim">${esc(X.scope)}</p>`:''}<ol class="wksrcl">${(X.src||[]).map(s=>`<li><a href="${esc(s[1])}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join('')}</ol></details>`
- :`<div class="wkbadges">${iu?`<span class="iu ${iu[1]}">IUCN：${iu[0]}（${b[6]}）</span>`:''}${b[5].includes('v')?'<span class="tv">有毒或会蜇伤，别碰</span>':''}${b[5].includes('d')?'<span class="tv">大型动物，保持距离</span>':''}${b[5].includes('b')?'<span class="tb">保和常见</span>':''}</div>${names}${wkDesc(sci,b)?`<p>${esc(wkDesc(sci,b))}</p>`:''}${siteBox}`;
+ :`<div class="wkbadges">${iu?`<span class="iu ${iu[1]}">IUCN：${iu[0]}（${b[6]}）</span>`:''}${(t=>t?`<span class="tv">${t}</span>`:'')(dangerTag(sci,b))}${b[5].includes('b')?'<span class="tb">保和常见</span>':''}</div>${names}${wkDesc(sci,b)?`<p>${esc(wkDesc(sci,b))}</p>`:''}${wkWhere(sci,null)}`;
  const el=$('#sheet');el.hidden=false;
  el.innerHTML=`<div class="scrim" data-close="1"></div><div class="sheetbox wksheet" role="dialog" aria-label="${esc(b[0])}">${k?`<div class="olsph">${slotHTML(k,'','cover')}</div>`:`<div class="olsph ph0"><div class="slot">${portrait(wkPic(sci),12)}</div></div>`}
   <span class="eyebrow">${esc(gn)}${b[1]!=='种'?' · '+esc(b[1]):''}</span><h3>${esc(b[0])}</h3><span class="sci">${esc(sci)}</span>
