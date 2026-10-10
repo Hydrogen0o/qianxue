@@ -1293,6 +1293,9 @@ html:has(#tab-start:not([hidden])>.page:not([hidden]) .hero.full){overflow:hidde
 .pimg img{width:100%;height:100%;object-fit:cover;display:block}
 .pshow{margin:0;border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line)}
 .pshow figcaption{padding:12px 16px 14px;font-size:19px;line-height:1.5;display:flex;flex-direction:column;gap:2px}
+.pcard figcaption b{font-size:24px;color:var(--ink)}
+.pcard figcaption em{font-style:normal;font-size:17px;line-height:1.55;color:var(--muted)}
+.pcard .qktags i{font-size:14.5px;padding:3px 10px}
 .pshow figcaption b{font-size:14px;color:var(--deep)}
 .pflip{position:relative;display:block;width:100%;padding:0;border:2px dashed #4fd39a;border-radius:20px;overflow:hidden;background:var(--surface);color:var(--ink);text-align:left}
 .pflip .pq{display:block;text-align:center;padding:14px;font-size:19px;font-weight:800;color:#4fd39a}
@@ -3253,35 +3256,26 @@ const QKEASY={"nemo":["小丑鱼住在海葵里，海葵就是它的家。雀鲷
 const PBASIC=[["h","先看外形"],["p","认生物的第一步，先不看颜色，看它长什么样子。"],["show","Chaetodon auriga","扁扁的，像盘子"],["show","Rhinomuraena quaesita","长长的，像带子"],["show","Taeniura lymma","平平的，像一张饼"],["show","Arothron nigropunctatus","圆滚滚，像个球"],["sc","shadow"],["h","再看颜色和花纹"],["p","外形看好了，再看它身上有什么：条纹，还是斑点？"],["show","Amphiprion ocellaris","橙色，三条白带"],["show","Rhincodon typus","深色，满身白点"],["p","可是颜色会骗人。有的鱼小时候和长大后完全两个样；有的鱼自己会变色。所以先看外形，再看颜色。"],["sc","grow"],["sc","camo"],["h","动物的家"],["p","每种生物都有自己住的地方，叫“栖息地”。知道它住哪里，就知道去哪里找它。"],["show","Amphiprion ocellaris","小丑鱼：海葵里"],["show","Heteroconger hassi","花园鳗：沙洞里"],["show","Hippocampus bargibanti","海马：海扇上"],["show","Caranx sexfasciatus","鲹鱼：蓝水里"],["sc","home"],["sc","guard"],["h","看它在做什么"],["p","每种鱼都有自己的本事。先认识四位，再去和它们玩。"],["show","Labroides dimidiatus","裂唇鱼：给别的鱼“洗澡”"],["show","Antennarius commerson","躄鱼：装成海绵，等小鱼"],["show","Caranx sexfasciatus","鲹鱼：一大群一起游"],["show","Chelonia mydas","海龟：到水面换气"],["sc","clean"],["sc","ambush"],["sc","school"],["sc","breath"],["h","水下三件事"],["p","不摸：珊瑚很脆弱，碰一下就会受伤。"],["p","不追：你游得快，它就害怕。慢慢靠近，它才不怕你。"],["p","不喂：它们自己会找吃的。"],["sc","diver"],["h","终极挑战"],["p","鱼为什么挤成一群？因为一起游更安全。鲨鱼来了，看你能不能带大家脱险。"],["sc","escape"]];
 /* ---------- 初级：一直往下滑、边滑边玩的课（戳一戳、手电筒、拼图、翻翻乐、捞一捞、送回家、别动） ---------- */
 const pSh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const PBASIC0=[["h","先看外形"],["p","认生物的第一步，先不看颜色，看它长什么样子。"],["show","Chaetodon auriga","扁扁的，像一个盘子"],["show","Rhinomuraena quaesita","长长的，像一条带子"],["show","Taeniura lymma","平平的，像一张饼"],["show","Arothron nigropunctatus","圆滚滚的，像一个球"],["pick","哪一个平平的，像一张饼？","Taeniura lymma",["Chaetodon auriga","Arothron nigropunctatus","Amphiprion ocellaris"]],["pick","哪一个扁扁的，像一个盘子？","Chaetodon auriga",["Rhinomuraena quaesita","Taeniura lymma","Rhincodon typus"]],["tf","认生物，第一步先看外形。",1,"外形最不容易变，颜色会骗人。"],["h","再看颜色和花纹"],["p","外形看好了，再看它身上有什么：条纹，还是斑点？"],["show","Amphiprion ocellaris","橙色身体，三条白色条纹"],["show","Rhincodon typus","深色身体，满身白点"],["show","Laticauda colubrina","一圈黑，一圈白"],["pick","谁的身上满是白点？","Rhincodon typus",["Amphiprion ocellaris","Chelonia mydas","Laticauda colubrina"]],["p","小心：有些鱼小时候和长大以后，颜色完全不一样。"],["tf","颜色一样的鱼，一定是同一种鱼。",0,"很多鱼小时候和长大后颜色不同，不同的鱼也可能颜色很像。"],["h","看它住在哪里"],["p","每种生物都有自己喜欢待的地方。知道它住哪里，就更容易找到它。"],["show","Amphiprion ocellaris","住在海葵里"],["show","Hippocampus bargibanti","住在海扇上，和海扇长得一样"],["show","Heteroconger hassi","住在沙地的洞里，只露出半截"],["show","Caranx sexfasciatus","住在礁石外面的蓝水里"],["pick","谁住在海葵里？","Amphiprion ocellaris",["Caranx sexfasciatus","Heteroconger hassi","Rhincodon typus"]],["pick","谁住在沙地的洞里？","Heteroconger hassi",["Amphiprion ocellaris","Chelonia mydas","Hippocampus bargibanti"]],["h","看它在做什么"],["p","最后看动作。它是一个人，还是一大群？在游，还是一动不动？"],["show","Caranx sexfasciatus","很多条一起游，像一团云"],["show","Antennarius commerson","一动不动，装成一块海绵"],["show","Labroides dimidiatus","给别的鱼“洗澡”，吃掉它们身上的小虫"],["show","Chelonia mydas","游到水面上去换气"],["pick","谁一动不动，装成海绵？","Antennarius commerson",["Caranx sexfasciatus","Labroides dimidiatus","Chelonia mydas"]],["tf","海龟可以一直待在水下，不用上来。",0,"海龟用肺呼吸，要到水面换气。"],["h","水下三件事"],["p","看海里的生物，记住三件事：不摸，不追，不喂。"],["p","不摸：有的生物很脆弱，有的有毒。"],["tf","看到漂亮的珊瑚，可以摸一下。",0,"珊瑚很脆弱，碰一下就可能受伤。"],["p","不追：你一追，它就害怕，游走了。"],["tf","慢慢地、安静地看，能看到更多。",1,"你不动，它们才会放心地做自己的事。"],["p","不喂：它们自己会找吃的。"],["h","考考你"],["p","四步记住了吗？外形，颜色，住哪里，做什么。"],["name","Amphiprion ocellaris"],["name","Rhincodon typus"],["name","Chelonia mydas"],["name","Taeniura lymma"]];
+/* 初级课：一直往下滑的图文课，没有小游戏、没有答题。原来“对还是错”里的知识点改成一句话直接讲出来。 */
+const tfLine=t=>t[1]?t[0]+t[2]:t[2];
 function playBlocks(id){const ok=k=>BIO[k]&&hasPh('sp-'+slotKey(k));
- if(id==='basic')return PBASIC.map(b=>{const t=b[0];if(t==='show'||t==='still')return ok(b[1])?b:null;if(t==='mem'){const L=b[1].filter(ok);return L.length>=3?['mem',L]:null}
-  if(t==='catch'){const o=b[2].filter(ok);return ok(b[1])&&o.length?['catch',b[1],o]:null}if(t==='home'){const I=b[1].filter(x=>ok(x[0]));return I.length>=2?['home',I,b[2]]:null}return b}).filter(Boolean);
+ if(id==='basic')return PBASIC0.map(b=>{if(b[0]==='h'&&b[1]==='考考你')return ['h','记住四步'];if(b[0]==='h'||b[0]==='p')return b;if(b[0]==='show')return ok(b[1])?b:null;if(b[0]==='tf')return ['p',tfLine(b.slice(1))];return null}).filter(Boolean);
  const E=QKEASY[id],L=qkList(id).slice(0,8),B=[];if(!L.length)return[['p',E[0]]];
- B.push(['h','它们是谁'],['p',E[0]],['poke',L[0],E[1]]);
- if(QKGAME[id]){B.push(['h','挑战'],['p',QKGAME[id][1]]);QKGAME[id][0].forEach(k=>B.push(['sc',k]))}
- B.push(['h','一个一个认识'],['p','点一下，翻开看看它是谁。']);L.forEach(k=>B.push(['flip',k]));
- if(L.length>=4)B.push(['h','翻翻乐'],['p','找到两张一样的，它就告诉你名字。'],['mem',L.slice(0,4)]);
+ B.push(['h','它们是谁'],['p',E[0]]);if(typeof QKGAME!=='undefined'&&QKGAME[id])B.push(['p',QKGAME[id][1].replace(/先把它们找出来，再看躄鱼怎么捕食。?/,'因为一动，就会被发现；躄鱼就靠这样埋伏，等小鱼游到嘴边。')]);
+ B.push(['h','怎么认']);E[1].forEach(t=>B.push(['p',t]));
+ B.push(['h','一个一个认识']);L.forEach(k=>B.push(['card',k]));
  B.push(['h','去哪里找'],['p',E[2]]);
  return B}
-const QKGAME={nemo:[['guard'],'小丑鱼离不开海葵，还会拼命保护它。'],wrasse:[['clean'],'隆头鱼里有一位“清洁工”，叫裂唇鱼。大鱼会排队等它。'],camo:[['hide','ambush'],'伪装的鱼为什么一动不动？先把它们找出来，再看躄鱼怎么捕食。'],school:[['school','escape'],'落单的鱼最危险，挤成一群才安全。'],turtle:[['hatch','breath'],'小海龟一出壳就要冲向大海；长大后，还得时不时上水面换气。'],eel:[['react'],'河鲀和海鳝都有点吓人，其实它们只是在保护自己。']};
-function playPage(meta){const id=meta.id,B=playBlocks(id),X=typeof BIOX!=='undefined'?BIOX:{},title=id==='basic'?'认生物基础':qkSec(id).n;
- const G=['flip','poke','mem','still','sc'],SCN={n:0},N=B.filter(b=>G.includes(b[0])).length,pic=k=>`<span class="pimg">${qkPic(k)}</span>`,nm=k=>esc(BIO[k][0].replace(/／.*/,''));let ch=0;
- const ans=k=>{const c=(X[k]&&X[k].c)||[],q=(X[k]&&X[k].q)||BIO[k][7];return `<span class="pa"><b>${nm(k)}</b>${c.length?`<span class="qktags">${c.slice(0,3).map(x=>`<i>${esc(x)}</i>`).join('')}</span>`:''}${q?`<em>${esc(q)}</em>`:''}</span>`};
+function playPage(meta){const id=meta.id,B=playBlocks(id),X=typeof BIOX!=='undefined'?BIOX:{},title=id==='basic'?'认生物基础':qkSec(id).n,pic=k=>`<span class="pimg">${qkPic(k)}</span>`,nm=k=>esc(BIO[k][0].replace(/／.*/,''));let ch=0;
  const html=B.map(b=>{const t=b[0],k=b[1];
-  if(t==='h')return `<h2 class="ph"><i>第 ${++ch} 关</i>${k}</h2>`;
+  if(t==='h')return `<h2 class="ph"><i>${++ch}</i>${k}</h2>`;
   if(t==='p')return `<p class="pp">${k}</p>`;
-  if(t==='show')return `<figure class="pshow">${pic(k)}<figcaption>${b[2]}</figcaption></figure>`;
-  if(t==='flip')return `<button class="pflip gm" data-pflip="1">${pic(k)}<span class="pq">点一下，翻开</span>${ans(k)}</button>`;
-  if(t==='poke')return `<div class="pgame gm pk"><span class="pgt">戳一戳</span><p class="pkh">戳照片 ${b[2].length} 下，每戳一下发现一个特点</p><button class="pkbox" data-poke="1">${pic(k)}</button><div class="pkl">${b[2].map(x=>`<span class="pkb" hidden>${x}</span>`).join('')}</div></div>`;
-  if(t==='torch')return `<div class="pgame gm tc"><span class="pgt">夜潜手电筒</span><p class="pkh">天黑了。手指就是手电筒，在黑暗里来回照</p><div class="tcbox">${pic(k)}<canvas></canvas></div>${ans(k)}</div>`;
-  if(t==='jig'){let P;do{P=pSh([0,1,2,3,4,5,6,7,8])}while(P.every((v,i)=>v===i));return `<div class="pgame gm jg"><span class="pgt">拼图</span><p class="pkh">点两块，它们就换位置</p><div class="jgrid">${P.map(v=>`<button class="jt" data-jig="${v}" style="--x:${v%3};--y:${Math.floor(v/3)}">${qkPic(k)}</button>`).join('')}</div>${ans(k)}</div>`}
-  if(t==='mem')return `<div class="pgame gm mm"><span class="pgt">翻翻乐</span><p class="pkh">一次翻两张，找到一样的</p><div class="mgridp">${pSh([...k,...k]).map(q=>`<button class="mc" data-mem="${esc(q)}"><span class="mcb">${qkPic(q)}<i>${nm(q)}</i></span></button>`).join('')}</div></div>`;
-  if(t==='catch')return `<div class="pgame gm ct" data-target="${esc(k)}" data-others="${esc(b[2].join('|'))}"><span class="pgt">捞一捞</span><div class="ctref"><span>${qkPic(k)}</span><p class="pkh">它们游过来了！只点<b>${nm(k)}</b>，点到 5 次</p></div><div class="arena"><button class="ctgo" data-ctgo="1">开始</button></div><p class="ctn mono">0 / 5</p></div>`;
-  if(t==='home')return `<div class="pgame gm hm"><span class="pgt">送它回家</span><p class="pkh">按住圆圈，拖到它住的地方</p><div class="hzones">${b[2].map((z,i)=>k.some(x=>x[1]===i)?`<div class="hz" data-z="${i}"><b>${z}</b></div>`:'').join('')}</div><div class="htray">${pSh(k).map(([q,z])=>`<div class="htk" data-z="${z}">${qkPic(q)}<i>${nm(q)}</i></div>`).join('')}</div></div>`;
-  if(t==='sc'){const m=SCMETA[k];return `<div class="pgame gm sc" data-sc="${k}"><span class="pgt">${k==='escape'?'终极挑战':'挑战 '+(++SCN.n)} · ${m[0]}</span><p class="pkh">${m[1]}</p><div class="scbox" style="height:${m[2]}px${m[3]?';touch-action:none':''}"></div><p class="scgoal mono">${m[4]}</p></div>`}
-  if(t==='still')return `<div class="pgame gm sl"><span class="pgt">别动</span><p class="pkh">它在远处。按住按钮不松手，看看会怎样</p><div class="slbox"><span class="slf">${qkPic(k)}</span></div><button class="slb" type="button">按住，别动</button><p class="pfb" hidden></p></div>`;
-  return''}).join('').replace(/(?:<figure class="pshow">.*?<\/figure>){2,}/g,m=>`<div class="pshows">${m}</div>`);
- return bar(title,meta,`<span class="pstar mono">⭐ <b>0</b>/${N}</span>`)+`<div class="play" data-n="${N}" data-id="${id}">${html}<section class="pend"><span class="pendstar">⭐</span><h2>还有没玩的</h2><p>往上找找，把每个小游戏都玩一遍。</p><button class="cta2" data-back="1">回去看照片</button>${id!=='basic'&&QKART[id]&&A[QKART[id]]?`<button class="mini" data-open="${QKART[id]}">想学更多：${A[QKART[id]].title} ›</button>`:''}</section></div>`}
+  if(t==='show')return `<figure class="pshow">${pic(k)}<figcaption><b>${nm(k)}</b>${b[2]}</figcaption></figure>`;
+  if(t==='card'){const c=(X[k]&&X[k].c)||[],q=(X[k]&&X[k].q)||BIO[k][7];return `<figure class="pshow pcard">${pic(k)}<figcaption><b>${nm(k)}</b>${c.length?`<span class="qktags">${c.slice(0,3).map(x=>`<i>${esc(x)}</i>`).join('')}</span>`:''}${q?`<em>${esc(q)}</em>`:''}</figcaption></figure>`}
+  return''}).join('');
+ try{st.play=st.play||{};st.play[id]=1;save()}catch(e){}
+ return bar(title,meta)+`<div class="play" data-id="${id}">${html}<section class="pend win"><h2>读完了</h2>${id!=='basic'&&QKART[id]&&A[QKART[id]]?`<button class="mini" data-open="${QKART[id]}">想学更多：${A[QKART[id]].title} ›</button>`:''}</section></div>`}
 function playWin(g){if(g.dataset.done)return;g.dataset.done=1;g.classList.add('done');const root=g.closest('.play'),pg=root.closest('.page'),n=root.querySelectorAll('.gm[data-done]').length,N=+root.dataset.n;
  const s2=pg.querySelector('.pstar b');if(s2){s2.textContent=n;const w=s2.parentNode;w.classList.remove('pop');void w.offsetWidth;w.classList.add('pop')}
  if(n>=N){const e=root.querySelector('.pend');e.classList.add('win');e.querySelector('h2').textContent='全部玩完了！';e.querySelector('p').textContent='你拿到了 '+N+' 颗星。';st.play=st.play||{};st.play[root.dataset.id]=1;save()}}
